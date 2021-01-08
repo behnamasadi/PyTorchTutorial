@@ -1,2 +1,4 @@
 /temp
 /data
+*.pyc
+*/runs/
