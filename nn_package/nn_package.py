@@ -32,10 +32,15 @@ y_predict = model1(x)
 #print(torch.sum(model2(x) - y_predict))
 print(model2(x)[0] - y_predict[0])
 
-make_dot(model1(x), params=dict(model1.named_parameters())).render("model1", format="svg")
-make_dot(model2(x), params=dict(model2.named_parameters())).render("model2", format="svg")
+graph1=make_dot(model1(x), params=dict(model1.named_parameters()))
+graph1.format='svg'
+graph1.render()
+graph1.save("images/model1.svg")
 
-
+graph2=make_dot(model2(x), params=dict(model2.named_parameters()))
+graph2.format='svg'
+graph2.render()
+graph2.save("images/model2.svg")
 
 for i in range(number_of_iterations):
     y_predict=model1(x)
