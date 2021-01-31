@@ -233,12 +233,17 @@ writer.close()
 
 
 running_loss = 0.0
-for epoch in range(1):  # loop over the dataset multiple times
+number_of_epochs=1
+for epoch in range(number_of_epochs):  # loop over the dataset multiple times
 
     for i, data in enumerate(mnist_data_train, 0):
 
         # get the inputs; data is a list of [inputs, labels]
         inputs, labels = data
+        inputs=inputs.view(-1,inputs.shape[0],inputs.shape[1],inputs.shape[2])
+        labels=torch.tensor(labels)
+        labels=labels.view(-1, inputs.shape[0])
+        print('*********************************',type(labels))
 
         # zero the parameter gradients
         optimizer.zero_grad()
