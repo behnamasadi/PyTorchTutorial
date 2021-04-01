@@ -1,11 +1,7 @@
 import torch
 from torchviz import make_dot, make_dot_from_trace
 
-
-if torch.cuda.is_available():
-    dev=torch.device("cuda")
-else:
-    dev = torch.device("cpu")
+dev = torch.device("cpu")
 
 N,D_in,H, D_out=64, 1000, 100, 10
 learning_rate=1e-6
@@ -34,13 +30,13 @@ print(model2(x)[0] - y_predict[0])
 
 graph1=make_dot(model1(x), params=dict(model1.named_parameters()))
 graph1.format='svg'
-graph1.render()
-graph1.save("images/model1.svg")
+graph1.render(filename='model1', directory='../images')
+
 
 graph2=make_dot(model2(x), params=dict(model2.named_parameters()))
 graph2.format='svg'
-graph2.render()
-graph2.save("images/model2.svg")
+graph2.render(filename='model2', directory='../images')
+
 
 for i in range(number_of_iterations):
     y_predict=model1(x)

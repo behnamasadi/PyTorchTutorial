@@ -16,5 +16,5 @@ print(model(input))
 
 dot=torchviz.make_dot(model(input),params=dict(model.named_parameters()) )
 dot.format='svg'
-dot.render()
-dot.save('images/graph.svg')
+dot.render(filename='example_graph', directory='../images')
+#dot.save('images/graph.svg')

@@ -1,5 +1,6 @@
 /temp
 /data
+/images
 *.pyc
 */runs/
 .ipynb_checkpoints
