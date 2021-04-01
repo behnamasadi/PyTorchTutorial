@@ -1,9 +1,11 @@
 # PyTorchTutorial
 
 Create environment:
+
 `conda create -n PythonTutorial`
 
 Activate it:
+
 `conda activate PythonTutorial`
 
 Install pytorch, torchvision and cuda:
@@ -11,9 +13,11 @@ Install pytorch, torchvision and cuda:
 `conda install pytorch torchvision torchaudio cudatoolkit=10.2 -c pytorch`
 
 Install tensorboard:
+
 `conda install  tensorboard`
 
 Install matplotlib:
+
 `conda install -c conda-forge matplotlib`
 
 Install `torchviz` for visualizations of execution graphs 
