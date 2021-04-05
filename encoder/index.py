@@ -4,16 +4,13 @@
 import torch
 import torchvision
 import matplotlib.pyplot as plt
+import torchviz
 
 
 class AE(torch.nn.Module):
     def __init__(self, **kwargs):
         super().__init__()
-
-        #torch.de
-
         in_features = kwargs["input_shape"]
-        #out_features = kwargs["output_shape"]
 
         self.encoder_hidden_layer = torch.nn.Linear(in_features=in_features, out_features=128)
         self.encoder_output_layer = torch.nn.Linear(in_features=128, out_features=128)
@@ -32,12 +29,20 @@ class AE(torch.nn.Module):
         reconstructed = torch.relu(activation)
         return reconstructed
 
+
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 print(device)
 
 
 # 28 by 28 pixels of MNIST=784
-model=AE(input_shape=784).to(device)
+model = AE(input_shape=784).to(device)
+
+
+input = torch.randn(size=[1,784]).to(device)
+dot = torchviz.make_dot(model(input),params=dict(model.named_parameters()) )
+dot.format='svg'
+dot.render(filename='simple_encoder_decoder_graph', directory='../images')
+
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 criterion = torch.nn.MSELoss()
 
@@ -54,7 +59,8 @@ train_loader = torch.utils.data.DataLoader( train_data, batch_size=128, shuffle=
 
 test_loader = torch.utils.data.DataLoader(test_data, batch_size=32, shuffle=False, num_workers=4)
 
-epochs=20
+
+epochs=1
 
 for epoch in range(epochs):
     loss = 0
@@ -90,13 +96,17 @@ for epoch in range(epochs):
     print("epoch : {}/{}, loss = {:.6f}".format(epoch + 1, epochs, loss))
 
 
-test_examples = None
 
+
+
+test_examples = None
+# we set the batch_size 32 so len(batch_features) is 32
 with torch.no_grad():
     for batch_features in test_loader:
         batch_features = batch_features[0]
         test_examples = batch_features.view(-1, 784).to(device)
         reconstruction = model(test_examples)
+        # we only do it for one iteration for 32 images
         break
 
 with torch.no_grad():

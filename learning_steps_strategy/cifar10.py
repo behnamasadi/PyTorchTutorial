@@ -5,36 +5,8 @@ import torchvision
 import torchvision.transforms as transforms
 
 print('pytorch version:', torch.__version__)
-
-
-
-if(torch.cuda.is_available()):
-    print('cuda is available')
-    print('cuda device count',torch.cuda.device_count())
-
-    print('current device is:',torch.cuda.current_device())
-
-    print('device name',torch.cuda.get_device_name(0))
-
-    print('nvcc version: ')
-    os.system('nvcc --version')
-    print('nvidia-smi:')
-    os.system('nvidia-smi')
-    torch.set_default_tensor_type('torch.cuda.FloatTensor')
-
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 print('device is: ', device)
-
-
-
-
-
-
-
-
-
-
-
 
 r_mean, g_mean, b_mean, r_std, b_std, g_std=0.49139968, 0.48215841, 0.44653091, 0.24703223, 0.24348513, 0.26158784
 
@@ -44,9 +16,6 @@ transform=torchvision.transforms.Compose([torchvision.transforms.ToTensor(),
                                                     (r_std, b_std, g_std)  ) ])
 
 
-# transform = transforms.Compose(
-#     [transforms.ToTensor(),
-#      transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
 trainset = torchvision.datasets.CIFAR10(root='../data', train=True,
                                         download=True, transform=transform)

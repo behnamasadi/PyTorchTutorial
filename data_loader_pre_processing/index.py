@@ -1,8 +1,8 @@
 # provides minibatching, shuffling, and multithreading
 
 import torch
-
-
+import torchvision.transforms as transformers
+import torchvision
 from torch.utils.data import  TensorDataset, DataLoader
 
 N, D_in, H, D_out=64,1000,100,10
@@ -14,8 +14,7 @@ for x_batch, y_batch in loader:
     pass
 
 print("###################################### datasets loader ######################################")
-import torchvision.transforms as transformers
-import torchvision
+
 
 # The files are read and converted into PIL images
 
