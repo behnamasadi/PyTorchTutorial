@@ -48,5 +48,6 @@ print('e',e.grad)
 
 graph=torchviz.make_dot(f)
 graph.format='svg'
-graph.save('images/graph_detach')
-graph.render()
+
+graph.render(filename='graph_detach', directory='../images')
+
