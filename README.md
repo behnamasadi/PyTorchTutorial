@@ -47,16 +47,26 @@ If you want to view the <b>dot</b> file install `xdot`
 [Pytorch Data Types](data_types/index.ipynb)  
 [Encoder/ Decoder](src/encoder/index.ipynb)  
 [Grad Package](src/grad_package)  
-- [Autograd]()  
-- [Dynamic Computational Graph]()  
-- [Detach]()  
-- [Fine-tuning]()  
-- [Leaf Tensor]()  
-- [No Grad]()  
-- [Zero Grad]()  
+- [Computational Graph](grad.ipynb#Computational-Graph)
+- [Autograd](grad.ipynb#Autograd)  
+- [Dynamic Computational Graph](grad.ipynb#)  
+- [Detach](grad.ipynb#detach)  
+- [Exclusion from the DAG](grad.ipynb#Exclusion-from-the-DAG)  
+- [Leaf Tensor](grad.ipynb#Leaf)  
+- [No Grad](grad.ipynb#no_grad())  
+- [Zero Grad](grad.ipynb#zero_grad)  
 
 [Image Captioning](src/image_captioning)  
-[Learning Steps Strategy]()  
+[Learning Steps Strategy](learning_steps_strategy/index.ipynb#Pre-process-Data)  
+- [Pre-process Data](learning_steps_strategy/index.ipynb#Pre-process-Data)  
+- [Choose Architecture](learning_steps_strategy/index.ipynb#Choose-Architecture)  
+- [Weight initialization](learning_steps_strategy/index.ipynb#Weight-initialization)  
+- [Batch Normalization](learning_steps_strategy/index.ipynb#Batch-Normalization)  
+- [Drop out](learning_steps_strategy/index.ipynb#Drop-out)  
+- [Eval](learning_steps_strategy/index.ipynb#Eval)  
+- [Training Steps](learning_steps_strategy/index.ipynb#Training-Steps)  
+- [General Tips](learning_steps_strategy/index.ipynb#General-Tips)  
+
 [Loss Functions](loss_functions/loss_functions.ipynb)  
 [LSTM](src/LSTM/index.ipynb)  
 [Optimizer Package](src/optim_package/index.pynb)  
@@ -70,16 +80,3 @@ If you want to view the <b>dot</b> file install `xdot`
 [Tensorboard](src/tensorboard/index.ipynb)  
 [Transfer learning](src/transfer_learning/transfer_learning.ipynb)  
 [Visualization of Graph](src/graph_visualization/index.ipynb)  
-
-
-
-
-
-
-
-
-
-
-
-
-

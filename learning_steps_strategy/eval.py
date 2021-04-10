@@ -4,16 +4,16 @@
 #
 # You need to turn off them during model evaluation, and .eval() will do it for you.
 # In addition, the common practice for evaluating/validation is using torch.no_grad() in pair with model.eval() to turn off gradients computation:
-
-
+#
+#
 # # evaluate model:
 # model.eval()
 #
 # with torch.no_grad():
 #     ...
 #     out_data = model(data)
-
-
+#
+#
 # training step
-
+#
 # model.train()
