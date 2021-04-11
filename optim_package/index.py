@@ -13,7 +13,17 @@ y=torch.randn(H,D_out)
 model=torch.nn.Sequential()
 model.add_module('w0',torch.nn.Linear(D_in,H))
 model.add_module('relu',torch.nn.ReLU())
-model.add_module('w0',torch.nn.Linear(H,D_out))
+model.add_module('w1',torch.nn.Linear(H,D_out))
+
+
+print(x.shape)
+print(y.shape)
+
+
+for param in model.parameters():
+    print(type(param), param.size())
+
+
 
 loss_function=torch.nn.MSELoss(reduction='sum')
 

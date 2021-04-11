@@ -23,7 +23,8 @@ input=torch.randn(size=[1,4])
 print(model(input))
 
 
-dot=torchviz.make_dot(model(input),params=dict(model.named_parameters()),show_attrs=True, show_saved=True )
+#dot=torchviz.make_dot(model(input),params=dict(model.named_parameters()),show_attrs=True, show_saved=True )
+dot=torchviz.make_dot(model(input),params=dict(model.named_parameters()))
 dot.format='svg'
 dot.render(filename='example_graph', directory='../images')
 
@@ -45,9 +46,10 @@ f.backward()
 f_params={'a':a,'b':b,'c':c,'d':d,'e':e}
 
 
-dot=torchviz.make_dot(f,params=f_params,show_attrs=True, show_saved=True )
+#dot=torchviz.make_dot(f,params=f_params,show_attrs=True, show_saved=True )
+dot=torchviz.make_dot(f,params=f_params)
 dot.format='svg'
-dot.render(filename='simple_graph', directory='../../images')
+dot.render(filename='simple_graph', directory='../images')
 
 
 
