@@ -28,4 +28,20 @@ d=d.view(d.size(0),1,28,28)
 model=MyConvNet().double()
 y = model(d[0:1, :, :, :])
 
+# https://discuss.pytorch.org/t/why-model-to-device-wouldnt-put-tensors-on-a-custom-layer-to-the-same-device/17964/3
 
+# generally speaking, the pattern is:
+# use .cuda() on any input batches/tensors
+# use .cuda() on your network module, which will hold your network, like:
+
+class MyModel(torch.nn.Module):
+    def __init__(self):
+        super(MyModel, self).__init__()
+
+
+model = MyModel()
+model.cuda()
+
+# training=self.training
+
+# https://discuss.pytorch.org/t/model-train-and-model-eval-vs-model-and-model-eval/5744

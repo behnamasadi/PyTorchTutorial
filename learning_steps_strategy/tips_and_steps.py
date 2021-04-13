@@ -1,15 +1,4 @@
 # lecture 6 cs231n 2017 1:20:19
-# 1) Pre process data:
-# Normalize the data (Z-Score Normalization)
-# Turn the data into zero mean, and std=1
-# you should know mean and std of every channel in advance, this could be done only if you iterate over all images
-# i.e. CIFAR10
-# r_mean, g_mean, b_mean, r_std, b_std, g_std=0.49139968, 0.48215841, 0.44653091, 0.24703223, 0.24348513, 0.26158784
-#
-# transform=torchvision.transforms.Compose([torchvision.transforms.ToTensor(),
-#                                                 torchvision.transforms.Normalize(
-#                                                     (r_mean, g_mean, b_mean),
-#                                                     (r_std, b_std, g_std)  ) ])
 
 
 # 2) Choose architecture

@@ -1,6 +1,7 @@
 /temp
 /data
 /images
+/saved_networks
 *.pyc
 */runs/
 .ipynb_checkpoints

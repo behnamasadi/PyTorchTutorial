@@ -44,7 +44,7 @@ If you want to view the <b>dot</b> file install `xdot`
 - [Dilated Convolutions](conv/cross_correlation_convolution.ipynb#Dilated-Convolutions)  
 
 [Data Loader/ Pre Processing](data_loader_pre_processing/index.ipynb)  
-[Pytorch Data Types](data_types/index.ipynb)  
+[Pytorch Tensor Data Types](data_types/index.ipynb)  
 [Encoder/ Decoder](encoder/index.ipynb)  
 [Grad Package](grad_package/)  
 - [Computational Graph](grad_package/grad.ipynb#Computational-Graph)
@@ -76,7 +76,7 @@ If you want to view the <b>dot</b> file install `xdot`
 - [Adaptive Average Pool](pooling/index.ipynb#Adaptive-Average-Pool)  
 
 [RNN](rnn/index.ipynb)  
-[Serialization](serialization/index.ipynb)  
+[Serialization, Saving and Loading Tensors/ Networks](serialization_saving_loading/index.ipynb)  
 [Tensorboard](tensorboard/index.ipynb)  
 [Transfer learning](transfer_learning/transfer_learning.ipynb)  
 [Visualization of Graph](graph_visualization/index.ipynb)  
