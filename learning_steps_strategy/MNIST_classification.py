@@ -1,3 +1,5 @@
+# Ref: https://nextjournal.com/gkoehler/pytorch-mnist
+
 import torch
 import torchvision
 import torch.nn.functional as F
@@ -26,7 +28,7 @@ random_seed = 1
 torch.backends.cudnn.enabled = False
 torch.manual_seed(random_seed)
 
-n_epochs = 3
+n_epochs = 1
 batch_size_train = 64
 batch_size_test = 1000
 learning_rate = 0.01
@@ -93,6 +95,16 @@ class Net(torch.nn.Module):
         x = self.fc2(x)
         return F.log_softmax(x)
 
+    def reset_parameters(self):
+        print("****************** reset parameters happend ****************** ")
+
+    def initialize_weight(self):
+        for m in self.modules():
+            if isinstance(m, torch.nn.Conv2d):
+                torch.nn.init.kaiming_uniform_(m.weight)
+            elif isinstance(m,torch.nn.BatchNorm2d):
+                pass
+
 def train(n_epochs,optimizer,network,criterion):
     network.train()
 
@@ -126,13 +138,15 @@ def test(network,test_loader,criterion):
               # test_loss += F.nll_loss(output, target, size_average=False).item()
               test_loss += criterion(output, target).item()
               pred = output.data.max(1, keepdim=True)[1]
+              print("output.shape: ",output.shape)
+              print("pred: ",pred)
+              print("pred.shape:", pred.shape)
               correct += pred.eq(target.data.view_as(pred)).sum()
         test_loss /= len(test_loader.dataset)
     test_losses.append(test_loss)
     print('\nTest set: Avg. loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
         test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
-# Ref: https://nextjournal.com/gkoehler/pytorch-mnist
 
 
 
@@ -143,5 +157,28 @@ optimizer = torch.optim.SGD(network.parameters(), lr=learning_rate, momentum=mom
 # criterion=F.nll_loss()
 criterion=torch.nn.NLLLoss()
 
-train(n_epochs,optimizer,network,criterion)
-test(network,test_loader,criterion)
+# example_data, example_targets
+
+
+
+output = network.forward(example_data[0:1])
+loss = criterion(output, example_targets[0:1])
+
+print("example_targets[0:1]: ",example_targets[0:1])
+print("example_data[0:1].shape: ",example_data[0:1].shape)
+print("output: ",output)
+print("output: ",output.exp())
+print("loss:", loss)
+print("loss.item(): ",loss.item())
+
+
+
+
+
+# train(n_epochs,optimizer,network,criterion)
+# test(network,test_loader,criterion)
+
+
+
+
+

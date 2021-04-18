@@ -17,6 +17,21 @@
 
 
 # plotting
+####################### The Data #######################
+#1)  After training a classification model, there might be situations where the output of the model completely
+# or mostly belongs to one class ie, the situation where the model is biased. This is primarily due to an imbalanced dataset.
+# 2) not having enough data to support the problem statement.
+
+
+####################### Loss Curve #######################
+# https://cs231n.github.io/neural-networks-3/
+# It is said that it is ideal to plot loss across epochs rather than iteration.
+
+####################### Accuracy Curve #######################
+
+
+####################### Uncertainty #######################
+
 
 # don’t use autograd of not necessary (use with torch.no_grad() if possible)
 # only push tensors to GPU, if they are actually needed
