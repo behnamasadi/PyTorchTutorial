@@ -14,7 +14,10 @@
 # batch normalization
 # drop out
 
-
+# https://nextjournal.com/gkoehler/pytorch-mnist
+# https://ernie55ernie.github.io/machine%20learning/2018/03/28/weight-initialization-for-neural-network.html
+# https://towardsdatascience.com/useful-plots-to-diagnose-your-neural-network-521907fa2f45
+# https://cs231n.github.io/neural-networks-3/
 
 # plotting
 ####################### The Data #######################
