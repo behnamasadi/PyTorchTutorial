@@ -69,6 +69,7 @@ If you want to view the <b>dot</b> file install `xdot`
 
 [Loss Functions](loss_functions/loss_functions.ipynb)  
 [LSTM](LSTM/index.ipynb)  
+[Nerf](nerf/index.py)  
 [Optimizer Package](optim_package/index.pynb)  
 [Pooling](pooling/index.ipynb)  
 - [Max Pool](pooling/index.ipynb#Max-Pool)  
