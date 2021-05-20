@@ -1,6 +1,6 @@
-# https://www.youtube.com/watch?v=9zKuYvjFFS8&ab_channel=ArxivInsights
-# https://medium.com/pytorch/implementing-an-autoencoder-in-pytorch-19baa22647d1
-# https://gist.github.com/AFAgarap/4f8a8d8edf352271fa06d85ba0361f26
+
+# Ref: https://gist.github.com/AFAgarap/4f8a8d8edf352271fa06d85ba0361f26
+
 import torch
 import torchvision
 import matplotlib.pyplot as plt
@@ -60,7 +60,7 @@ train_loader = torch.utils.data.DataLoader( train_data, batch_size=128, shuffle=
 test_loader = torch.utils.data.DataLoader(test_data, batch_size=32, shuffle=False, num_workers=4)
 
 
-epochs=1
+epochs=10
 
 for epoch in range(epochs):
     loss = 0
@@ -127,7 +127,3 @@ with torch.no_grad():
         ax.get_xaxis().set_visible(False)
         ax.get_yaxis().set_visible(False)
     plt.show()
-
-
-
-
