@@ -77,3 +77,14 @@ print('sum on output of softmax: \n', np.exp(output).sum(axis=1))
 # Triplet Margin Loss
 #Kullback-Leibler divergence
 
+print('######################## 3) Binary Cross Entropy  Loss ########################')
+criterion=torch.nn.BCELoss(reduction='sum')
+classifier_output=torch.tensor([0.9,0.8,0.99])
+
+print('the classifier outputs are close to the lables, error is small')
+labels=torch.ones_like(classifier_output)
+print(criterion(classifier_output,labels))
+
+print('the classifier outputs are wrong, error is big')
+labels=torch.zeros_like(classifier_output)
+print(criterion(classifier_output,labels))

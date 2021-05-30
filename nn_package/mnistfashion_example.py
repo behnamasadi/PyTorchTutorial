@@ -197,7 +197,18 @@ optimizer=torch.optim.SGD(model.parameters(),momentum=0.9,lr=0.001)
 
 from torch.utils.tensorboard import SummaryWriter
 # default `log_dir` is "runs" - we'll be more specific here
-writer = SummaryWriter('runs/fashion_mnist_experiment_1')
+
+logdir='../runs'
+
+import shutil
+import os
+if os.path.exists(logdir):
+    shutil.rmtree(logdir, ignore_errors=True)
+    print(logdir+ " cleared")
+
+os.mkdir(logdir)
+
+writer = SummaryWriter(logdir)
 image_grid=torchvision.utils.make_grid(images_train)
 
 matplotlib_imshow(image_grid,one_channel=True)

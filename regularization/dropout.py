@@ -15,9 +15,29 @@ import wandb
 
 
 device = (torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu'))
+print('device is: ',device )
+
+
+
+
+from torch.utils.tensorboard import SummaryWriter
+
+logdir='../runs/dropout'
+
+import shutil
+import os
+if os.path.exists(logdir):
+    shutil.rmtree(logdir, ignore_errors=True)
+    print(logdir+ " cleared")
+
+os.mkdir(logdir)
+writer = SummaryWriter(log_dir=logdir)
 
 
 BATCH_SIZE = 32
+
+
+number_of_epoch=50
 
 transform = transforms.Compose(
     [transforms.ToTensor(),
@@ -88,6 +108,15 @@ def train(model, device, train_loader, optimizer, criterion, epoch, steps_per_ep
     wandb.log({'Train Loss': train_loss / train_total, 'Train Accuracy': acc, 'Epoch': epoch})
 
 
+
+    writer.add_scalar('Train Loss', train_loss / train_total, epoch)
+    writer.add_scalar('Train Accuracy', acc, epoch)
+    writer.close()
+
+
+
+
+
 def test(model, device, test_loader, criterion, classes):
     # Switch model to evaluation mode. This is necessary for layers like dropout, batchnorm etc which behave differently in training and evaluation mode
     model.eval()
@@ -115,6 +144,11 @@ def test(model, device, test_loader, criterion, classes):
     acc = round((test_correct / test_total) * 100, 2)
     print(' Test_loss: {}, Test_accuracy: {}'.format(test_loss / test_total, acc))
     wandb.log({'Test Loss': test_loss / test_total, 'Test Accuracy': acc})
+
+    writer.add_scalar('Test loss', test_loss / test_total, epoch)
+    writer.add_scalar('Test Accuracy', acc, epoch)
+    writer.close()
+
 
 
 class NetUnregularized(nn.Module):
@@ -214,9 +248,10 @@ wandb.watch(net, log='all')
 # 4. Track hyperparameters
 # wandb.config.dropout = 0.2
 
-for epoch in range(15):
+for epoch in range(number_of_epoch):
     train(net, device, trainloader, optimizer, criterion, epoch)
     test(net, device, testloader, criterion, CLASS_NAMES)
 
 print('Finished Training')
 wandb.finish()
+

@@ -3,7 +3,10 @@ import numpy as np
 from torch.utils.tensorboard import SummaryWriter
 import torchvision
 
-logdir='runs'
+################################ Setting log directory, clearning previous run ################################
+
+
+logdir='../runs/tensorboard_demo'
 
 import shutil
 import os
@@ -14,12 +17,14 @@ if os.path.exists(logdir):
 os.mkdir(logdir)
 
 
+################################ Running tensorboard  ################################
+
 #!/usr/bin/env python
 import os
 import signal
 import subprocess
 
-proc = subprocess.Popen("tensorboard --logdir=runs", shell=True, preexec_fn=os.setsid)
+proc = subprocess.Popen("tensorboard --logdir="+logdir, shell=True, preexec_fn=os.setsid)
 
 
 
@@ -28,7 +33,7 @@ proc = subprocess.Popen("tensorboard --logdir=runs", shell=True, preexec_fn=os.s
 
 ################################ Add scalar and scalars ################################
 # scalar : It will plot just one graph
-# scalars : It will plot multi graphs at once
+# scalars : It will plot multiple graphs at once
 
 writer=SummaryWriter(log_dir=logdir)
 for step in np.arange(-360,360):
@@ -67,19 +72,49 @@ for step in np.arange(num_steps):
     writer.add_histogram('weights',np.random.normal(loc=mean, scale=(step + 1) * sigma, size=2000), step)
 writer.close()
 ################################ Add model ################################
+import torch.nn.functional as F
 
 class MyNet(torch.nn.Module):
     def __init__(self):
-        super(MyNet, self).__init__()
-        self.conv1=torch.nn.Conv2d(in_channels=1,out_channels=6,kernel_size=5,stride=1,dilation=1)
-        self.fc1=torch.nn.Linear()
+        super().__init__()
+        self.conv1 = torch.nn.Conv2d(in_channels=1, out_channels=6, kernel_size=5)
+        self.conv2 = torch.nn.Conv2d(in_channels=6, out_channels=12, kernel_size=5)
 
-    def forward(self,x):
-        pass
+        self.fc1 = torch.nn.Linear(in_features=12*4*4, out_features=120)
+        self.fc2 = torch.nn.Linear(in_features=120, out_features=60)
+        self.out = torch.nn.Linear(in_features=60, out_features=10)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        x = F.max_pool2d(x, kernel_size = 2, stride = 2)
+        x = F.relu(self.conv2(x))
+        x = F.max_pool2d(x, kernel_size = 2, stride = 2)
+        x = torch.flatten(x,start_dim = 1)
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.out(x)
+
+        return x
+
+train_set = torchvision.datasets.FashionMNIST(root="../data",train = True, download=True,transform=torchvision.transforms.ToTensor())
+train_loader = torch.utils.data.DataLoader(train_set,batch_size = 100, shuffle = True)
 
 
 
 
+model = MyNet()
+images, labels = next(iter(train_loader))
+grid = torchvision.utils.make_grid(images)
+writer.add_image("MNIST Fashion images", grid)
+writer.add_graph(model, images)
+writer.close()
+
+
+
+################################ Precision Recall Curve ################################
+
+# https://pytorch.org/docs/stable/tensorboard.html
+# https://towardsdatascience.com/a-complete-guide-to-using-tensorboard-with-pytorch-53cb2301e8c3
 
 input("Press Enter to continue...")
 os.killpg(proc.pid, signal.SIGTERM)
