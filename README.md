@@ -12,11 +12,11 @@ This repository contains my snippets and sample codes for developing deep learni
 
 3. Install pytorch, torchvision, cuda tensorboard, jupyter, matplotlib, pydot:
 
-`conda install pytorch torchvision torchaudio cudatoolkit=10.2 -c pytorch`  
+`conda install pytorch torchvision torchaudio pytorch-cuda=12.4 -c pytorch -c nvidia`  
 `conda install tensorboard`  
 `conda install -c conda-forge matplotlib`  
 `conda install pydot`  
-`conda install jupyter`  
+`conda install -c conda-forge jupyterlab`  
 
 4. Install `torchviz` for visualizations of execution graphs 
 
