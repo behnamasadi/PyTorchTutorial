@@ -4,31 +4,54 @@ This repository contains my snippets and sample codes for developing deep learni
 ## Installation
 1. Create environment:
 
-`conda create -n PythonTutorial`
+```
+conda create -n PyTorchTutorial
+```
 
 2. Activate it:
 
-`conda activate PythonTutorial`
+```
+conda activate PyTorchTutorial
+```
 
 3. Install pytorch, torchvision, cuda tensorboard, jupyter, matplotlib, pydot:
 
-`conda install pytorch torchvision torchaudio pytorch-cuda=12.4 -c pytorch -c nvidia`  
-`conda install tensorboard`  
-`conda install -c conda-forge matplotlib`  
-`conda install pydot`  
-`conda install -c conda-forge jupyterlab`  
+```
+conda install pytorch torchvision  pytorch-cuda -c pytorch -c nvidia 
+conda install tensorboard
+conda install -c conda-forge matplotlib  
+conda install pydot
+conda install -c conda-forge jupyterlab
+```
+
 
 4. Install `torchviz` for visualizations of execution graphs 
 
-`pip install torchviz`
+```
+pip install torchviz
+```
 
 If you want to view the <b>dot</b> file install `xdot`
 
-`sudo apt-get install xdot`
+```
+sudo apt-get install xdot
+```
 
 5. To updated all packages:
 
-`conda update -n PythonTutorial  --all`
+```
+conda update -n PyTorchTutorial  --all
+```
+
+
+6. set up the soft-link to repo:
+```
+cd /home/$USER/workspace/
+git clone git@github.com:behnamasadi/PyTorchTutorial.git
+ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTutorial/src
+```
+
+
 
 ## Tutorials
 
