@@ -100,7 +100,7 @@ def log_gradient_norms(model, epoch):
     wandb.log({'gradient_norm': total_norm})
 
 
-def train(model, loader, criterion, optimizer, device):
+def train(model, loader, criterion, optimizer, device, epoch):
     model.train()
     total_loss = 0
     for images, labels in loader:
@@ -186,6 +186,31 @@ def evaluate(model, loader, criterion, device, log_extra=False, epoch=None):
             writer.add_image('Confusion_Matrix',
                              transforms.ToTensor()(image), epoch)
 
+        num_classes = cm.shape[0]
+        precision_per_class = []
+        recall_per_class = []
+
+        for i in range(num_classes):
+            TP = cm[i, i]
+            FP = cm[:, i].sum() - TP
+            FN = cm[i, :].sum() - TP
+
+            precision = TP / (TP + FP) if (TP + FP) > 0 else 0
+            recall = TP / (TP + FN) if (TP + FN) > 0 else 0
+
+            precision_per_class.append(precision)
+            recall_per_class.append(recall)
+
+        macro_precision = np.mean(precision_per_class)
+        macro_recall = np.mean(recall_per_class)
+
+        print(f"📈 Macro Precision: {macro_precision:.4f}")
+        print(f"📈 Macro Recall: {macro_recall:.4f}")
+
+        writer.add_scalar("Metrics/Macro_Precision", macro_precision, epoch)
+        writer.add_scalar("Metrics/Macro_Recall", macro_recall, epoch)
+        wandb.log({"macro_precision": macro_precision,
+                  "macro_recall": macro_recall})
     return avg_loss, accuracy
 
 
@@ -220,7 +245,8 @@ writer = setup_tensorboard(log_dir)
 wandb.init(mode="offline", project="local-test")
 
 for epoch in range(num_epochs):
-    train_loss = train(model, train_loader, criterion, optimizer, device)
+    train_loss = train(model, train_loader, criterion,
+                       optimizer, device, epoch)
     train_losses.append(train_loss)
 
     val_loss, val_accuracy = evaluate(
