@@ -34,6 +34,7 @@ pip install torchviz
 If you want to view the <b>dot</b> file install `xdot`
 
 ```
+sudo apt-get install graphviz
 sudo apt-get install xdot
 ```
 
@@ -103,4 +104,4 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 [Serialization, Saving and Loading Tensors/ Networks](serialization_saving_loading/index.ipynb)  
 [Tensorboard](tensorboard/index.ipynb)  
 [Transfer learning](transfer_learning/transfer_learning.ipynb)  
-[Visualization of Graph](graph_visualization/index.ipynb)  
+[Visualization of Graph](torchviz_visualize_graphs/index.ipynb)  

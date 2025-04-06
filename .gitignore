@@ -1,5 +1,5 @@
 /temp
-/data
+/data/*
 /images
 /saved_networks
 *.pyc
@@ -9,3 +9,4 @@
 */.ipynb_checkpoints/*.ipynb
 */wandb/*
 runs/*
+tensorboard_logs/*
