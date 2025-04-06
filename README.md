@@ -22,6 +22,8 @@ conda install tensorboard
 conda install -c conda-forge matplotlib  
 conda install pydot
 conda install -c conda-forge jupyterlab
+conda install anaconda::scikit-learn
+conda install conda-forge::seaborn
 ```
 
 
