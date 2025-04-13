@@ -58,18 +58,9 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 ## Tutorials
 
-[Activation Functions](activation_functions/activation_function.ipynb)  
-[Convolution](conv/cross_correlation_convolution.ipynb)  
-- [Cross Correlation](conv/cross_correlation_convolution.ipynb#Cross-Correlation)  
-- [Convolution](conv/cross_correlation_convolution.ipynb#Convoloution)  
-- [Shape of the Convolution Output](conv/cross_correlation_convolution.ipynb#Shape-of-the-Convolution-Output)  
-- [2D Convolution as Matrix Multiplication](conv/cross_correlation_convolution.ipynb#2D-Convolution-as-Matrix-Multiplication)  
-- [Convolution in RGB Images](conv/cross_correlation_convolution.ipynb#Convolution-in-RGB-Images)  
-- [Transpose Convolution](conv/cross_correlation_convolution.ipynb#Transpose-Convolution)  
-- [1x1 Convolution Network-in-Network](conv/cross_correlation_convolution.ipynb#1x1-Convolution-Network-in-Network)  
-- [Dilated Convolutions](conv/cross_correlation_convolution.ipynb#Dilated-Convolutions)  
+[Real World Practices for Training and Regularization](PyTorch_training_template/index.ipynb)
 
-[Data Loader/ Pre Processing](data_loader_pre_processing/index.ipynb)  
+
 [Pytorch Tensor Data Types](data_types/index.ipynb)  
 [Encoder/ Decoder](encoder/index.ipynb)  
 [Grad Package](grad_package/)  
@@ -82,28 +73,118 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [No Grad](grad_package/grad.ipynb#no_grad())  
 - [Zero Grad](grad_package/grad.ipynb#zero_grad)  
 
-[Image Captioning](image_captioning)  
-[Learning Steps Strategy](learning_steps_strategy/index.ipynb#Pre-process-Data)  
-- [Pre-process Data](learning_steps_strategy/index.ipynb#Pre-process-Data)  
-- [Choose Architecture](learning_steps_strategy/index.ipynb#Choose-Architecture)  
-- [Weight initialization](learning_steps_strategy/index.ipynb#Weight-initialization)  
-- [Batch Normalization](learning_steps_strategy/index.ipynb#Batch-Normalization)  
-- [Drop out](learning_steps_strategy/index.ipynb#Drop-out)  
-- [Eval](learning_steps_strategy/index.ipynb#Eval)  
-- [Training Steps](learning_steps_strategy/index.ipynb#Training-Steps)  
-- [General Tips](learning_steps_strategy/index.ipynb#General-Tips)  
-
-[Loss Functions](loss_functions/loss_functions.ipynb)  
-[LSTM](LSTM/index.ipynb)  
-[Nerf](nerf/index.py)  
-[Optimizer Package](optim_package/index.pynb)  
-[Pooling](pooling/index.ipynb)  
-- [Max Pool](pooling/index.ipynb#Max-Pool)  
-- [Average Pool](pooling/index.ipynb#Average-Pool)  
-- [Adaptive Average Pool](pooling/index.ipynb#Adaptive-Average-Pool)  
-
-[RNN](rnn/index.ipynb)  
+  
 [Serialization, Saving and Loading Tensors/ Networks](serialization_saving_loading/index.ipynb)  
 [Tensorboard](tensorboard/index.ipynb)  
-[Transfer learning](transfer_learning/transfer_learning.ipynb)  
-[Visualization of Graph](torchviz_visualize_graphs/index.ipynb)  
+[Visualization of Graph](torchviz_visualize_graphs/index.ipynb)
+
+
+## [Neural Network Basics](#)
+- [Activation Functions](activation_functions/activation_function.ipynb)  
+- [Loss Functions](loss_functions/loss_functions.ipynb)  
+
+
+## [Training Process](#)
+
+- [Optimizer Package](optim_package/index.pynb)  
+- [Learning Rate & Schedulers (Step, Cosine Annealing, etc.)](optim_package/index.ipynb#Learning-Rate-Schedulers-(Schedulers))
+- Overfitting & Underfitting
+- [Regularization](regularization/index.ipynb)  
+- [Batch Normalization](batch_normalization/index.ipynb)
+- [Layer Normalization](layer_normalization/index.ipynb)
+- Weight Initialization Strategies
+- Evaluation vs Training Mode
+- [Real World Practices and PyTorch training template](Real World Practices and PyTorch training template)
+- [Drop out](drop_out/index.ipynb)  
+---
+
+## [**PyTorch Fundamentals**](#) 
+- PyTorch Tensor Basics & Data Types
+- Autograd and Computational Graph
+  - `requires_grad`, `no_grad`, `detach()`, `zero_grad()`
+- `nn.Module` and Custom Models
+- Model Saving & Loading (Serialization)
+- TensorBoard & Model Debugging
+- Visualizing Model Graphs & Gradients
+
+---
+
+
+## [**CNNs and Visual Learning**](#) 
+Vision-focused models and operations.
+
+### [CNN Building Blocks](#)
+- [Convolution vs Cross-Correlation](conv/cross_correlation_convolution.ipynb#1.-Cross-Correlation)
+- [Shape of Output](cross_correlation_convolution.ipynb#4.Shape-of-the-Convolution-Output)
+- [RGB Image Convolution](conv/cross_correlation_convolution.ipynb#5.Convolution-in-RGB-Images)
+- [Convolution as Matrix Multiplication](conv/cross_correlation_convolution.ipynb#Convolution-as-Matrix-Multiplication)
+- [Conv2d class vs conv2d function](conv/cross_correlation_convolution.ipynb#PyTorch-Conv2d-class-vs-conv2d-function)
+- [Unfold/ fold](cross_correlation_convolution.ipynb#torch.nn.Unfold)
+- [Padding, Stride, Dilation](conv/cross_correlation_convolution.ipynb#4.Shape-of-the-Convolution-Output)
+- [Pooling (Max, Average, Adaptive)](conv/cross_correlation_convolution.ipynb#Pooling)
+- [1x1, Dilated, Transposed Convolution (Upsampling) Convolution](conv/cross_correlation_convolution.ipynb#3.-Most-Common-Types-of-Convolution-in-Deep-Learning)
+- [Feature Map](conv/cross_correlation_convolution.ipynb#8.-Feature-Map)
+
+### [Modern CNN Architectures](#)
+- LeNet, AlexNet, VGG
+- ResNet (Skip Connections)
+- EfficientNet, MobileNet (for mobile)
+
+### [Image Preprocessing & Augmentation Workflows](#)
+- [Dataset and DataLoader APIs](data_loader_pre_processing/datasets_loader.ipynb)  
+- [Pre Processing Transforms](data_loader_pre_processing/index.ipynb#1.-Preprocessing-Transforms)  
+- [Data Augmentation Transforms](data_loader_pre_processing/index.ipynb#2.-Data-Augmentation-Transforms)  
+- [Training/Evaluation Transform Pipeline](data_loader_pre_processing/index.ipynb#3.-Building-the-Transform-Pipeline)  
+
+  
+
+---
+
+- [Transfer learning](transfer_learning/transfer_learning.ipynb)  
+
+
+## [**Sequence Modeling**](#)
+- Encoder–Decoder Architecture
+- Teacher Forcing
+
+
+---
+
+## [**Attention & Transformers**](#) 
+This is where modern DL models start to shine.
+
+- Attention Mechanism (Additive, Dot-Product)
+- Self-Attention & Multi-Head Attention
+- Positional Encoding
+- Transformer Encoder/Decoder
+- Vision Transformer (ViT)
+- Transformer Applications (BERT, GPT overview)
+
+---
+
+## [**Advanced Topics & Research Trends**](#) 
+Optional but valuable for deeper exploration or research.
+
+- Autoencoders (Vanilla, Variational)
+- GANs (Generator, Discriminator, Losses)
+- Diffusion Models (Denoising Score Matching)
+- Contrastive Learning (SimCLR, MoCo)
+- Self-Supervised Learning
+- Zero-shot & Few-shot Learning
+- Large Language Models (LLMs)
+
+---
+
+## [**Practical Engineering & Utilities**](#) 
+
+- Experiment Tracking (TensorBoard, WandB)
+- Data Versioning
+- Model Deployment (ONNX, TorchScript)
+- Quantization & Pruning
+- Inference Optimization
+- Logging and Debuggingv
+- Project Structure & Best Practices
+
+---
+
+

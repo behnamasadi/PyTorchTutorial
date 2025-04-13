@@ -33,3 +33,24 @@ class PatchEmbedding(torch.nn.Module):
         x = self.proj(x)  # [B, emb_dim, H/P, W/P]
         x = x.flatten(2).transpose(1, 2)  # [B, num_patches, emb_dim]
         return x
+
+
+# Input image: shape (1, 1, 3, 3)
+img = torch.tensor([[[[1, 2, 3],
+                      [4, 5, 6],
+                      [7, 8, 9]]]], dtype=torch.float32)
+
+print("Image shape:", img.shape)  # (N=1, C=1, H=3, W=3)
+
+# Kernel: shape (2, 2), no channel yet
+kernel = torch.tensor([[1, 0],
+                       [0, -1]], dtype=torch.float32)
+
+
+unfold = torch.nn.Unfold(kernel_size=(2, 2))  # no padding, stride=1
+patches = unfold(img)  # shape: (N, C*kH*kW, L), here (1, 4, 4)
+print("Unfolded patches:\n", patches)
+
+
+# einops.rearrange
+# https://einops.rocks/api/rearrange/#:~:text=rearrange-,einops.,stack%2C%20concatenate%20and%20other%20operations.
