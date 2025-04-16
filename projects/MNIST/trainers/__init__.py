@@ -1,0 +1,3 @@
+"""
+Trainers module initialization
+"""

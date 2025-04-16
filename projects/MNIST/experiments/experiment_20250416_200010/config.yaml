@@ -1,0 +1,21 @@
+data:
+  batch_size: 64
+  num_workers: 2
+  pin_memory: true
+  val_split: 0.2
+experiment:
+  save_dir: experiments
+  seed: 42
+model:
+  dropout: 0.5
+  hidden_dim: 256
+  input_dim: 784
+  output_dim: 10
+training:
+  learning_rate: 0.001
+  num_epochs: 10
+  patience: 5
+  scheduler:
+    gamma: 0.5
+    step_size: 10
+  weight_decay: 0.0001
