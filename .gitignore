@@ -10,3 +10,4 @@
 */wandb/*
 runs/*
 tensorboard_logs/*
+mlartifacts/*

@@ -27,11 +27,14 @@ conda install conda-forge::seaborn
 ```
 
 
-4. Install `torchviz` for visualizations of execution graphs 
+4. Install `torchviz` for visualizations of execution graphs and `mlflow` and `wandb` for experiment tracking  
 
 ```
 pip install torchviz
+pip install mlflow
+pip install wandb
 ```
+
 
 If you want to view the <b>dot</b> file install `xdot`
 
@@ -152,6 +155,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - Visualizing Model Graphs & Gradients
 - [TensorBoard & Model Debugging](tensorboard/index.ipynb)  
 - [Visualization of Graph](torchviz_visualize_graphs/index.ipynb)
+- [MLFlow](MLFlow/index.ipynb)
 - Data Versioning
 - Model Deployment (ONNX, TorchScript)
 - Quantization & Pruning

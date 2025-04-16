@@ -4,7 +4,7 @@ import torchvision
 import torch.optim as optim
 import torchvision.datasets.cifar
 
-
+# torchvision.models.vgg16(pretrained=True)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
