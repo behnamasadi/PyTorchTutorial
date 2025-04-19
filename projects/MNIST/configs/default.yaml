@@ -9,10 +9,19 @@ data:
 
 # Model parameters
 model:
-  input_dim: 784  # 28x28
-  hidden_dim: 256
-  output_dim: 10
-  dropout: 0.5
+  type: 'resnet'  # Options: 'mlp' or 'resnet'
+  
+  # MLP specific parameters
+  mlp:
+    input_dim: 784  # 28x28
+    hidden_dim: 256
+    output_dim: 10
+    dropout: 0.5
+  
+  # ResNet specific parameters
+  resnet:
+    pretrained: false
+    num_classes: 10
 
 # Training parameters
 training:
