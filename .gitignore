@@ -13,3 +13,5 @@ tensorboard_logs/*
 mlartifacts/*
 *.gz
 *.pt
+experiments/
+wandb/
