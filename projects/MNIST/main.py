@@ -2,8 +2,11 @@ import os
 import torch
 import random
 import numpy as np
+import wandb
 from models.mlp import MLP
-from data import get_mnist_dataloaders
+from models.resnet_mlp import ResNetMLP
+from data.mlp_dataloader import MLPMNISTDataLoader
+from data.resnet_dataloader import ResNetMNISTDataLoader
 from trainers.base_trainer import BaseTrainer
 from utils import save_experiment, load_config, save_config
 
@@ -20,10 +23,47 @@ def set_seed(seed):
         torch.backends.cudnn.benchmark = False
 
 
+def get_model(model_type, config):
+    """Initialize the appropriate model based on model_type"""
+    if model_type == 'mlp':
+        return MLP(
+            input_dim=config['model']['mlp']['input_dim'],
+            hidden_dim=config['model']['mlp']['hidden_dim'],
+            output_dim=config['model']['mlp']['output_dim'],
+            dropout=config['model']['mlp']['dropout']
+        )
+    elif model_type == 'resnet':
+        return ResNetMLP()
+    else:
+        raise ValueError(f"Unknown model type: {model_type}")
+
+
+def get_dataloader(model_type, config):
+    """Get the appropriate dataloader based on model_type"""
+    if model_type == 'mlp':
+        loader = MLPMNISTDataLoader(
+            batch_size=config['data']['batch_size'],
+            num_workers=config['data']['num_workers']
+        )
+    elif model_type == 'resnet':
+        loader = ResNetMNISTDataLoader(
+            batch_size=config['data']['batch_size'],
+            num_workers=config['data']['num_workers']
+        )
+    else:
+        raise ValueError(f"Unknown model type: {model_type}")
+
+    return loader
+
+
 def main():
     # Load configuration
     config_path = "configs/default.yaml"
     config = load_config(config_path)
+
+    # Get model type from config
+    model_type = config['model']['type']
+    print(f"Using model type: {model_type}")
 
     # Set random seed for reproducibility
     set_seed(config['experiment']['seed'])
@@ -32,25 +72,22 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
+    # Get appropriate dataloader
+    dataloader = get_dataloader(model_type, config)
+
     # Get data loaders with train/val split
-    train_loader, val_loader = get_mnist_dataloaders(
-        batch_size=config['data']['batch_size'],
+    train_loader, val_loader = dataloader.get_mnist_dataloaders(
         train=True,
         val_split=config['data']['val_split']
     )
 
-    test_loader, = get_mnist_dataloaders(
-        batch_size=config['data']['batch_size'],
+    test_loader, = dataloader.get_mnist_dataloaders(
         train=False
     )
 
     # Initialize model
-    model = MLP(
-        input_dim=config['model']['input_dim'],
-        hidden_dim=config['model']['hidden_dim'],
-        output_dim=config['model']['output_dim'],
-        dropout=config['model']['dropout']
-    )
+    model = get_model(model_type, config)
+    model = model.to(device)
 
     # Initialize trainer
     trainer = BaseTrainer(
@@ -77,12 +114,8 @@ def main():
 
     # Collect hyperparameters
     hyperparameters = {
-        'model_params': {
-            'input_dim': config['model']['input_dim'],
-            'hidden_dim': config['model']['hidden_dim'],
-            'output_dim': config['model']['output_dim'],
-            'dropout': config['model']['dropout']
-        },
+        'model_type': model_type,
+        'model_params': config['model'][model_type],
         'training_params': {
             'learning_rate': config['training']['learning_rate'],
             'weight_decay': config['training']['weight_decay'],
@@ -92,7 +125,8 @@ def main():
         },
         'data_params': {
             'batch_size': config['data']['batch_size'],
-            'val_split': config['data']['val_split']
+            'val_split': config['data']['val_split'],
+            'num_workers': config['data']['num_workers']
         }
     }
 
@@ -110,10 +144,14 @@ def main():
     save_config(config, config_save_path)
 
     print(
-        f"Training completed. Best validation accuracy: {trainer.best_val_acc:.2f}%"
+        f"Training completed. Best validation accuracy: "
+        f"{trainer.best_val_acc:.2f}%"
     )
     print(f"Final test accuracy: {metrics['final_test_acc']:.2f}%")
     print(f"Experiment saved to: {experiment_dir}")
+
+    # Finish wandb run
+    wandb.finish()
 
 
 if __name__ == "__main__":
