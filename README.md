@@ -57,6 +57,22 @@ git clone git@github.com:behnamasadi/PyTorchTutorial.git
 ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTutorial/src
 ```
 
+
+- [Neural Network](machine_learning/nn)  
+  - [Back Propagation](machine_learning/nn/backpropagation.ipynb)  
+  - [Activation Function](machine_learning/nn/activation_function.ipynb)  
+  - [Loss Functions](machine_learning/nn/loss_functions.ipynb)  
+  - [Weight Initialization](machine_learning/nn/weight_initialization.ipynb)  
+  - [Batch Normalization](machine_learning/nn/batch_normalization.ipynb)  
+  - [Softmax](machine_learning/nn/softmax.ipynb)  
+  - [Encoders, Decoders, Variational Autoencoders](machine_learning/nn/encoders.ipynb)  
+  - [Flow Matching](machine_learning/nn/flow_matching.ipynb)  
+  - [Transformers](machine_learning/nn/transformers.ipynb)  
+  - [Dropout Layers](machine_learning/nn/dropout_layers.ipynb)  
+  - [3D Deep Learning](machine_learning/nn/3D_deep_learning.ipynb)  
+- [Neural Network Optimizers](machine_learning/neural_network_optimizers/optimizers.ipynb)  
+
+
 ## [**PyTorch Fundamentals**](#) 
 - [PyTorch Tensor Basics & Data Types](data_types/index.ipynb)  
 - [Grad Package](grad_package/)  
