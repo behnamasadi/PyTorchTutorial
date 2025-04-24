@@ -39,7 +39,7 @@ axe.plot_surface(X.detach().numpy(), Y.detach().numpy(),
 plt.show()
 
 
-exit()
+# exit()
 
 
 # Calculate Z values for the surface
