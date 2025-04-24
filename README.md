@@ -58,21 +58,6 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 ```
 
 
-- [Neural Network](machine_learning/nn)  
-  - [Back Propagation](machine_learning/nn/backpropagation.ipynb)  
-  - [Activation Function](machine_learning/nn/activation_function.ipynb)  
-  - [Loss Functions](machine_learning/nn/loss_functions.ipynb)  
-  - [Weight Initialization](machine_learning/nn/weight_initialization.ipynb)  
-  - [Batch Normalization](machine_learning/nn/batch_normalization.ipynb)  
-  - [Softmax](machine_learning/nn/softmax.ipynb)  
-  - [Encoders, Decoders, Variational Autoencoders](machine_learning/nn/encoders.ipynb)  
-  - [Flow Matching](machine_learning/nn/flow_matching.ipynb)  
-  - [Transformers](machine_learning/nn/transformers.ipynb)  
-  - [Dropout Layers](machine_learning/nn/dropout_layers.ipynb)  
-  - [3D Deep Learning](machine_learning/nn/3D_deep_learning.ipynb)  
-- [Neural Network Optimizers](machine_learning/neural_network_optimizers/optimizers.ipynb)  
-
-
 ## [**PyTorch Fundamentals**](#) 
 - [PyTorch Tensor Basics & Data Types](data_types/index.ipynb)  
 - [Grad Package](grad_package/)  
@@ -87,6 +72,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
     - [Model Saving & Loading (Serialization)](serialization_saving_loading/index.ipynb)  
 
 ## [Neural Network Basics](#)
+- [Back Propagation](backpropagation/index.ipynb)  
 - [Activation Functions](activation_functions/activation_function.ipynb)  
 - [Loss Functions](loss_functions/loss_functions.ipynb)  
 
@@ -96,7 +82,8 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Optimizer Package](optim_package/index.ipynb)  
 - [Learning Rate & Schedulers (Step, Cosine Annealing, etc.)](optim_package/index.ipynb#Learning-Rate-Schedulers-(Schedulers))
 - Overfitting & Underfitting
-- [Regularization](regularization/index.ipynb)  
+- [Regularization](regularization/index.ipynb) 
+- [Dropout Layers](dropout_layers/index.ipynb)
 - [Batch Normalization](batch_normalization/index.ipynb)
 - [Layer Normalization](layer_normalization/index.ipynb)
 - [Weight Initialization Strategies](weight_initialization/index.ipynb)
@@ -106,7 +93,6 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
     -[Early Stopping](index.ipynb#2.-Implement-Early-Stopping)
     -[Visualize Metrics](learning_monitoring/index.ipynb#4.-Visualize-Metrics)
 - [Real World Practices for Training and Regularization and PyTorch training template](PyTorch_training_template/index.ipynb)
-- [Drop out](drop_out/index.ipynb)
 
 ---
 
@@ -138,17 +124,25 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 ## [**Sequence Modeling**](#)
 [Encoder–Decoder Architecture](encoder/index.ipynb)  
+[Encoders, Decoders, Variational Autoencoders](machine_learning/nn/encoders.ipynb)  
 - Teacher Forcing
 
 ---
 
 ## [**Attention & Transformers**](#) 
+- [Transformer Architecture](transformer/attention.ipynb)
 - Attention Mechanism (Additive, Dot-Product)
 - Self-Attention & Multi-Head Attention
 - [Positional Encoding](vit/index.ipynb#Step-6:-Add-Positional-Encoding)
 - Transformer Encoder/Decoder
 - [Vision Transformer (ViT)](vit/index.ipynb)
 - Transformer Applications (BERT, GPT overview)
+
+---
+
+
+## [**3D Deep Learning**](#) 
+- [PyTorch3D](PyTorch3D/index.ipynb)
 
 ---
 
@@ -163,7 +157,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Transfer learning](transfer_learning/transfer_learning.ipynb)  
 - Large Language Models (LLMs)
 - [Model Ensembles](model_ensembles/index.ipynb)
-
+- [Flow Matching](flow_matching/index.ipynb)
 ---
 
 ## [**Practical Engineering & Utilities**](#) 
@@ -180,3 +174,9 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - Project Structure & Best Practices
 
 ---
+
+
+## [**LLM**](#)
+[A reading list that from Ilya Sutskever](https://arc.net/folder/D0472A20-9C20-4D3F-B145-D2865C0A9FEE)  
+[ollama](https://github.com/ollama/ollama)  
+[open-webui](https://github.com/open-webui/open-webui)  
