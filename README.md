@@ -72,6 +72,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
     - [Model Saving & Loading (Serialization)](serialization_saving_loading/index.ipynb)  
 
 ## [Neural Network Basics](#)
+- [Neural Networks, Manifolds, and Topology](https://colah.github.io/posts/2014-03-NN-Manifolds-Topology/)  
 - [Back Propagation](backpropagation/index.ipynb)  
 - [Activation Functions](activation_functions/activation_function.ipynb)  
 - [Loss Functions](loss_functions/loss_functions.ipynb)  
@@ -150,7 +151,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 - Autoencoders (Vanilla, Variational)
 - GANs (Generator, Discriminator, Losses)
-- Diffusion Models (Denoising Score Matching)
+- [Diffusion Models (Denoising Score Matching)](diffusion_models/index.ipynb)
 - Contrastive Learning (SimCLR, MoCo)
 - Self-Supervised Learning
 - Zero-shot & Few-shot Learning
@@ -177,6 +178,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 
 ## [**LLM**](#)
-[A reading list that from Ilya Sutskever](https://arc.net/folder/D0472A20-9C20-4D3F-B145-D2865C0A9FEE)  
-[ollama](https://github.com/ollama/ollama)  
-[open-webui](https://github.com/open-webui/open-webui)  
+- [A reading list that from Ilya Sutskever](https://arc.net/folder/D0472A20-9C20-4D3F-B145-D2865C0A9FEE)  
+- [ollama](https://github.com/ollama/ollama)  
+- [open-webui](https://github.com/open-webui/open-webui)  
+- [LLM Visualization](https://bbycroft.net/llm)  
