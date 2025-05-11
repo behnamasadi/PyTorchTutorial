@@ -2,7 +2,6 @@ import argparse
 import yaml
 import os
 from utils.path_utils import get_project_root
-
 from models.model import get_model
 from data.dataset import load_datasets
 from utils.helpers import save_checkpoint
@@ -13,7 +12,6 @@ import torch.nn as nn
 
 
 def main(config_path):
-    # Resolve absolute path to config file
     if not os.path.isabs(config_path):
         config_path = os.path.join(get_project_root(), config_path)
 
@@ -22,7 +20,6 @@ def main(config_path):
 
     weights = eval(config['model']['weights']
                    ) if config['model']['weights'] else None
-
     model, classifier_params = get_model(
         config['model']['name'],
         config['model']['num_classes'],

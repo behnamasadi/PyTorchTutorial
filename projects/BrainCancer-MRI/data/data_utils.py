@@ -8,25 +8,26 @@ from tqdm import tqdm
 import numpy as np
 import pandas as pd
 import os
-
-# Set KaggleHub cache directory
-# Ensure this environment variable is set before importing kagglehub
-os.environ['KAGGLE_HUB_CACHE_DIR'] = os.path.abspath('../data/kagglehub/')
-
 import kagglehub
 # fmt: on
+
+import yaml
+import os
 
 
 # Read CSV file
 # df = pd.read_csv(path + "/dataset.csv")
 # print(df.head())
 
-# Function to calculate mean and std
+
+""" Function to calculate mean and std of a dataset"""
 
 
-def calculate_mean_std(dataset, batch_size=64, num_workers=2):
+def calculate_mean_std(dataset, batch_size=64, num_workers=2, pin_memory=True):
+    """Function to calculate mean and std of a dataset (channel-wise)"""
+
     loader = DataLoader(dataset, batch_size=batch_size,
-                        shuffle=False, num_workers=num_workers)
+                        shuffle=False, num_workers=num_workers, pin_memory=pin_memory)
 
     mean = 0.
     std = 0.
@@ -52,7 +53,7 @@ def calculate_mean_std(dataset, batch_size=64, num_workers=2):
         # [0.1031, 0.1031, 0.1031],
         # [0.1088, 0.1088, 0.1088],
 
-        # so  images.mean(2).sum(0) will collapse the 0 dimention which rows, so you get sum along rows:
+        # so  images.mean(2).sum(0) will collapse the 0 dimension which rows, so you get sum along rows:
         # images.mean(2).sum(0) -> tensor([7.3089, 7.3089, 7.3089])
 
         std += images.std(2).sum(0)
@@ -64,137 +65,121 @@ def calculate_mean_std(dataset, batch_size=64, num_workers=2):
 
 
 if __name__ == '__main__':
-    print("KAGGLE_HUB_CACHE_DIR:", os.environ.get('KAGGLE_HUB_CACHE_DIR'))
 
-    # Download latest version
+    # Get absolute path to this script's directory
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # Construct path to config.yaml relative to this script
+    config_path = os.path.join(current_dir, '..', 'config', 'config.yaml')
+
+    # Safely normalize the path
+    config_path = os.path.normpath(config_path)
+
+    print(config_path)
+
+    with open(config_path, 'r') as f:
+        config_data = f.read()
+
+    print(config_data)
+
+    exit()
+
+    # Download dataset
     path = kagglehub.dataset_download("orvile/brain-cancer-mri-dataset")
     print("Path to dataset files:", path)
 
-    # Set up paths and basic transform
+    batch_size = 256  # or 512 or 1024
+    num_workers = 4
+    pin_memory = True
 
-    full_path = os.path.join(path, "Brain_Cancer raw MRI data", "Brain_Cancer")
+    image_size_h = 224
+    image_size_w = 224
 
-    transform = transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.RandomHorizontalFlip(),  # Randomly flip the image horizontally
-        # Randomly rotate the image by 10 degrees
-        transforms.RandomRotation(10),
-        # Randomly change the brightness, contrast, saturation, and hue
-        transforms.ColorJitter(
-            brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
+    # Basic transform for mean/std computation only
+    initial_transform = transforms.Compose([
+        transforms.Resize((image_size_h, image_size_w)),
         transforms.ToTensor()
     ])
 
-    dataset = datasets.ImageFolder(full_path, transform=transform)
+    # Load full dataset with basic transform
+    dataset_for_stats = datasets.ImageFolder(path, transform=initial_transform)
 
-    # Load dataset
+    # Split dataset
+    train_size = int(0.7 * len(dataset_for_stats))
+    val_size = int(0.15 * len(dataset_for_stats))
+    test_size = len(dataset_for_stats) - train_size - val_size
 
-    mean, std = calculate_mean_std(dataset)
-    print("Dataset mean:", mean)
-    print("Dataset std:", std)
+    train_subset, val_subset, test_subset = torch.utils.data.random_split(
+        dataset_for_stats, [train_size, val_size, test_size],
+        generator=torch.Generator().manual_seed(42)
+    )
 
-    # Update transform with calculated mean and std
-    transform = transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.RandomHorizontalFlip(),  # Randomly flip the image horizontally
-        transforms.RandomVerticalFlip(),    # Randomly flip the image vertically
-        # Randomly rotate the image by 10 degrees
+    # Compute mean and std using only training subset
+    mean, std = calculate_mean_std(
+        train_subset, batch_size=256, num_workers=4, pin_memory=True)
+
+    print("Training Dataset mean:", mean.tolist())
+    print("Training Dataset std:", std.tolist())
+    print(f"Training set size: {len(train_subset)}")
+    print(f"Validation set size: {len(val_subset)}")
+    print(f"Test set size: {len(test_subset)}")
+
+    # Define transforms using computed mean and std
+    training_transform = transforms.Compose([
+        transforms.Resize((image_size_h, image_size_w)),
+        transforms.RandomHorizontalFlip(),
         transforms.RandomRotation(10),
-        transforms.ColorJitter(brightness=0.2, contrast=0.2,
-                               saturation=0.2, hue=0.2),
+        transforms.ColorJitter(
+            brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
         transforms.ToTensor(),
         transforms.Normalize(mean, std)
     ])
 
-    # Update dataset with new transform
-    dataset.transform = transform
+    validation_transform = transforms.Compose([
+        transforms.Resize((image_size_h, image_size_w)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean, std)
+    ])
 
-    # Split dataset
-    train_size = int(0.7 * len(dataset))
-    val_size = int(0.15 * len(dataset))
-    test_size = len(dataset) - train_size - val_size
+    # Reload dataset without transform so we can reassign them cleanly
+    full_dataset = datasets.ImageFolder(path, transform=None)
 
-    train_dataset, val_dataset, test_dataset = torch.utils.data.random_split(
-        dataset, [train_size, val_size, test_size]
+    # Create new subsets with appropriate transforms
+    train_dataset = torch.utils.data.Subset(
+        datasets.ImageFolder(path, transform=training_transform),
+        indices=train_subset.indices
     )
-
-    print(f"Training set size: {len(train_dataset)}")
-    print(f"Validation set size: {len(val_dataset)}")
-    print(f"Test set size: {len(test_dataset)}")
+    val_dataset = torch.utils.data.Subset(
+        datasets.ImageFolder(path, transform=validation_transform),
+        indices=val_subset.indices
+    )
+    test_dataset = torch.utils.data.Subset(
+        datasets.ImageFolder(path, transform=validation_transform),
+        indices=test_subset.indices
+    )
 
     # Create data loaders
     train_loader = DataLoader(
-        train_dataset, batch_size=4, shuffle=True, num_workers=2)
-    val_loader = DataLoader(val_dataset, batch_size=4,
-                            shuffle=False, num_workers=2)
-    test_loader = DataLoader(test_dataset, batch_size=4,
-                             shuffle=False, num_workers=2)
+        train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=pin_memory)
+
+    val_loader = DataLoader(val_dataset, batch_size=batch_size,
+                            shuffle=False, num_workers=num_workers, pin_memory=pin_memory)
+
+    test_loader = DataLoader(test_dataset, batch_size=batch_size,
+                             shuffle=False, num_workers=num_workers, pin_memory=pin_memory)
 
     # Initialize VGG19 model
     model_vgg19_bn = models.vgg19_bn(
         weights=models.VGG19_BN_Weights.IMAGENET1K_V1)
 
-    # Freeze convolutional layers
-    for param in model_vgg19_bn.features.parameters():
-        param.requires_grad = False
+    print("vgg19_bn input size: ", model_vgg19_bn.features.in_features)
+    print("vgg19_bn output size: ", model_vgg19_bn.features.out_features)
 
-    print("Model architecture:")
-    print(model_vgg19_bn)
+    resnet18 = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)
 
+    print("resnet18 input size: ", resnet18.fc.in_features)
+    print("resnet18 output size: ", resnet18.fc.out_features)
 
-# #model_vgg19 = models.vgg19(weights=models.VGG19_Weights.IMAGENET1K_V1)      # No batch norm
-# #model_vgg19_bn = models.vgg19_bn(weights=models.VGG19_BN_Weights.IMAGENET1K_V1) # With batch norm
-
-# #print(model_vgg19_bn.features[0])
-# #print(model_vgg19_bn.parameters())
-
-# # for param in model_vgg19_bn.classifier.parameters():
-# #     print(param)
-
-# #print(model_vgg19_bn.classifier)
-
-# #exit()
-
-
-# # Apply initial transform to resize and convert to tensor
-# initial_transform = transforms.Compose([
-#     transforms.Resize((224, 224)),
-#     transforms.ToTensor()
-# ])
-
-# MRI_dataset.transform = initial_transform
-
-# # Calculate mean and std
-# mean, std = get_mean_std(MRI_dataset)
-# print(f"Mean: {mean}")
-# print(f"Std: {std}")
-
-# # Update transform with calculated mean and std
-# transform = transforms.Compose([
-#     transforms.Resize((224, 224)),
-#     transforms.ToTensor(),
-#     transforms.Normalize(mean, std)
-# ])
-
-# MRI_dataset.transform = transform
-
-# train_size = int(0.7 * len(MRI_dataset))
-# val_size = int(0.15 * len(MRI_dataset))
-# test_size = len(MRI_dataset) - train_size - val_size
-
-# train_dataset, val_dataset, test_dataset = torch.utils.data.random_split(
-#     MRI_dataset, [train_size, val_size, test_size]
-# )
-
-# print(f"Training set size: {len(train_dataset)}")
-# print(f"Validation set size: {len(val_dataset)}")
-# print(f"Test set size: {len(test_dataset)}")
-
-# train_data_loader = DataLoader(train_dataset, batch_size=4, shuffle=True)
-# val_data_loader = DataLoader(val_dataset, batch_size=4, shuffle=False)
-# test_data_loader = DataLoader(test_dataset, batch_size=4, shuffle=False)
-
-# # class BrainCancerMRI(Dataset):
-# #     def __init__(self, csv_file, root_dir, transform=None):
-# #         self.df = pd.read_csv(csv_file)
-# #         self.root_dir = root_dir
+    # # Freeze convolutional layers
+    # for param in model_vgg19_bn.features.parameters():
+    #     param.requires_grad = False

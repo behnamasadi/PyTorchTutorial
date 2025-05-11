@@ -173,6 +173,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - Inference Optimization
 - Logging and Debuggingv
 - Project Structure & Best Practices
+- [Maximize GPU utilization](maximize_GPU_utilization)
 
 ---
 
