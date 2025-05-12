@@ -75,7 +75,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Neural Networks, Manifolds, and Topology](https://colah.github.io/posts/2014-03-NN-Manifolds-Topology/)  
 - [Back Propagation](backpropagation/index.ipynb)  
 - [Activation Functions](activation_functions/activation_function.ipynb)  
-- [Loss Functions](loss_functions/loss_functions.ipynb)  
+- [Loss Functions](loss_functions/index.ipynb)  
 
 
 ## [Training Process](#)
@@ -115,10 +115,10 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - EfficientNet, MobileNet (for mobile)
 
 ## [Image Preprocessing & Augmentation Workflows](#)
-- [Dataset and DataLoader APIs](data_loader_pre_processing/datasets_loader.ipynb)  
-- [Pre Processing Transforms](data_loader_pre_processing/index.ipynb#1.-Preprocessing-Transforms)  
-- [Data Augmentation Transforms](data_loader_pre_processing/index.ipynb#2.-Data-Augmentation-Transforms)  
-- [Training/Evaluation Transform Pipeline](data_loader_pre_processing/index.ipynb#3.-Building-the-Transform-Pipeline)  
+- [Dataset, Custom Dataset Class, ImageFolder, random_split, Subset](datasets/index.ipynb)  
+- [DataLoader](dataloader/index.ipynb)  
+- [Transforms, Pre-Processing, Data Augmentation](transform_pre_processing_augmentation/index.ipynb)  
+
 
 ---
 
