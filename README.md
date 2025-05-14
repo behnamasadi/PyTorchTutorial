@@ -74,7 +74,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 ## [Neural Network Basics](#)
 - [Neural Networks, Manifolds, and Topology](https://colah.github.io/posts/2014-03-NN-Manifolds-Topology/)  
 - [Back Propagation](backpropagation/index.ipynb)  
-- [Activation Functions](activation_functions/activation_function.ipynb)  
+- [Activation Functions](activation_functions/index.ipynb)  
 - [Loss Functions](loss_functions/index.ipynb)  
 
 
@@ -124,8 +124,8 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 
 ## [**Sequence Modeling**](#)
-[Encoder–Decoder Architecture](encoder/index.ipynb)  
-[Encoders, Decoders, Variational Autoencoders](machine_learning/nn/encoders.ipynb)  
+[Encoder/ Decoder Architecture](encoder/index.ipynb)  
+[Variational Autoencoders](machine_learning/nn/encoders.ipynb)  
 - Teacher Forcing
 
 ---
