@@ -61,7 +61,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 ## [**PyTorch Fundamentals**](#) 
 - [PyTorch Tensor Basics & Data Types](data_types/index.ipynb)  
 - [Grad Package](grad_package/)  
-    - [Computational Graph](grad_package/grad.ipynb#Computational-Graph)
+    - [Computational Graph](grad_package/grad.ipynb#Computational-Graph)  
     - [Autograd](grad_package/grad.ipynb#Autograd)  
     - [Dynamic Computational Graph](grad_package/grad.ipynb#)  
     - [Detach](grad_package/grad.ipynb#detach)  
@@ -115,7 +115,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - EfficientNet, MobileNet (for mobile)
 
 ## [Image Preprocessing & Augmentation Workflows](#)
-- [Dataset, Custom Dataset Class, ImageFolder, random_split, Subset](datasets/index.ipynb)  
+- [Custom Dataset, ImageFolder, random_split, Subset](dataset/index.ipynb)  
 - [DataLoader](dataloader/index.ipynb)  
 - [Transforms, Pre-Processing, Data Augmentation](transform_pre_processing_augmentation/index.ipynb)  
 
