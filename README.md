@@ -137,9 +137,12 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Positional Encoding](vit/index.ipynb#Step-6:-Add-Positional-Encoding)
 - Transformer Encoder/Decoder
 - [Vision Transformer (ViT)](vit/index.ipynb)
+- [Transformer-Based Model for Monocular Visual](vit_monocular_vision/index.ipynb)
 - Transformer Applications (BERT, GPT overview)
 
 ---
+
+
 
 
 ## [**3D Deep Learning**](#) 
