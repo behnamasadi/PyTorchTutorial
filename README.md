@@ -89,10 +89,10 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Layer Normalization](layer_normalization/index.ipynb)
 - [Weight Initialization Strategies](weight_initialization/index.ipynb)
 - [Evaluation vs Training Mode](learning_monitoring/index.ipynb)
-    -[Training, Validation, and Test Set](learning_monitoring/index.ipynb#Training-and-Validation-set)
-    -[Monitor for Overfitting](learning_monitoring/index.ipynb#1.-Monitor-for-Overfitting)
-    -[Early Stopping](index.ipynb#2.-Implement-Early-Stopping)
-    -[Visualize Metrics](learning_monitoring/index.ipynb#4.-Visualize-Metrics)
+    * [Training, Validation, and Test Set](learning_monitoring/index.ipynb#Training-and-Validation-set)
+    * [Monitor for Overfitting](learning_monitoring/index.ipynb#1.-Monitor-for-Overfitting)
+    * [Early Stopping](index.ipynb#2.-Implement-Early-Stopping)
+    * [Visualize Metrics](learning_monitoring/index.ipynb#4.-Visualize-Metrics)
 - [Real World Practices for Training and Regularization and PyTorch training template](PyTorch_training_template/index.ipynb)
 
 ---
@@ -158,31 +158,53 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - Contrastive Learning (SimCLR, MoCo)
 - Self-Supervised Learning
 - Zero-shot & Few-shot Learning
-- [Transfer learning](transfer_learning/transfer_learning.ipynb)  
+- [Transfer learning, Fine tuning, Backbone, Neck, Head ](transfer_learning/transfer_learning.ipynb)  
 - Large Language Models (LLMs)
 - [Model Ensembles](model_ensembles/index.ipynb)
 - [Flow Matching](flow_matching/index.ipynb)
 ---
 
-## [**Practical Engineering & Utilities**](#) 
-- [Experiment Tracking (TensorBoard, WandB)](weights_and_biases_WandB/WandB.ipynb)
-- Visualizing Model Graphs & Gradients
-- [TensorBoard & Model Debugging](tensorboard/index.ipynb)  
-- [Visualization of Graph](torchviz_visualize_graphs/index.ipynb)
-- [MLFlow](MLFlow/index.ipynb)
-- Data Versioning
-- Model Deployment (ONNX, TorchScript)
-- Quantization & Pruning
-- Inference Optimization
-- Logging and Debuggingv
-- Project Structure & Best Practices
-- [Maximize GPU utilization](maximize_GPU_utilization)
+
+
+## [**Multimodal Models**](multimodal_models)
+- [Vision-Language Models (VLM)](multimodal_models/vision_language_models.ipynb)
+- [Text-to-Image Models](multimodal_models/text_to_image.ipynb)
+- [Audio-Visual Models](multimodal_models/audio_visual.ipynb)
+- [Multimodal Transformers](multimodal_models/multimodal_transformers.ipynb)
+- [Cross-Modal Retrieval](multimodal_models/cross_modal_retrieval.ipynb)
 
 ---
-
 
 ## [**LLM**](#)
 - [A reading list that from Ilya Sutskever](https://arc.net/folder/D0472A20-9C20-4D3F-B145-D2865C0A9FEE)  
 - [ollama](https://github.com/ollama/ollama)  
 - [open-webui](https://github.com/open-webui/open-webui)  
-- [LLM Visualization](https://bbycroft.net/llm)  
+- [LLM Visualization](https://bbycroft.net/llm)
+
+
+## [**Production Engineering & MLOps**](#)
+[Development & Training](#)
+  * [Experiment Tracking (TensorBoard, WandB)](weights_and_biases_WandB/WandB.ipynb)
+  * [MLFlow](MLFlow/index.ipynb)
+  * [Training-time Monitoring](training_time_monitoring/index.ipynb)
+  * [TensorBoard & Model Debugging](tensorboard/index.ipynb)  
+  * [Visualization of Graph](torchviz_visualize_graphs/index.ipynb)
+  * Visualizing Model Graphs & Gradients
+
+[Pre-deployment Quality & Validation](#)
+- [Pre-release Quality Gates](pre_release_quality_gates/index.ipynb)
+- [Packaging for Inference](packaging_for_inference/index.ipynb)
+- Model Deployment (ONNX, TorchScript)
+- Quantization & Pruning
+
+[Deployment & Operations](#)
+- [Release & Rollout Strategies](release_rollout_strategies/index.ipynb)  
+- [Production Monitoring](production_monitoring/index.ipynb)  
+- [A/B Testing](ab_testing/index.ipynb)  
+- Inference Optimization  
+
+[Infrastructure & Best Practices](#)
+- [Maximize GPU utilization](maximize_GPU_utilization)
+- Data Versioning
+- Logging and Debugging
+- Project Structure & Best Practices
