@@ -5,10 +5,10 @@ model:
   lr: 0.001
 
 dataset:
-  path: ./data/brain-cancer
+  path: "./data/brain-cancer/Brain_Cancer raw MRI data/Brain_Cancer"
   img_size: 224
-  batch_size: 256
-  num_workers: 4
+  batch_size: 32  # Reduced batch size for testing
+  num_workers: 2  # Reduced workers for testing
   pin_memory: true
   train_split: 0.7
   val_split: 0.15

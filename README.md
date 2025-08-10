@@ -183,28 +183,28 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 
 ## [**Production Engineering & MLOps**](#)
-[Development & Training](#)
-  * [Experiment Tracking (TensorBoard, WandB)](weights_and_biases_WandB/WandB.ipynb)
-  * [MLFlow](MLFlow/index.ipynb)
-  * [Training-time Monitoring](training_time_monitoring/index.ipynb)
-  * [TensorBoard & Model Debugging](tensorboard/index.ipynb)  
-  * [Visualization of Graph](torchviz_visualize_graphs/index.ipynb)
-  * Visualizing Model Graphs & Gradients
+[Training stack & monitoring](training_stack_and_monitoring/index.ipynb)
+- [Experiment Tracking (TensorBoard, WandB)](training_stack_and_monitoring/weights_and_biases_WandB/WandB.ipynb)
+- [MLFlow](training_stack_and_monitoring/MLFlow/index.ipynb)
+- [Training-time Monitoring](training_stack_and_monitoring/training_time_monitoring/index.ipynb)
+- [TensorBoard & Model Debugging](training_stack_and_monitoring/tensorboard/index.ipynb)  
+- [Visualizing Model Graphs & Gradients](training_stack_and_monitoring/torchviz_visualize_graphs/index.ipynb)
 
-[Pre-deployment Quality & Validation](#)
-- [Pre-release Quality Gates](pre_release_quality_gates/index.ipynb)
-- [Packaging for Inference](packaging_for_inference/index.ipynb)
-- Model Deployment (ONNX, TorchScript)
+
+[Pre-deployment Quality & Validation](pre_deployment_quality_and_validation/index.ipynb)
+- [Pre-release Quality Gates](pre_deployment_quality_and_validation/pre_release_quality_gates/index.ipynb)
+- [Packaging for Inference](pre_deployment_quality_and_validation/packaging_for_inference/index.ipynb)
+- [Model Deployment (ONNX, TorchScript)](pre_deployment_quality_and_validation/model_deployment_ONNX_torchscript/index.ipynb)
 - Quantization & Pruning
 
-[Deployment & Operations](#)
-- [Release & Rollout Strategies](release_rollout_strategies/index.ipynb)  
-- [Production Monitoring](production_monitoring/index.ipynb)  
-- [A/B Testing](ab_testing/index.ipynb)  
+[Deployment & Operations](deployment_and_operations/index.ipynb)
+- [Release & Rollout Strategies](deployment_and_operations/release_rollout_strategies/index.ipynb)  
+- [Production Monitoring](deployment_and_operations/production_monitoring/index.ipynb)  
+- [A/B Testing](deployment_and_operations/ab_testing/index.ipynb)  
 - Inference Optimization  
 
-[Infrastructure & Best Practices](#)
-- [Maximize GPU utilization](maximize_GPU_utilization)
-- Data Versioning
-- Logging and Debugging
-- Project Structure & Best Practices
+[Infrastructure & Best Practices](infrastructure_and_best_practices/index.ipynb)
+- [Maximize GPU utilization](infrastructure_and_best_practices/maximize_GPU_utilization/index.ipynb)
+- [Data Versioning](infrastructure_and_best_practices/data_versioning/index.ipynb)
+- [Logging and Debugging](infrastructure_and_best_practices/logging_and_debugging/index.ipynb)
+- [Project Structure & Best Practices](infrastructure_and_best_practices/project_structure/index.ipynb)

@@ -3,7 +3,7 @@ import torchvision.models as models
 
 
 def get_model(name, num_classes, weights):
-    weights = eval(weights) if weights else None
+    # weights is already processed in train.py, so use it directly
 
     if name == 'resnet18':
         model = models.resnet18(weights=weights)
