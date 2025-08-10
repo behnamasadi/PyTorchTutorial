@@ -1,18 +1,174 @@
-/temp
-/data/*
-/images
-/saved_networks
-*.pyc
-*/runs/*
-.ipynb_checkpoints
-*/.ipynb_checkpoints/*
-*/.ipynb_checkpoints/*.ipynb
-*/wandb/*
-runs/*
-tensorboard_logs/*
-mlartifacts/*
+# PyTorch Tutorial Source Code .gitignore
+
+# ===== DATA AND DATASETS =====
+data/
+*/data/*
+*.csv
+*.json
+*.parquet
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+*.npy
+*.npz
+*.mat
+*.tar.gz
+*.zip
+*.rar
+*.7z
 *.gz
+
+# ===== MODEL CHECKPOINTS AND WEIGHTS =====
+saved_networks/
+*/saved_networks/*
 *.pt
-experiments/
+*.pth
+*.ckpt
+*.safetensors
+*.bin
+*.onnx
+*.pb
+*.tflite
+*.mlmodel
+
+# ===== LOGS AND MONITORING =====
+runs/
+*/runs/*
 wandb/
-sandbox/*
+*/wandb/*
+mlruns/
+*/mlruns/*
+tensorboard_logs/
+*/tensorboard_logs/*
+logs/
+*.log
+*.out
+*.err
+
+# ===== EXPERIMENTAL AND TEMPORARY FILES =====
+temp/
+*/temp/*
+tmp/
+*/tmp/*
+experiments/
+*/experiments/*
+sandbox/
+*/sandbox/*
+mlartifacts/
+*/mlartifacts/*
+
+# ===== JUPYTER NOTEBOOKS =====
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ===== PYTHON =====
+__pycache__/
+*/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ===== VIRTUAL ENVIRONMENTS =====
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.conda/
+conda-meta/
+
+# ===== IDE AND EDITOR FILES =====
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ===== OS GENERATED FILES =====
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# # ===== IMAGES AND MEDIA =====
+# images/
+# */images/*
+# *.jpg
+# *.jpeg
+# *.png
+# *.gif
+# *.bmp
+# *.tiff
+# *.svg
+# *.ico
+# *.mp4
+# *.avi
+# *.mov
+# *.wmv
+# *.flv
+# *.webm
+
+# ===== DOCUMENTATION BUILD =====
+docs/_build/
+site/
+
+# ===== TESTING =====
+.coverage
+.pytest_cache/
+.tox/
+.nox/
+htmlcov/
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+
+# ===== SECURITY =====
+*.key
+*.pem
+*.crt
+*.p12
+*.pfx
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ===== MISC =====
+*.bak
+*.backup
+*.old
+*.orig
+*.rej
+*.tmp
+*.temp
+*.pid
+*.seed
+*.pid.lock

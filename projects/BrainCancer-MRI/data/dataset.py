@@ -14,14 +14,14 @@ def get_transforms(mean, std, img_size, augment):
     train_tf += [transforms.ToTensor()]
     if mean is not None and std is not None:
         train_tf += [transforms.Normalize(mean, std)]
-    
+
     val_tf = [
         transforms.Resize((img_size, img_size)),
         transforms.ToTensor()
     ]
     if mean is not None and std is not None:
         val_tf += [transforms.Normalize(mean, std)]
-    
+
     return transforms.Compose(train_tf), transforms.Compose(val_tf)
 
 

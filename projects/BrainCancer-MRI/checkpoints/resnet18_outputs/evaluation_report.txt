@@ -1,0 +1,69 @@
+================================================================================
+Brain Cancer MRI Model Evaluation Report - resnet18
+================================================================================
+Generated: 2025-08-10 22:28:48
+Model: resnet18
+Classes: ['glioma', 'meningioma', 'pituitary']
+
+🎯 OVERALL PERFORMANCE
+----------------------------------------
+Test Accuracy: 0.7855 (78.55%)
+Macro Precision: 0.7932
+Macro Recall: 0.7843
+Macro F1-Score: 0.7861
+Weighted Precision: 0.7915
+Weighted Recall: 0.7855
+Weighted F1-Score: 0.7858
+
+⚡ INFERENCE PERFORMANCE
+----------------------------------------
+Average inference time per sample: 0.44ms
+Average inference time per batch: 0.057s
+Total samples evaluated: 909
+
+🔍 PER-CLASS ANALYSIS
+----------------------------------------
+
+📋 GLIOMA:
+  Precision: 0.8854
+  Recall (Sensitivity): 0.7671
+  F1-Score: 0.8220
+  Specificity: 0.9530
+  Support: 292 samples
+  True Positives: 224
+  False Positives: 29
+  False Negatives: 68
+
+📋 MENINGIOMA:
+  Precision: 0.7492
+  Recall (Sensitivity): 0.7318
+  F1-Score: 0.7404
+  Specificity: 0.8781
+  Support: 302 samples
+  True Positives: 221
+  False Positives: 74
+  False Negatives: 81
+
+📋 PITUITARY:
+  Precision: 0.7452
+  Recall (Sensitivity): 0.8540
+  F1-Score: 0.7959
+  Specificity: 0.8451
+  Support: 315 samples
+  True Positives: 269
+  False Positives: 92
+  False Negatives: 46
+
+🏥 MEDICAL AI VALIDATION
+----------------------------------------
+❌ Below medical AI threshold (<85%) - Requires improvement
+❌ glioma: Low sensitivity (0.767) - Risk of missed diagnoses
+❌ meningioma: Low sensitivity (0.732) - Risk of missed diagnoses
+✅ Real-time inference capability (≤500ms per sample)
+
+📊 CONFUSION MATRIX
+----------------------------------------
+⚠️  glioma → meningioma: 37 samples (12.7%)
+⚠️  glioma → pituitary: 31 samples (10.6%)
+⚠️  meningioma → pituitary: 61 samples (20.2%)
+⚠️  pituitary → meningioma: 37 samples (11.7%)
