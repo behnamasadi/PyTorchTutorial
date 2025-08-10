@@ -4,14 +4,23 @@ Brain Cancer MRI Model Registry Script
 
 This script handles production model deployment including:
 - MLflow Model Registry registration
-- Semantic versioning
-- Model performance documentation
-- Training configuration tracking
-- Model lineage and metadata
+- Semantic versioning for model lifecycle management
+- Model performance documentation and tracking
+- Training configuration and metadata preservation
+- Model lineage and audit trail maintenance
+- Medical AI compliance documentation
+
+The registry process ensures models are ready for:
+- Clinical deployment with complete documentation
+- Regulatory compliance and audit trails
+- Model versioning and rollback capabilities
+- Performance tracking and monitoring
+- Integration with medical AI workflows
 
 Usage:
     python3 register_model.py --model efficientnet_b0 --version 1.0.0
     python3 register_model.py --model resnet18 --version 2.1.0 --description "Improved medical validation"
+    python3 register_model.py --model swin_t --version 1.0.0 --tags "production=ready" "medical_ai=validated"
 """
 
 import argparse
@@ -26,7 +35,30 @@ from models.model import get_model
 
 
 def load_model_metadata(model_name, model_output_dir):
-    """Load model metadata from training and evaluation"""
+    """
+    Load comprehensive model metadata for registry documentation
+
+    This function collects all relevant information about a trained model:
+    - Training configuration and hyperparameters
+    - Evaluation results and performance metrics
+    - Medical AI validation results
+    - Model file information and sizes
+    - Export artifacts and deployment files
+
+    Medical AI Registry Requirements:
+    - Complete audit trail of model development
+    - Performance metrics for clinical validation
+    - Medical AI compliance documentation
+    - Model lineage and version tracking
+    - Deployment readiness assessment
+
+    Args:
+        model_name: Name of the model being registered
+        model_output_dir: Directory containing model outputs and artifacts
+
+    Returns:
+        dict: Comprehensive metadata dictionary for model registry
+    """
     metadata = {
         'model_name': model_name,
         'registration_time': datetime.now().isoformat(),
@@ -36,7 +68,7 @@ def load_model_metadata(model_name, model_output_dir):
         'evaluation_results': {}
     }
 
-    # Load training checkpoint metadata
+    # Load training checkpoint metadata for model lineage
     checkpoint_path = os.path.join(model_output_dir, 'best_model.pth')
     if os.path.exists(checkpoint_path):
         checkpoint = torch.load(
@@ -48,7 +80,7 @@ def load_model_metadata(model_name, model_output_dir):
                 'checkpoint_size_mb': os.path.getsize(checkpoint_path) / (1024 * 1024)
             })
 
-    # Load evaluation metrics if available
+    # Load evaluation metrics for performance documentation
     eval_metrics_path = os.path.join(
         model_output_dir, 'evaluation_metrics.json')
     if os.path.exists(eval_metrics_path):
@@ -57,14 +89,14 @@ def load_model_metadata(model_name, model_output_dir):
             metadata['evaluation_results'] = eval_data.get('metrics', {})
             metadata['inference_stats'] = eval_data.get('inference_stats', {})
 
-    # Load medical validation if available
+    # Load medical validation results for clinical deployment
     medical_validation_path = os.path.join(
         model_output_dir, 'medical_validation.json')
     if os.path.exists(medical_validation_path):
         with open(medical_validation_path, 'r') as f:
             metadata['medical_validation'] = json.load(f)
 
-    # Check for exported models
+    # Check for exported models for deployment tracking
     export_dir = os.path.join(model_output_dir, 'exported_models')
     if os.path.exists(export_dir):
         for file in os.listdir(export_dir):
@@ -80,24 +112,51 @@ def load_model_metadata(model_name, model_output_dir):
 
 
 def register_model_in_mlflow(model_name, model_output_dir, version, description, tags):
-    """Register model in MLflow Model Registry"""
+    """
+    Register model in MLflow Model Registry for production deployment
+
+    This function handles the complete model registration process:
+    - Creates MLflow experiment and run
+    - Logs model parameters and performance metrics
+    - Uploads model artifacts and documentation
+    - Registers model in MLflow Model Registry
+    - Adds metadata and tags for organization
+
+    Medical AI Registry Features:
+    - Complete model lineage tracking
+    - Performance metrics for clinical validation
+    - Medical AI compliance documentation
+    - Deployment readiness assessment
+    - Regulatory audit trail maintenance
+
+    Args:
+        model_name: Name of the model to register
+        model_output_dir: Directory containing model artifacts
+        version: Semantic version for the model
+        description: Human-readable description of the model
+        tags: Additional tags for model organization
+
+    Returns:
+        bool: True if registration successful, False otherwise
+    """
     print(f"📋 Registering {model_name} v{version} in MLflow Model Registry...")
 
-    # Load model metadata
+    # Load comprehensive model metadata
     metadata = load_model_metadata(model_name, model_output_dir)
 
-    # Set up MLflow tracking
+    # Set up MLflow tracking for model registry
     script_dir = os.path.dirname(os.path.abspath(__file__))
     mlflow_uri = os.path.join(script_dir, 'mlruns')
     mlflow.set_tracking_uri(mlflow_uri)
 
-    # Create model registry experiment
+    # Create model registry experiment for organization
     registry_experiment_name = "brain-cancer-mri-model-registry"
     mlflow.set_experiment(registry_experiment_name)
 
+    # Start MLflow run for model registration
     with mlflow.start_run(run_name=f"{model_name}_v{version}_registration"):
 
-        # Log model parameters
+        # Log model parameters for reproducibility
         mlflow.log_params({
             "model_name": model_name,
             "version": version,
@@ -105,7 +164,7 @@ def register_model_in_mlflow(model_name, model_output_dir, version, description,
             "registration_time": metadata['registration_time']
         })
 
-        # Log performance metrics
+        # Log performance metrics for clinical validation
         if metadata['evaluation_results']:
             overall_metrics = metadata['evaluation_results'].get('overall', {})
             mlflow.log_metrics({
@@ -116,7 +175,7 @@ def register_model_in_mlflow(model_name, model_output_dir, version, description,
                 "inference_time_ms": metadata.get('inference_stats', {}).get('inference_time_per_sample', 0) * 1000
             })
 
-        # Log medical validation metrics
+        # Log medical validation metrics for clinical deployment
         if 'medical_validation' in metadata:
             medical = metadata['medical_validation']
             mlflow.log_metrics({
@@ -124,7 +183,7 @@ def register_model_in_mlflow(model_name, model_output_dir, version, description,
                 "deployment_ready": 1.0 if medical.get('deployment_ready', False) else 0.0
             })
 
-        # Log model artifacts
+        # Log model artifacts for deployment
         export_dir = os.path.join(model_output_dir, 'exported_models')
         if os.path.exists(export_dir):
             for file in os.listdir(export_dir):
@@ -132,17 +191,17 @@ def register_model_in_mlflow(model_name, model_output_dir, version, description,
                     file_path = os.path.join(export_dir, file)
                     mlflow.log_artifact(file_path, "deployment_models")
 
-        # Log evaluation reports
+        # Log evaluation reports for documentation
         report_path = os.path.join(model_output_dir, 'evaluation_report.txt')
         if os.path.exists(report_path):
             mlflow.log_artifact(report_path, "documentation")
 
-        # Log confusion matrix
+        # Log confusion matrix for visual analysis
         cm_path = os.path.join(model_output_dir, 'confusion_matrix.png')
         if os.path.exists(cm_path):
             mlflow.log_artifact(cm_path, "visualizations")
 
-        # Log metadata as JSON
+        # Log metadata as JSON for programmatic access
         metadata_path = os.path.join(
             model_output_dir, 'model_registry_metadata.json')
         with open(metadata_path, 'w') as f:
@@ -152,11 +211,11 @@ def register_model_in_mlflow(model_name, model_output_dir, version, description,
         # Register model in MLflow Model Registry
         model_uri = f"runs:/{mlflow.active_run().info.run_id}/deployment_models"
 
-        # Create model registry entry
+        # Create model registry entry with medical AI naming convention
         registered_model_name = f"brain-cancer-mri-{model_name}"
 
         try:
-            # Register the model
+            # Register the model with comprehensive metadata
             mlflow.register_model(
                 model_uri=model_uri,
                 name=registered_model_name,
@@ -184,7 +243,32 @@ def register_model_in_mlflow(model_name, model_output_dir, version, description,
 
 
 def create_model_card(model_name, version, description, metadata):
-    """Create a comprehensive model card for documentation"""
+    """
+    Create a comprehensive model card for medical AI documentation
+
+    Model cards are essential for medical AI deployment as they provide:
+    - Complete model documentation for clinical review
+    - Performance metrics for regulatory compliance
+    - Medical AI validation results
+    - Deployment instructions and requirements
+    - Model lineage and version information
+
+    Medical AI Documentation Requirements:
+    - Clear performance metrics and limitations
+    - Medical validation results and compliance
+    - Deployment instructions for clinical use
+    - Model lineage and audit trail
+    - Regulatory compliance documentation
+
+    Args:
+        model_name: Name of the model
+        version: Semantic version of the model
+        description: Human-readable description
+        metadata: Comprehensive model metadata
+
+    Returns:
+        str: Complete model card in markdown format
+    """
     print(f"📄 Creating model card for {model_name} v{version}...")
 
     model_card = f"""# Brain Cancer MRI Classification Model Card
@@ -272,6 +356,30 @@ This model has been validated for medical AI deployment with:
 
 
 def main():
+    """
+    Main function for model registry and deployment preparation
+
+    This function orchestrates the complete model registration process:
+    1. Loads model configuration and validates inputs
+    2. Collects comprehensive model metadata
+    3. Creates detailed model documentation
+    4. Registers model in MLflow Model Registry
+    5. Generates deployment-ready artifacts
+
+    Medical AI Deployment Workflow:
+    - Model validation and performance assessment
+    - Medical AI compliance documentation
+    - Registry integration for version control
+    - Deployment preparation and testing
+    - Regulatory compliance and audit trails
+
+    The registration process ensures models are ready for:
+    - Clinical deployment with complete documentation
+    - Regulatory compliance and audit trails
+    - Model versioning and lifecycle management
+    - Performance monitoring and tracking
+    - Integration with medical AI workflows
+    """
     parser = argparse.ArgumentParser(
         description='Register Brain Cancer MRI model in MLflow Model Registry')
     parser.add_argument('--config', type=str, default='config/config.yaml',
@@ -287,25 +395,25 @@ def main():
 
     args = parser.parse_args()
 
-    # Parse tags
+    # Parse tags for model organization
     tags = {}
     for tag in args.tags:
         if '=' in tag:
             key, value = tag.split('=', 1)
             tags[key] = value
 
-    # Resolve config path
+    # Resolve config path for model configuration
     if not os.path.isabs(args.config):
         script_dir = os.path.dirname(os.path.abspath(__file__))
         config_path = os.path.join(script_dir, args.config)
     else:
         config_path = args.config
 
-    # Load configuration
+    # Load configuration for model details
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
 
-    # Resolve model output directory
+    # Resolve model output directory for artifact collection
     script_dir = os.path.dirname(os.path.abspath(__file__))
     if not os.path.isabs(config['train']['output_dir']):
         rel_path = config['train']['output_dir'].lstrip('./')
@@ -322,7 +430,7 @@ def main():
     print(f"📝 Description: {args.description}")
     print(f"📂 Model directory: {model_output_dir}")
 
-    # Check if model exists
+    # Check if model exists and is ready for registration
     if not os.path.exists(model_output_dir):
         print(f"❌ Model directory not found: {model_output_dir}")
         print(f"🚀 Train and export the model first:")
@@ -332,21 +440,21 @@ def main():
         print(f"   python3 export_model.py --model {args.model}")
         return
 
-    # Load model metadata
+    # Load comprehensive model metadata for documentation
     metadata = load_model_metadata(args.model, model_output_dir)
 
-    # Create model card
+    # Create detailed model card for medical documentation
     model_card = create_model_card(
         args.model, args.version, args.description, metadata)
 
-    # Save model card
+    # Save model card for clinical review
     model_card_path = os.path.join(
         model_output_dir, f'model_card_v{args.version}.md')
     with open(model_card_path, 'w') as f:
         f.write(model_card)
     print(f"📄 Model card saved to: {model_card_path}")
 
-    # Register in MLflow Model Registry
+    # Register model in MLflow Model Registry for production deployment
     success = register_model_in_mlflow(
         args.model, model_output_dir, args.version, args.description, tags
     )
@@ -361,7 +469,7 @@ def main():
         print(f"📄 Documentation: {model_card_path}")
         print(f"🔗 MLflow Registry: brain-cancer-mri-{args.model}")
 
-        # Next steps
+        # Next steps for clinical deployment
         print(f"\n🚀 **Next Steps for Deployment:**")
         print(f"1. Review model card: {model_card_path}")
         print(f"2. Validate medical AI compliance")

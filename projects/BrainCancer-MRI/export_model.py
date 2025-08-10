@@ -199,4 +199,3 @@ if __name__ == '__main__':
                         help='Export format (default: both)')
     args = parser.parse_args()
     main(args.config, args.model, args.format)
-

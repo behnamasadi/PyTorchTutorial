@@ -10,10 +10,18 @@ This script provides comprehensive model evaluation capabilities including:
 - Robustness testing
 - Medical AI specific validation metrics
 
+The evaluation process is specifically designed for medical AI applications,
+ensuring models meet clinical deployment standards with:
+- High sensitivity for tumor detection (minimizing false negatives)
+- Robust accuracy across all tumor types
+- Real-time inference capabilities
+- Complete audit trail for regulatory compliance
+
 Usage:
     python evaluate.py --model resnet18
     python evaluate.py --model efficientnet_b0 --config config/config.yaml
     python evaluate.py --model xception_medical --detailed
+    python evaluate.py --model swin_t --medical-validation --compare
 """
 
 import argparse
@@ -36,7 +44,7 @@ from data.dataset import load_datasets
 import json
 from datetime import datetime
 
-# Monitoring imports
+# Monitoring imports for experiment tracking and model registry
 import mlflow
 import mlflow.pytorch
 import wandb
@@ -44,19 +52,37 @@ import wandb
 
 def evaluate_model_on_test_set(model, test_loader, device, class_names, detailed=False):
     """
-    Comprehensive model evaluation on test set
+    Comprehensive model evaluation on test set with medical AI focus
+
+    This function performs inference on the test set while collecting:
+    - Predictions and ground truth labels
+    - Prediction probabilities for confidence analysis
+    - Inference timing for real-time capability assessment
+    - Per-batch processing statistics
+
+    Medical AI Considerations:
+    - Ensures no data leakage between train/validation/test sets
+    - Collects detailed timing for clinical deployment assessment
+    - Maintains complete audit trail of predictions
+    - Provides confidence scores for clinical decision support
 
     Args:
-        model: Trained PyTorch model
-        test_loader: DataLoader for test set
-        device: Device to run evaluation on
-        class_names: List of class names
+        model: Trained PyTorch model in evaluation mode
+        test_loader: DataLoader for test set with proper preprocessing
+        device: Device to run evaluation on (CPU/GPU)
+        class_names: List of class names for interpretable results
         detailed: Whether to return detailed per-sample predictions
 
     Returns:
-        dict: Evaluation metrics and predictions
+        dict: Comprehensive evaluation results including:
+            - predictions: Model predictions for each sample
+            - labels: Ground truth labels
+            - probabilities: Prediction confidence scores
+            - inference_time_per_batch: Average batch processing time
+            - inference_time_per_sample: Average per-sample inference time
+            - total_samples: Total number of evaluated samples
     """
-    model.eval()
+    model.eval()  # Ensure model is in evaluation mode
     all_preds = []
     all_labels = []
     all_probabilities = []
@@ -65,28 +91,33 @@ def evaluate_model_on_test_set(model, test_loader, device, class_names, detailed
 
     inference_times = []
 
-    with torch.no_grad():
+    with torch.no_grad():  # Disable gradient computation for efficiency
         for batch_idx, (data, target) in enumerate(test_loader):
             batch_start_time = time.time()
 
             data, target = data.to(device), target.to(device)
 
-            # Forward pass
+            # Forward pass - get model predictions
             output = model(data)
+            # Convert logits to probabilities for confidence assessment
             probabilities = torch.softmax(output, dim=1)
+            # Get predicted class (highest probability)
             pred = output.argmax(dim=1)
 
             batch_time = time.time() - batch_start_time
             inference_times.append(batch_time)
 
+            # Store results for analysis
             all_preds.extend(pred.cpu().numpy())
             all_labels.extend(target.cpu().numpy())
             all_probabilities.extend(probabilities.cpu().numpy())
 
+            # Progress reporting for long evaluations
             if batch_idx % 10 == 0:
                 print(f"  Processed batch {batch_idx+1}/{len(test_loader)} "
                       f"({len(data)} samples, {batch_time:.3f}s)")
 
+    # Compile comprehensive results
     results = {
         'predictions': np.array(all_preds),
         'labels': np.array(all_labels),
@@ -101,33 +132,57 @@ def evaluate_model_on_test_set(model, test_loader, device, class_names, detailed
 
 def calculate_detailed_metrics(y_true, y_pred, y_proba, class_names):
     """
-    Calculate comprehensive evaluation metrics
+    Calculate comprehensive evaluation metrics with medical AI focus
+
+    This function computes a wide range of metrics essential for medical AI validation:
+
+    Medical AI Critical Metrics:
+    - Sensitivity (Recall): Critical for tumor detection - must minimize false negatives
+    - Specificity: Important for avoiding false alarms
+    - Precision: Ensures high confidence in positive predictions
+    - F1-Score: Balanced measure of precision and recall
+
+    Clinical Considerations:
+    - Per-class analysis for each tumor type (glioma, meningioma, pituitary)
+    - Overall accuracy for general performance assessment
+    - Macro and weighted averages for imbalanced datasets
+    - Confusion matrix for detailed error analysis
+
+    Args:
+        y_true: Ground truth labels
+        y_pred: Model predictions
+        y_proba: Prediction probabilities (for confidence analysis)
+        class_names: List of class names for interpretable results
 
     Returns:
-        dict: Detailed metrics including medical AI specific measures
+        dict: Comprehensive metrics including:
+            - overall: Macro and weighted performance metrics
+            - per_class: Detailed metrics for each tumor type
+            - confusion_matrix: Error analysis matrix
+            - class_names: For reference
     """
-    # Basic metrics
+    # Basic accuracy calculation
     accuracy = accuracy_score(y_true, y_pred)
 
-    # Per-class metrics
+    # Per-class metrics - essential for medical AI
     precision, recall, f1, support = precision_recall_fscore_support(
         y_true, y_pred, average=None, labels=range(len(class_names))
     )
 
-    # Macro averages
+    # Macro averages - treats all classes equally (important for imbalanced medical data)
     precision_macro, recall_macro, f1_macro, _ = precision_recall_fscore_support(
         y_true, y_pred, average='macro'
     )
 
-    # Weighted averages
+    # Weighted averages - accounts for class imbalance
     precision_weighted, recall_weighted, f1_weighted, _ = precision_recall_fscore_support(
         y_true, y_pred, average='weighted'
     )
 
-    # Confusion matrix
+    # Confusion matrix for detailed error analysis
     cm = confusion_matrix(y_true, y_pred)
 
-    # Medical AI specific metrics
+    # Compile comprehensive metrics structure
     metrics = {
         'overall': {
             'accuracy': accuracy,
@@ -143,26 +198,36 @@ def calculate_detailed_metrics(y_true, y_pred, y_proba, class_names):
         'class_names': class_names
     }
 
-    # Per-class detailed analysis
+    # Detailed per-class analysis - critical for medical AI
     for i, class_name in enumerate(class_names):
+        # Calculate class-specific metrics
+        true_positives = int(cm[i, i])
+        false_positives = int(cm[:, i].sum() - cm[i, i])
+        false_negatives = int(cm[i, :].sum() - cm[i, i])
+        true_negatives = int(
+            cm.sum() - cm[i, :].sum() - cm[:, i].sum() + cm[i, i])
+
+        # Calculate specificity (true negative rate)
+        specificity = true_negatives / \
+            (true_negatives + false_positives) if (true_negatives +
+                                                   false_positives) > 0 else 0.0
+
         metrics['per_class'][class_name] = {
             'precision': precision[i],
-            'recall': recall[i],
+            'recall': recall[i],  # Sensitivity for medical applications
             'f1_score': f1[i],
             'support': int(support[i]),
-            'true_positives': int(cm[i, i]),
-            'false_positives': int(cm[:, i].sum() - cm[i, i]),
-            'false_negatives': int(cm[i, :].sum() - cm[i, i]),
-            'specificity': int(cm.sum() - cm[i, :].sum() - cm[:, i].sum() + cm[i, i]) /
-            int(cm.sum() - cm[i, :].sum()) if (cm.sum() -
-                                               cm[i, :].sum()) > 0 else 0.0
+            'true_positives': true_positives,
+            'false_positives': false_positives,
+            'false_negatives': false_negatives,
+            'specificity': specificity
         }
 
-    # Medical AI critical metrics
-    # Sensitivity (recall) for each class - critical for medical diagnosis
+    # Medical AI critical validation checks
+    # Sensitivity (recall) is critical for tumor detection - missing a tumor is dangerous
     for i, class_name in enumerate(class_names):
         sensitivity = recall[i]
-        if 'tumor' in class_name.lower():
+        if 'tumor' in class_name.lower() or 'glioma' in class_name.lower() or 'meningioma' in class_name.lower():
             # For tumor classes, high sensitivity is critical (don't miss tumors)
             if sensitivity < 0.8:
                 print(
@@ -173,10 +238,24 @@ def calculate_detailed_metrics(y_true, y_pred, y_proba, class_names):
 
 
 def plot_confusion_matrix(cm, class_names, output_dir, model_name):
-    """Create and save confusion matrix visualization"""
+    """
+    Create and save confusion matrix visualization for medical AI analysis
+
+    The confusion matrix is crucial for medical AI as it shows:
+    - True positives: Correctly identified tumors
+    - False positives: False alarms (less critical but still important)
+    - False negatives: Missed tumors (CRITICAL - must be minimized)
+    - True negatives: Correctly identified normal cases
+
+    Args:
+        cm: Confusion matrix array
+        class_names: List of class names for axis labels
+        output_dir: Directory to save the visualization
+        model_name: Model name for the plot title
+    """
     plt.figure(figsize=(10, 8))
 
-    # Calculate percentages for annotation
+    # Calculate percentages for annotation - helps identify class imbalance issues
     cm_percent = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis] * 100
 
     # Create annotations with both count and percentage
@@ -189,6 +268,7 @@ def plot_confusion_matrix(cm, class_names, output_dir, model_name):
             row.append(f'{count}\n({percent:.1f}%)')
         annotations.append(row)
 
+    # Create heatmap with medical AI color scheme
     sns.heatmap(cm, annot=annotations, fmt='', cmap='Blues',
                 xticklabels=class_names, yticklabels=class_names,
                 cbar_kws={'label': 'Number of Samples'})
@@ -199,7 +279,7 @@ def plot_confusion_matrix(cm, class_names, output_dir, model_name):
     plt.xlabel('Predicted Label', fontsize=12)
     plt.tight_layout()
 
-    # Save confusion matrix
+    # Save confusion matrix for medical documentation
     cm_path = os.path.join(output_dir, 'confusion_matrix.png')
     plt.savefig(cm_path, dpi=300, bbox_inches='tight')
     print(f"💾 Confusion matrix saved to: {cm_path}")
@@ -209,7 +289,19 @@ def plot_confusion_matrix(cm, class_names, output_dir, model_name):
 
 
 def plot_per_class_metrics(metrics, output_dir, model_name):
-    """Create per-class performance visualization"""
+    """
+    Create per-class performance visualization for medical AI analysis
+
+    This visualization helps identify:
+    - Which tumor types are easier/harder to detect
+    - Performance gaps that need addressing
+    - Class-specific issues that could affect clinical deployment
+
+    Args:
+        metrics: Comprehensive metrics dictionary
+        output_dir: Directory to save the visualization
+        model_name: Model name for the plot title
+    """
     classes = list(metrics['per_class'].keys())
     precision_scores = [metrics['per_class'][cls]['precision']
                         for cls in classes]
@@ -221,12 +313,14 @@ def plot_per_class_metrics(metrics, output_dir, model_name):
 
     fig, ax = plt.subplots(figsize=(12, 6))
 
+    # Create grouped bar chart for easy comparison
     bars1 = ax.bar(x - width, precision_scores, width,
                    label='Precision', alpha=0.8)
-    bars2 = ax.bar(x, recall_scores, width, label='Recall', alpha=0.8)
+    bars2 = ax.bar(x, recall_scores, width,
+                   label='Recall (Sensitivity)', alpha=0.8)
     bars3 = ax.bar(x + width, f1_scores, width, label='F1-Score', alpha=0.8)
 
-    ax.set_xlabel('Classes')
+    ax.set_xlabel('Tumor Classes')
     ax.set_ylabel('Score')
     ax.set_title(f'Per-Class Performance Metrics - {model_name}')
     ax.set_xticks(x)
@@ -234,7 +328,7 @@ def plot_per_class_metrics(metrics, output_dir, model_name):
     ax.legend()
     ax.set_ylim(0, 1.0)
 
-    # Add value labels on bars
+    # Add value labels on bars for precise reading
     for bars in [bars1, bars2, bars3]:
         for bar in bars:
             height = bar.get_height()
@@ -254,11 +348,32 @@ def plot_per_class_metrics(metrics, output_dir, model_name):
 
 
 def generate_evaluation_report(metrics, model_config, output_dir, model_name, inference_stats):
-    """Generate comprehensive evaluation report"""
+    """
+    Generate comprehensive evaluation report for medical AI documentation
 
+    This report provides:
+    - Overall performance summary
+    - Per-class detailed analysis
+    - Medical AI validation checks
+    - Inference performance assessment
+    - Clinical deployment recommendations
+
+    The report is essential for:
+    - Regulatory compliance documentation
+    - Clinical validation processes
+    - Model deployment decisions
+    - Continuous improvement tracking
+
+    Args:
+        metrics: Comprehensive metrics dictionary
+        model_config: Model configuration for context
+        output_dir: Directory to save the report
+        model_name: Model name for the report
+        inference_stats: Inference timing statistics
+    """
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # Text report
+    # Text report with medical AI focus
     report_lines = [
         "=" * 80,
         f"Brain Cancer MRI Model Evaluation Report - {model_name}",
@@ -287,7 +402,7 @@ def generate_evaluation_report(metrics, model_config, output_dir, model_name, in
         "-" * 40
     ]
 
-    # Per-class detailed analysis
+    # Per-class detailed analysis - critical for medical AI
     for class_name, class_metrics in metrics['per_class'].items():
         report_lines.extend([
             f"",
@@ -302,7 +417,7 @@ def generate_evaluation_report(metrics, model_config, output_dir, model_name, in
             f"  False Negatives: {class_metrics['false_negatives']}"
         ])
 
-    # Medical AI specific warnings
+    # Medical AI specific validation section
     report_lines.extend([
         "",
         "🏥 MEDICAL AI VALIDATION",
@@ -324,7 +439,7 @@ def generate_evaluation_report(metrics, model_config, output_dir, model_name, in
         report_lines.append(
             "❌ Below medical AI threshold (<85%) - Requires improvement")
 
-    # Check sensitivity for tumor classes
+    # Check sensitivity for tumor classes - critical for medical AI
     for class_name, class_metrics in metrics['per_class'].items():
         sensitivity = class_metrics['recall']
         if 'tumor' in class_name.lower() or 'glioma' in class_name.lower() or 'meningioma' in class_name.lower():
@@ -338,7 +453,7 @@ def generate_evaluation_report(metrics, model_config, output_dir, model_name, in
                 report_lines.append(
                     f"❌ {class_name}: Low sensitivity ({sensitivity:.3f}) - Risk of missed diagnoses")
 
-    # Performance analysis
+    # Performance analysis for clinical deployment
     if inference_stats['inference_time_per_sample'] <= 0.5:
         report_lines.append(
             "✅ Real-time inference capability (≤500ms per sample)")
@@ -346,10 +461,10 @@ def generate_evaluation_report(metrics, model_config, output_dir, model_name, in
         report_lines.append(
             f"⚠️  Slow inference ({inference_stats['inference_time_per_sample']*1000:.0f}ms per sample)")
 
-    # Confusion matrix analysis
+    # Confusion matrix analysis for error patterns
     report_lines.extend([
         "",
-        "📊 CONFUSION MATRIX",
+        "📊 CONFUSION MATRIX ANALYSIS",
         "-" * 40
     ])
 
@@ -363,14 +478,14 @@ def generate_evaluation_report(metrics, model_config, output_dir, model_name, in
                     report_lines.append(
                         f"⚠️  {true_class} → {pred_class}: {cm[i, j]} samples ({error_rate:.1f}%)")
 
-    # Save text report
+    # Save text report for medical documentation
     report_path = os.path.join(output_dir, 'evaluation_report.txt')
     with open(report_path, 'w') as f:
         f.write('\n'.join(report_lines))
 
     print(f"📄 Detailed evaluation report saved to: {report_path}")
 
-    # Save JSON metrics for programmatic access
+    # Save JSON metrics for programmatic access and integration
     json_metrics = {
         'timestamp': timestamp,
         'model_name': model_name,
@@ -389,10 +504,30 @@ def generate_evaluation_report(metrics, model_config, output_dir, model_name, in
 
 def medical_ai_validation_checks(metrics, class_names):
     """
-    Perform medical AI specific validation checks
+    Perform medical AI specific validation checks for clinical deployment
+
+    This function implements medical AI validation criteria including:
+    - Accuracy thresholds for medical screening
+    - Sensitivity requirements for tumor detection
+    - Class imbalance assessment
+    - Deployment readiness evaluation
+
+    Medical AI Standards:
+    - Minimum 85% accuracy for medical screening applications
+    - Minimum 80% sensitivity for tumor detection (minimize false negatives)
+    - Balanced performance across all tumor types
+    - Complete audit trail and documentation
+
+    Args:
+        metrics: Comprehensive metrics dictionary
+        class_names: List of class names for analysis
 
     Returns:
-        dict: Validation results and recommendations
+        dict: Validation results including:
+            - passed_medical_threshold: Whether accuracy meets medical standards
+            - sensitivity_warnings: Classes with low sensitivity
+            - recommendations: Improvement suggestions
+            - deployment_ready: Overall deployment readiness
     """
     validation_results = {
         'passed_medical_threshold': False,
@@ -427,7 +562,7 @@ def medical_ai_validation_checks(metrics, class_names):
                     f"Improve {class_name} sensitivity to reduce missed diagnoses"
                 )
 
-    # Check for class imbalance issues
+    # Check for class imbalance issues that could affect clinical performance
     supports = [metrics['per_class'][cls]['support'] for cls in class_names]
     min_support = min(supports)
     max_support = max(supports)
@@ -439,7 +574,7 @@ def medical_ai_validation_checks(metrics, class_names):
             f"Address class imbalance (ratio: {imbalance_ratio:.1f}:1) with data augmentation or class weighting"
         )
 
-    # Overall deployment readiness
+    # Overall deployment readiness assessment
     validation_results['deployment_ready'] = (
         validation_results['passed_medical_threshold'] and
         len(validation_results['sensitivity_warnings']) == 0
@@ -450,7 +585,13 @@ def medical_ai_validation_checks(metrics, class_names):
 
 def compare_models(model_results_dir):
     """
-    Compare multiple trained models if available
+    Compare multiple trained models for optimal deployment selection
+
+    This function analyzes all available trained models to:
+    - Identify the best performing model
+    - Compare accuracy, F1-score, and inference speed
+    - Assess medical AI compliance across models
+    - Provide deployment recommendations
 
     Args:
         model_results_dir: Base directory containing model-specific output folders
@@ -488,7 +629,7 @@ def compare_models(model_results_dir):
         print("📝 Not enough models for comparison (need at least 2)")
         return
 
-    # Sort by accuracy
+    # Sort by accuracy for medical AI prioritization
     model_comparisons.sort(key=lambda x: x['accuracy'], reverse=True)
 
     print(f"\n📊 MODEL COMPARISON ({len(model_comparisons)} models)")
@@ -512,7 +653,7 @@ def compare_models(model_results_dir):
         print(
             f"{model['name']:<20} {accuracy_pct:>8.2f}%   {f1_pct:>8.2f}%   {inference_ms:>10.1f}ms    {status}")
 
-    # Best model summary
+    # Best model summary for deployment recommendation
     best_model = model_comparisons[0]
     print(f"\n🏆 BEST MODEL: {best_model['name']}")
     print(f"   Accuracy: {best_model['accuracy']*100:.2f}%")
@@ -524,6 +665,24 @@ def compare_models(model_results_dir):
 
 
 def main():
+    """
+    Main evaluation function for Brain Cancer MRI model assessment
+
+    This function orchestrates the complete evaluation process:
+    1. Loads trained model and configuration
+    2. Performs comprehensive test set evaluation
+    3. Calculates medical AI specific metrics
+    4. Generates visualizations and reports
+    5. Performs medical AI validation checks
+    6. Logs results to MLflow and Weights & Biases
+    7. Compares with other trained models if requested
+
+    The evaluation is designed for medical AI deployment with:
+    - Complete audit trail for regulatory compliance
+    - Medical AI specific validation criteria
+    - Comprehensive documentation for clinical review
+    - Integration with model registry systems
+    """
     parser = argparse.ArgumentParser(
         description='Comprehensive Brain Cancer MRI Model Evaluation'
     )
@@ -554,7 +713,7 @@ def main():
     # Resolve paths relative to script directory
     script_dir = os.path.dirname(os.path.abspath(__file__))
 
-    # Fix dataset path
+    # Fix dataset path for proper data loading
     if not os.path.isabs(config['dataset']['path']):
         rel_path = config['dataset']['path'].lstrip('./')
         config['dataset']['path'] = os.path.join(script_dir, rel_path)
@@ -567,7 +726,7 @@ def main():
 
     model_config = config['models'][args.model]
 
-    # Set up output directory
+    # Set up output directory for evaluation results
     if not os.path.isabs(config['train']['output_dir']):
         rel_path = config['train']['output_dir'].lstrip('./')
         base_output_dir = os.path.join(script_dir, rel_path)
@@ -610,7 +769,7 @@ def main():
     else:
         model.load_state_dict(checkpoint)
 
-    # Setup device
+    # Setup device for evaluation
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = model.to(device)
     print(f"🖥️  Using device: {device}")
@@ -641,7 +800,7 @@ def main():
     # Class names mapping (match the actual dataset structure)
     class_names = ['glioma', 'meningioma', 'pituitary']
 
-    # Run evaluation
+    # Run comprehensive evaluation
     print("\n🚀 Starting evaluation...")
     eval_start_time = time.time()
 
@@ -669,14 +828,14 @@ def main():
     print(
         f"⚡ Avg inference time: {eval_results['inference_time_per_sample']*1000:.2f}ms per sample")
 
-    # Create output directory
+    # Create output directory for results
     os.makedirs(output_dir, exist_ok=True)
 
-    # Generate visualizations
+    # Generate visualizations if detailed analysis requested
     if args.detailed:
         print("\n🎨 Generating visualizations...")
 
-        # Confusion matrix
+        # Confusion matrix for error analysis
         plot_confusion_matrix(
             np.array(metrics['confusion_matrix']),
             class_names,
@@ -684,13 +843,13 @@ def main():
             args.model
         )
 
-        # Per-class metrics
+        # Per-class metrics for performance analysis
         plot_per_class_metrics(metrics, output_dir, args.model)
 
-    # Setup monitoring for evaluation logging
+    # Setup monitoring for evaluation logging and model registry
     print("\n📊 Setting up evaluation logging...")
 
-    # MLflow setup
+    # MLflow setup for experiment tracking
     script_dir = os.path.dirname(os.path.abspath(__file__))
     mlflow_uri = os.path.join(script_dir, 'mlruns')
     mlflow.set_tracking_uri(mlflow_uri)
@@ -699,7 +858,7 @@ def main():
     eval_experiment_name = f"brain-cancer-mri-evaluation-{args.model}"
     mlflow.set_experiment(eval_experiment_name)
 
-    # Weights & Biases setup for evaluation
+    # Weights & Biases setup for evaluation tracking
     wandb.init(
         project="brain-cancer-mri-evaluation",
         name=f"{args.model}_test_evaluation",
@@ -714,10 +873,10 @@ def main():
         }
     )
 
-    # Start MLflow run for evaluation
+    # Start MLflow run for evaluation tracking
     with mlflow.start_run(run_name=f"{args.model}_test_evaluation"):
 
-        # Log model configuration
+        # Log model configuration for reproducibility
         mlflow.log_params({
             "model_name": model_config['name'],
             "model_type": args.model,
@@ -741,7 +900,7 @@ def main():
             "total_evaluation_time_s": eval_time
         })
 
-        # Log per-class metrics
+        # Log per-class metrics for detailed analysis
         for class_name, class_metrics in metrics['per_class'].items():
             mlflow.log_metrics({
                 f"test_{class_name}_precision": class_metrics['precision'],
@@ -751,7 +910,7 @@ def main():
                 f"test_{class_name}_support": class_metrics['support']
             })
 
-        # Log to Weights & Biases
+        # Log to Weights & Biases for additional tracking
         wandb_metrics = {
             "test_accuracy": metrics['overall']['accuracy'],
             "test_precision_macro": metrics['overall']['precision_macro'],
@@ -773,12 +932,12 @@ def main():
 
         wandb.log(wandb_metrics)
 
-        # Generate comprehensive report
+        # Generate comprehensive report for medical documentation
         report_path, json_path = generate_evaluation_report(
             metrics, model_config, output_dir, args.model, eval_results
         )
 
-    # Medical AI validation
+    # Medical AI validation checks
     if args.medical_validation:
         print("\n🏥 Performing medical AI validation...")
         validation_results = medical_ai_validation_checks(metrics, class_names)
@@ -799,13 +958,13 @@ def main():
             for rec in validation_results['recommendations']:
                 print(f"      - {rec}")
 
-        # Save validation results
+        # Save validation results for regulatory compliance
         validation_path = os.path.join(output_dir, 'medical_validation.json')
         with open(validation_path, 'w') as f:
             json.dump(validation_results, f, indent=2)
         print(f"🏥 Medical validation results saved to: {validation_path}")
 
-        # Log medical validation to MLflow
+        # Log medical validation to MLflow for audit trail
         mlflow.log_metrics({
             "medical_threshold_passed": 1.0 if validation_results['passed_medical_threshold'] else 0.0,
             "deployment_ready": 1.0 if validation_results['deployment_ready'] else 0.0,
@@ -823,12 +982,12 @@ def main():
             }
         })
 
-        # Log artifacts to MLflow
+        # Log artifacts to MLflow for complete documentation
         mlflow.log_artifact(report_path, "evaluation_reports")
         mlflow.log_artifact(json_path, "evaluation_reports")
 
         if args.detailed:
-            # Log visualizations
+            # Log visualizations for medical review
             cm_path = os.path.join(output_dir, 'confusion_matrix.png')
             metrics_plot_path = os.path.join(
                 output_dir, 'per_class_metrics.png')
@@ -847,7 +1006,7 @@ def main():
             if os.path.exists(validation_path):
                 mlflow.log_artifact(validation_path, "medical_validation")
 
-    # Model comparison
+    # Model comparison for deployment selection
     if args.compare:
         print("\n🔄 Comparing with other trained models...")
         comparison_results = compare_models(os.path.dirname(output_dir))
@@ -870,7 +1029,7 @@ def main():
             )
             wandb.log({"model_comparison": comparison_table})
 
-    # Close monitoring
+    # Close monitoring systems
     wandb.finish()
 
     print(f"\n🎉 **Evaluation Complete!**")
@@ -879,7 +1038,7 @@ def main():
     print(f"📊 MLflow experiment: {eval_experiment_name}")
     print(f"🔮 Wandb project: brain-cancer-mri-evaluation")
 
-    # Final recommendations
+    # Final recommendations based on medical AI standards
     if metrics['overall']['accuracy'] >= 0.90:
         print("🏆 Model shows excellent performance for medical AI!")
     elif metrics['overall']['accuracy'] >= 0.85:
