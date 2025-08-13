@@ -3,7 +3,11 @@ import torchvision
 import torchviz
 
 
-resnet18=torchvision.models.resnet18(pretrained=True)
+
+
+resnet18=torchvision.models.resnet18(weights: ResNet18_Weights, progress= True) 
+
+
 for params in resnet18.parameters():
     params.requiers_gard=False
 
