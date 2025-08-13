@@ -3,8 +3,29 @@ from torchvision import datasets, transforms
 from torch.utils.data import random_split, Subset
 
 
-def get_transforms(mean, std, img_size, augment):
-    train_tf = [transforms.Resize((img_size, img_size))]
+def get_transforms(mean, std, img_size, augment, grayscale=False):
+    """
+    Get transforms for training and validation.
+    All models use RGB input (3 channels) for compatibility with pre-trained weights.
+
+    Args:
+        mean: Normalization mean
+        std: Normalization std
+        img_size: Target image size
+        augment: Whether to apply augmentation
+        grayscale: Whether to use grayscale input (single channel)
+    """
+    # Convert grayscale MRI to RGB for all models (simplest approach)
+    train_tf = [
+        transforms.Resize((img_size, img_size)),
+    ]
+
+    if grayscale:
+        # Keep as single channel
+        train_tf.append(transforms.Grayscale(num_output_channels=1))
+    else:
+        train_tf.append(transforms.Grayscale(
+            num_output_channels=3))  # Convert to RGB
     if augment:
         train_tf += [
             transforms.RandomHorizontalFlip(),
@@ -17,21 +38,29 @@ def get_transforms(mean, std, img_size, augment):
 
     val_tf = [
         transforms.Resize((img_size, img_size)),
-        transforms.ToTensor()
     ]
+
+    if grayscale:
+        # Keep as single channel
+        val_tf.append(transforms.Grayscale(num_output_channels=1))
+    else:
+        val_tf.append(transforms.Grayscale(
+            num_output_channels=3))  # Convert to RGB
+
+    val_tf.append(transforms.ToTensor())
     if mean is not None and std is not None:
         val_tf += [transforms.Normalize(mean, std)]
 
     return transforms.Compose(train_tf), transforms.Compose(val_tf)
 
 
-def load_datasets(config, mean=None, std=None):
+def load_datasets(config, mean=None, std=None, grayscale=False):
     path = config['dataset']['path']
     img_size = config['dataset']['img_size']
     augment = config['transform']['augmentation']
 
     transform_train, transform_val_test = get_transforms(
-        mean, std, img_size, augment)
+        mean, std, img_size, augment, grayscale)
 
     full_dataset = datasets.ImageFolder(path, transform=None)
     n_total = len(full_dataset)

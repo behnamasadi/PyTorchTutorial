@@ -58,7 +58,7 @@ models:
     img_size: 299    # Specific to this model
 
 # Selected model configuration
-model: resnet18  # Choose from: resnet18, resnet50, swin_t, swin_s, efficientnet_b0, vit_b_16, medical_cnn, xception_medical
+model: efficientnet_b0  # Choose from: resnet18, resnet50, swin_t, swin_s, efficientnet_b0, vit_b_16, medical_cnn, xception_medical
 
 dataset:
   path: "./data/brain-cancer/Brain_Cancer raw MRI data/Brain_Cancer"
@@ -77,12 +77,12 @@ transform:
   augmentation: true
 
 train:
-  epochs: 10 # 50 is better
+  epochs: 70 #
   save_every: 5
   output_dir: "./checkpoints"
   # Early stopping configuration
-  patience: 10          # Stop if no improvement for 10 epochs
-  min_delta: 0.001      # Minimum improvement threshold (0.1%)
+  patience: 15         # Effectively disable early stopping
+  min_delta: 0.0005     # Minimum improvement threshold (0.05%)
   
 # Performance optimization settings
 performance:
@@ -96,7 +96,7 @@ performance:
 monitoring:
   tensorboard_log_dir: "./runs"
   mlflow_experiment_name: "brain-cancer-mri-v2"
-  mlflow_tracking_uri: "./mlruns"
+  mlflow_tracking_uri: "http://127.0.0.1:5000"  # Point to MLflow server
   wandb:
     project: "brain-cancer-mri"
     entity: null  # Your wandb username/team (optional)

@@ -1,8 +1,19 @@
 #!/usr/bin/env python3
 """
-Brain Cancer MRI Model Registry Script
+🧠 Brain Cancer MRI Model Registry Script
+========================================
 
-This script handles production model deployment including:
+📋 PURPOSE:
+This script registers trained models with MLflow Model Registry for production deployment.
+Use this AFTER training is complete and you have a model you want to deploy.
+
+🚀 WHEN TO USE:
+- After successful training with good validation accuracy
+- When you want to deploy a model to production
+- When you need version control for your models
+- When you want to track model performance over time
+
+📊 WHAT IT DOES:
 - MLflow Model Registry registration
 - Semantic versioning for model lifecycle management
 - Model performance documentation and tracking
@@ -10,17 +21,22 @@ This script handles production model deployment including:
 - Model lineage and audit trail maintenance
 - Medical AI compliance documentation
 
-The registry process ensures models are ready for:
+🏥 MEDICAL AI FEATURES:
 - Clinical deployment with complete documentation
 - Regulatory compliance and audit trails
 - Model versioning and rollback capabilities
 - Performance tracking and monitoring
 - Integration with medical AI workflows
 
-Usage:
-    python3 register_model.py --model efficientnet_b0 --version 1.0.0
-    python3 register_model.py --model resnet18 --version 2.1.0 --description "Improved medical validation"
-    python3 register_model.py --model swin_t --version 1.0.0 --tags "production=ready" "medical_ai=validated"
+💡 WORKFLOW:
+1. Train your model: python train.py --model resnet18
+2. Evaluate performance: python evaluate.py --model resnet18
+3. Register best model: python register_model.py --model resnet18 --version 1.0.0
+
+📝 USAGE EXAMPLES:
+    python register_model.py --model efficientnet_b0 --version 1.0.0
+    python register_model.py --model resnet18 --version 2.1.0 --description "Improved medical validation"
+    python register_model.py --model swin_t --version 1.0.0 --tags "production=ready" "medical_ai=validated"
 """
 
 import argparse

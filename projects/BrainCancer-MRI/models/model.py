@@ -1,10 +1,15 @@
 import torch.nn as nn
 import torchvision.models as models
+import torch
+
+
+
 
 
 def get_model(name, num_classes, weights):
     """
     Get model architecture with pre-trained weights and modify for classification.
+    All models use RGB input (3 channels) for compatibility with pre-trained weights.
 
     Args:
         name (str): Model name
@@ -28,6 +33,8 @@ def get_model(name, num_classes, weights):
 
     elif name == 'swin_t':
         model = models.swin_t(weights=weights)
+        # Note: Swin Transformer doesn't have a simple conv1 layer to modify
+        # You might need to handle this differently or keep RGB conversion
         model.head = nn.Linear(model.head.in_features, num_classes)
         # Initialize classifier head with smaller weights for stability
         nn.init.normal_(model.head.weight, mean=0.0, std=0.01)
@@ -36,6 +43,7 @@ def get_model(name, num_classes, weights):
 
     elif name == 'swin_s':
         model = models.swin_s(weights=weights)
+        # Note: Swin Transformer doesn't have a simple conv1 layer to modify
         model.head = nn.Linear(model.head.in_features, num_classes)
         classifier_params = model.head.parameters()
 
@@ -47,6 +55,7 @@ def get_model(name, num_classes, weights):
 
     elif name == 'vit_b_16':
         model = models.vit_b_16(weights=weights)
+        # Note: Vision Transformer doesn't have a simple conv1 layer to modify
         model.heads.head = nn.Linear(model.heads.head.in_features, num_classes)
         classifier_params = model.heads.parameters()
 
@@ -90,6 +99,7 @@ def get_model(name, num_classes, weights):
 
     elif name == 'mobilenet_v2':
         model = models.mobilenet_v2(weights=weights)
+        # MobileNet has a different structure, would need specific handling
         model.classifier[1] = nn.Linear(
             model.classifier[1].in_features, num_classes)
         classifier_params = model.classifier.parameters()
@@ -101,6 +111,8 @@ def get_model(name, num_classes, weights):
 
         # Load pretrained backbone
         base_model = efficientnet_b0(weights=weights)
+
+
 
         # Get feature dimension after adaptive pooling
         # 1280 for EfficientNet-B0

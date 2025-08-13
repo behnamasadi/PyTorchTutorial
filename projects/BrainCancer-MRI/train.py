@@ -2,27 +2,101 @@ import argparse
 import yaml
 import os
 import time
-from utils.path_utils import get_project_root
+import sys
+import numpy as np
 
-from models.model import get_model
-from data.dataset import load_datasets
-from utils.helpers import save_checkpoint, calculate_mean_std
-import torch
-from torch.utils.data import DataLoader
-import torch.optim as optim
-import torch.nn as nn
-import torchvision.models as models
-from torch.amp import GradScaler
-from torch.amp import autocast
-from torch.optim.lr_scheduler import OneCycleLR
-import psutil
-import GPUtil
+# Add the project directory to Python path
+script_dir = os.path.dirname(os.path.abspath(__file__))
+project_dir = os.path.dirname(script_dir)
+if project_dir not in sys.path:
+    sys.path.insert(0, project_dir)
+
+try:
+    from utils.path_utils import get_project_root
+    from models.model import get_model
+    from data.dataset import load_datasets
+    from utils.helpers import save_checkpoint, calculate_mean_std
+
+    # Try to import pre-computed normalization constants
+    try:
+        from normalization_constants import NORMALIZATION_MEAN, NORMALIZATION_STD
+        USE_PRECOMPUTED_STATS = True
+        print("✅ Using pre-computed normalization statistics")
+    except ImportError:
+        USE_PRECOMPUTED_STATS = False
+        print("⚠️  Pre-computed normalization statistics not found, will compute during training")
+        print("💡 Run 'python precompute_normalization.py' to pre-compute statistics")
+
+except ImportError as e:
+    print(f"❌ Import error: {e}")
+    print("💡 Make sure you're running the script from the correct directory")
+    print("   Expected: src/projects/BrainCancer-MRI/")
+    print(f"   Current: {os.getcwd()}")
+    sys.exit(1)
+
+try:
+    print("🔍 Attempting to import torch...")
+    import torch
+    print(f"✅ torch imported successfully, version: {torch.__version__}")
+
+    print("🔍 Attempting to import torch.utils.data...")
+    from torch.utils.data import DataLoader
+    print("✅ torch.utils.data imported successfully")
+
+    print("🔍 Attempting to import torch.optim...")
+    import torch.optim as optim
+    print("✅ torch.optim imported successfully")
+
+    print("🔍 Attempting to import torch.nn...")
+    import torch.nn as nn
+    print("✅ torch.nn imported successfully")
+
+    print("🔍 Attempting to import torchvision.models...")
+    import torchvision.models as models
+    print("✅ torchvision.models imported successfully")
+
+    print("🔍 Attempting to import torch.amp...")
+    from torch.amp import GradScaler
+    from torch.amp import autocast
+    print("✅ torch.amp imported successfully")
+
+    print("🔍 Attempting to import torch.optim.lr_scheduler...")
+    from torch.optim.lr_scheduler import OneCycleLR
+    print("✅ torch.optim.lr_scheduler imported successfully")
+
+    print("🔍 Attempting to import torch.utils.tensorboard...")
+    from torch.utils.tensorboard import SummaryWriter
+    print("✅ torch.utils.tensorboard imported successfully")
+
+    print("🎉 All PyTorch imports successful!")
+except ImportError as e:
+    print(f"❌ PyTorch import error: {e}")
+    print("💡 Make sure PyTorch is installed: pip install torch torchvision")
+    sys.exit(1)
+except Exception as e:
+    print(f"❌ Unexpected error during PyTorch import: {e}")
+    print(f"Error type: {type(e)}")
+    import traceback
+    traceback.print_exc()
+    sys.exit(1)
+
+try:
+    import psutil
+    import GPUtil
+except ImportError as e:
+    print(f"❌ System monitoring import error: {e}")
+    print("💡 Install required packages: pip install psutil GPUtil")
+    sys.exit(1)
 
 # Monitoring imports
-from torch.utils.tensorboard import SummaryWriter
-import mlflow
-import mlflow.pytorch
-import wandb
+try:
+    import mlflow
+    import mlflow.pytorch
+    import wandb
+except ImportError as e:
+    print(f"❌ Monitoring import error: {e}")
+    print("💡 Install monitoring packages: pip install mlflow wandb")
+    sys.exit(1)
 
 
 def get_hardware_info():
@@ -58,32 +132,50 @@ def get_hardware_info():
     return info
 
 
-def main(config_path):
+def main(config_path, grayscale=False):
+    print("🚀 Starting main training function...")
+
+    # Ensure global imports are available in this function scope
+    global torch, mlflow, wandb
+
     # Resolve absolute path to config file
     if not os.path.isabs(config_path):
         # Resolve relative to the script's directory
         script_dir = os.path.dirname(os.path.abspath(__file__))
         config_path = os.path.join(script_dir, config_path)
 
+    print(f"📁 Loading config from: {config_path}")
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
+
+    print("✅ Configuration loaded successfully")
+
+    # Get grayscale setting from config if not explicitly passed
+    if not grayscale:
+        grayscale = config.get('dataset', {}).get('grayscale', False)
 
     # Resolve all output paths relative to script directory
     script_dir = os.path.dirname(os.path.abspath(__file__))
 
     # Fix monitoring paths and make them model-specific
     selected_model = config['model']
-    for key in ['tensorboard_log_dir', 'mlflow_tracking_uri']:
-        if key in config['monitoring'] and not os.path.isabs(config['monitoring'][key]):
-            # Remove leading ./ if present and join with script directory
-            rel_path = config['monitoring'][key].lstrip('./')
+
+    # Handle tensorboard log directory (file path)
+    if 'tensorboard_log_dir' in config['monitoring'] and not os.path.isabs(config['monitoring']['tensorboard_log_dir']):
+        rel_path = config['monitoring']['tensorboard_log_dir'].lstrip('./')
+        base_path = os.path.join(script_dir, rel_path)
+        config['monitoring']['tensorboard_log_dir'] = os.path.join(
+            base_path, f"{selected_model}_logs")
+
+    # Handle MLflow tracking URI (HTTP URL - don't process as file path)
+    # The mlflow_tracking_uri should remain as is if it's a URL
+    if 'mlflow_tracking_uri' in config['monitoring']:
+        # Only process if it's not a URL and not an absolute path
+        uri = config['monitoring']['mlflow_tracking_uri']
+        if not (uri.startswith('http://') or uri.startswith('https://') or os.path.isabs(uri)):
+            rel_path = uri.lstrip('./')
             base_path = os.path.join(script_dir, rel_path)
-            # Make model-specific
-            if key == 'tensorboard_log_dir':
-                config['monitoring'][key] = os.path.join(
-                    base_path, f"{selected_model}_logs")
-            else:
-                config['monitoring'][key] = base_path
+            config['monitoring']['mlflow_tracking_uri'] = base_path
 
     # Fix training output path and make it model-specific
     if not os.path.isabs(config['train']['output_dir']):
@@ -126,11 +218,40 @@ def main(config_path):
         print(
             f"🖼️  Using model-specific image size: {model_config['img_size']}x{model_config['img_size']}")
 
-    train_ds, val_ds, _ = load_datasets(config, mean=None, std=None)
-
     # Use model-specific batch size if available, otherwise use global setting
     batch_size = model_config.get(
         'batch_size', config['dataset']['batch_size'])
+
+    # Use pre-computed normalization statistics if available, otherwise compute them
+    if USE_PRECOMPUTED_STATS:
+        print("📊 Using pre-computed normalization statistics...")
+        mean = torch.tensor(NORMALIZATION_MEAN)
+        std = torch.tensor(NORMALIZATION_STD)
+        print(f"📊 Pre-computed mean: {NORMALIZATION_MEAN}")
+        print(f"📊 Pre-computed std: {NORMALIZATION_STD}")
+
+        # Load datasets with pre-computed normalization
+        train_ds, val_ds, _ = load_datasets(
+            config, mean=NORMALIZATION_MEAN, std=NORMALIZATION_STD, grayscale=grayscale)
+    else:
+        # Load datasets without normalization first to compute mean/std
+        train_ds_raw, val_ds_raw, _ = load_datasets(
+            config, mean=None, std=None, grayscale=grayscale)
+
+        # Compute mean/std on training set only
+        print("📊 Computing mean/std on training set...")
+        mean, std = calculate_mean_std(train_ds_raw,
+                                       batch_size=batch_size,
+                                       num_workers=config['dataset']['num_workers'],
+                                       pin_memory=config['dataset']['pin_memory'])
+
+        print(f"📊 Training set mean: {mean.tolist()}")
+        print(f"📊 Training set std: {std.tolist()}")
+
+        # Reload datasets with proper normalization
+        print("📊 Reloading datasets with normalization...")
+        train_ds, val_ds, _ = load_datasets(
+            config, mean=mean.tolist(), std=std.tolist(), grayscale=grayscale)
 
     # Set up optimized data loading
     dataloader_kwargs = {
@@ -143,6 +264,10 @@ def main(config_path):
 
     train_loader = DataLoader(train_ds, shuffle=True, **dataloader_kwargs)
     val_loader = DataLoader(val_ds, shuffle=False, **dataloader_kwargs)
+
+    print(f"📊 Data loaders created:")
+    print(f"  Train batches: {len(train_loader)}")
+    print(f"  Val batches: {len(val_loader)}")
 
     # Use Adamax for xception_medical (as per Kaggle solution), AdamW for others
     if selected_model == 'xception_medical':
@@ -196,42 +321,121 @@ def main(config_path):
     os.makedirs(config['monitoring']['tensorboard_log_dir'], exist_ok=True)
     writer = SummaryWriter(config['monitoring']['tensorboard_log_dir'])
 
+    # Add model info to TensorBoard
+    writer.add_text('Model/Info', f'Model: {selected_model}', 0)
+    writer.add_text('Model/Config', f'Model Config: {model_config}', 0)
+    writer.add_text(
+        'Dataset/Info', f'Dataset: {len(train_ds)} train, {len(val_ds)} val samples', 0)
+
     # Weights & Biases
     wandb_config = config['monitoring']['wandb']
+
+    # Create a unique run name if not provided
+    if not wandb_config.get('name'):
+        import datetime
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        run_name = f"{selected_model}-{timestamp}"
+    else:
+        # Add model name to existing name if not already present
+        if selected_model not in wandb_config['name']:
+            run_name = f"{selected_model}-{wandb_config['name']}"
+        else:
+            run_name = wandb_config['name']
+
+    # Add model name to tags if not already present
+    wandb_tags = wandb_config['tags'].copy() if wandb_config['tags'] else []
+    if selected_model not in wandb_tags:
+        wandb_tags.append(selected_model)
+
+    # Create descriptive notes with model info
+    model_notes = f"Model: {selected_model} | {wandb_config.get('notes', '')}"
+
     wandb.init(
         project=wandb_config['project'],
         entity=wandb_config['entity'],
-        name=wandb_config['name'],
-        tags=wandb_config['tags'],
-        notes=wandb_config['notes'],
+        name=run_name,
+        tags=wandb_tags,
+        notes=model_notes,
         config={
             **model_config,
             **config['dataset'],
             **config['train'],
-            'model_type': selected_model
+            'model_type': selected_model,
+            'normalization_mean': mean.tolist(),
+            'normalization_std': std.tolist()
         }
     )
 
-    # MLflow
-    # Setup MLflow with model-specific experiment
-    mlflow.set_tracking_uri(config['monitoring']['mlflow_tracking_uri'])
-    model_experiment_name = f"{config['monitoring']['mlflow_experiment_name']}-{selected_model}"
-    mlflow.set_experiment(model_experiment_name)
+    # MLflow (optional - skip if connection fails)
+    mlflow_enabled = True
+    mlflow_context = None
 
-    with mlflow.start_run():
-        # Log hyperparameters
-        mlflow.log_params({
-            "model_name": model_config['name'],
-            "model_type": selected_model,
-            "num_classes": model_config['num_classes'],
-            "learning_rate": model_config['lr'],
-            "batch_size": config['dataset']['batch_size'],
-            "epochs": config['train']['epochs'],
-            "img_size": config['dataset']['img_size'],
-            "train_split": config['dataset']['train_split'],
-            "val_split": config['dataset']['val_split'],
-            "augmentation": config['transform']['augmentation']
-        })
+    try:
+        # Setup MLflow with model-specific experiment
+        mlflow.set_tracking_uri(config['monitoring']['mlflow_tracking_uri'])
+
+        # Create a unique experiment name with timestamp to avoid conflicts
+        import datetime
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        model_experiment_name = f"{config['monitoring']['mlflow_experiment_name']}-{selected_model}-{timestamp}"
+
+        try:
+            mlflow.set_experiment(model_experiment_name)
+            print(f"📊 MLflow: {model_experiment_name}")
+        except Exception as e:
+            print(
+                f"⚠️  Failed to set experiment '{model_experiment_name}': {e}")
+            # Fallback to a simpler experiment name
+            fallback_experiment_name = f"brain-cancer-mri-{selected_model}"
+            print(
+                f"🔄 Using fallback experiment name: {fallback_experiment_name}")
+            mlflow.set_experiment(fallback_experiment_name)
+
+        # Try to start MLflow run
+        try:
+            mlflow_context = mlflow.start_run(
+                run_name=f"{selected_model}-training")
+            mlflow_context.__enter__()
+            print("✅ MLflow run started successfully")
+        except Exception as e:
+            print(f"⚠️  Failed to start MLflow run: {e}")
+            print("🔄 Continuing without MLflow...")
+            mlflow_enabled = False
+            mlflow_context = None
+
+    except Exception as e:
+        print(f"⚠️  MLflow setup failed: {e}")
+        print("🔄 Continuing without MLflow...")
+        mlflow_enabled = False
+        mlflow_context = None
+
+        # Log MLflow parameters (only if MLflow is enabled)
+    if mlflow_enabled and mlflow_context:
+        try:
+            mlflow.log_params({
+                "model_name": model_config['name'],
+                "model_type": selected_model,
+                "num_classes": model_config['num_classes'],
+                "learning_rate": model_config['lr'],
+                "batch_size": config['dataset']['batch_size'],
+                "epochs": config['train']['epochs'],
+                "img_size": config['dataset']['img_size'],
+                "train_split": config['dataset']['train_split'],
+                "val_split": config['dataset']['val_split'],
+                "augmentation": config['transform']['augmentation'],
+                "normalization_mean": mean.tolist(),
+                "normalization_std": std.tolist()
+            })
+
+            # Set run description
+            mlflow.set_tag("model", selected_model)
+            mlflow.set_tag(
+                "description", f"Brain Cancer MRI training with {selected_model}")
+            print("✅ MLflow parameters logged successfully")
+        except Exception as e:
+            print(f"⚠️  Failed to log MLflow parameters: {e}")
+            print("🔄 Continuing without MLflow logging...")
+            mlflow_enabled = False
 
         # Print training configuration
         hw_info = get_hardware_info()
@@ -239,6 +443,7 @@ def main(config_path):
         print("="*60)
         print("🚀 Starting Brain Cancer MRI Training")
         print("="*60)
+        print("🔍 About to start training loop...")
         print(
             f"📊 Dataset: {len(train_ds)} train, {len(val_ds)} validation samples")
         print(
@@ -276,6 +481,8 @@ def main(config_path):
         min_delta = config['train'].get('min_delta', 0.001)
 
         print(f"⏰ Early stopping: patience={patience}, min_delta={min_delta}")
+        print(
+            f"🔄 Starting training loop for {config['train']['epochs']} epochs...")
 
         for epoch in range(config['train']['epochs']):
             # Training phase
@@ -287,6 +494,8 @@ def main(config_path):
 
             print(f"\n📚 Epoch {epoch+1}/{config['train']['epochs']}")
             print("-" * 50)
+            print(f"  🔄 Starting training phase...")
+            print(f"  📊 Total batches: {len(train_loader)}")
 
             for batch_idx, (x, y) in enumerate(train_loader):
                 # Move data to device
@@ -380,7 +589,12 @@ def main(config_path):
                           f"Loss: {current_loss:.4f} | "
                           f"Acc: {current_acc:.2f}%")
 
+                # Also print at the end of each epoch
+                if batch_idx == len(train_loader) - 1:
+                    print(f"  ✅ Completed {len(train_loader)} batches")
+
             # Validation phase
+            print(f"  🔍 Starting validation phase...")
             model.eval()
             val_loss = 0.0
             val_correct = 0
@@ -435,6 +649,20 @@ def main(config_path):
                 }, best_model_path)
                 print(
                     f"💾 New best model saved! Val Acc: {val_acc:.2f}% (improvement: {(val_acc_decimal - (best_val_acc - min_delta))*100:.3f}%)")
+
+                # Log best model to MLflow for potential registration
+                try:
+                    # Create input example for model signature on the same device as model
+                    # Save best model checkpoint
+
+                    print(
+                        f"🏆 New best model saved! Validation accuracy: {val_acc:.2f}%")
+                    print(
+                        f"💾 Best model checkpoint saved to: {best_model_path}")
+
+                except Exception as e:
+                    print(f"⚠️  Failed to save best model: {e}")
+
             else:
                 patience_counter += 1
                 print(
@@ -467,14 +695,20 @@ def main(config_path):
             writer.add_scalar('Accuracy/Validation', val_acc, epoch)
             writer.add_scalar('Time/Epoch', epoch_time, epoch)
 
-            # Log to MLflow
-            mlflow.log_metrics({
-                'train_loss': train_loss_avg,
-                'val_loss': val_loss_avg,
-                'train_accuracy': train_acc,
-                'val_accuracy': val_acc,
-                'epoch_time': epoch_time
-            }, step=epoch)
+            # Log to MLflow (only if enabled)
+            if mlflow_enabled and mlflow_context:
+                try:
+                    mlflow.log_metrics({
+                        'train_loss': train_loss_avg,
+                        'val_loss': val_loss_avg,
+                        'train_accuracy': train_acc,
+                        'val_accuracy': val_acc,
+                        'epoch_time': epoch_time
+                    }, step=epoch)
+                except Exception as e:
+                    print(f"⚠️  MLflow logging failed: {e}")
+                    print("🔄 Disabling MLflow logging for remaining epochs...")
+                    mlflow_enabled = False
 
             # Get hardware metrics
             hw_metrics = get_hardware_info()
@@ -489,7 +723,13 @@ def main(config_path):
                 'epoch_time': epoch_time,
                 'learning_rate': model_config['lr'],
                 'cpu_percent': hw_metrics.get('cpu_percent', 0),
-                'memory_percent': hw_metrics.get('memory_percent', 0)
+                'memory_percent': hw_metrics.get('memory_percent', 0),
+                'normalization_mean_r': mean[0].item(),
+                'normalization_mean_g': mean[1].item(),
+                'normalization_mean_b': mean[2].item(),
+                'normalization_std_r': std[0].item(),
+                'normalization_std_g': std[1].item(),
+                'normalization_std_b': std[2].item()
             }
 
             # Add GPU metrics if available
@@ -500,7 +740,11 @@ def main(config_path):
                     'gpu_temperature': hw_metrics.get('gpu_temperature', 0)
                 })
 
-            wandb.log(wandb_metrics)
+            # Log to Wandb (outside MLflow context to avoid conflicts)
+            try:
+                wandb.log(wandb_metrics)
+            except Exception as e:
+                print(f"⚠️  Wandb logging error: {e}")
 
             # Print epoch summary
             print(f"\n📊 Epoch {epoch+1} Summary:")
@@ -515,8 +759,18 @@ def main(config_path):
                 print(f"💾 Saving checkpoint at epoch {epoch+1}")
                 save_checkpoint(model, epoch, config)
 
-        # Log final model to MLflow
-        mlflow.pytorch.log_model(model, "model")
+        # Training completed - model registration handled separately
+        print(
+            f"🏆 Training completed! Best validation accuracy: {best_val_acc*100:.2f}%")
+        if best_val_acc > 0.85:
+            print(f"🎯 Model achieved excellent performance - ready for registration!")
+        else:
+            print(
+                f"📊 Model achieved {best_val_acc*100:.2f}% validation accuracy - consider further tuning")
+
+        print(f"💾 Best model saved to: {best_model_path}")
+        print(
+            f"📝 To register the model with MLflow, run: python register_model.py --model {selected_model}")
 
         # Log model to wandb
         wandb.save("model.pth")
@@ -524,6 +778,10 @@ def main(config_path):
         # Close monitoring
         writer.close()
         wandb.finish()
+
+        # Close MLflow context if it was opened
+        if mlflow_enabled and mlflow_context:
+            mlflow_context.__exit__(None, None, None)
 
         print("\n" + "="*60)
         print("🎉 Training completed successfully!")
@@ -536,9 +794,13 @@ def main(config_path):
         print("🔧 To view MLflow: mlflow ui")
         print("🔧 To view Wandb: wandb.ai")
         print("="*60)
+        print("🔍 Training loop completed!")
 
 
 if __name__ == '__main__':
+    print("🎯 Script started - Brain Cancer MRI Training")
+    print("="*60)
+
     parser = argparse.ArgumentParser(
         description='Brain Cancer MRI Classification Training')
     parser.add_argument('--config', type=str, default='config/config.yaml',
@@ -551,11 +813,22 @@ if __name__ == '__main__':
                         help='Override batch size')
     parser.add_argument('--lr', type=float, default=None,
                         help='Override learning rate')
+    parser.add_argument('--grayscale', action='store_true',
+                        help='Use grayscale input (single channel) instead of RGB conversion')
 
     args = parser.parse_args()
 
+    print(f"📋 Arguments parsed:")
+    print(f"  Model: {args.model}")
+    print(f"  Config: {args.config}")
+    print(f"  Epochs: {args.epochs}")
+    print(f"  Batch Size: {args.batch_size}")
+    print(f"  Learning Rate: {args.lr}")
+    print(f"  Grayscale: {args.grayscale}")
+    print("="*60)
+
     # Load config and apply overrides
-    if args.model or args.epochs or args.batch_size or args.lr:
+    if args.model or args.epochs or args.batch_size or args.lr or args.grayscale:
         import yaml
         config_path = args.config
         if not os.path.isabs(config_path):
@@ -575,15 +848,19 @@ if __name__ == '__main__':
         if args.lr:
             selected_model = config['model']
             config['models'][selected_model]['lr'] = args.lr
+        if args.grayscale:
+            if 'dataset' not in config:
+                config['dataset'] = {}
+            config['dataset']['grayscale'] = True
 
         # Save temporary config
         temp_config_path = 'temp_config.yaml'
         with open(temp_config_path, 'w') as f:
             yaml.dump(config, f)
 
-        main(temp_config_path)
+        main(temp_config_path, grayscale=args.grayscale)
 
         # Clean up
         os.remove(temp_config_path)
     else:
-        main(args.config)
+        main(args.config, grayscale=args.grayscale)
