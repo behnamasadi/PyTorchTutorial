@@ -160,8 +160,9 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - Zero-shot & Few-shot Learning
 - [Transfer learning, Fine tuning, Backbone, Neck, Head ](transfer_learning/transfer_learning.ipynb)  
 - Large Language Models (LLMs)
-- [Model Ensembles](model_ensembles/index.ipynb)
+- [Ensembling Models](model_ensembles/index.ipynb)
 - [Flow Matching](flow_matching/index.ipynb)
+
 ---
 
 
