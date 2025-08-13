@@ -12,7 +12,7 @@ models:
     weights: "models.ResNet50_Weights.IMAGENET1K_V1"
     num_classes: 3
     lr: 0.001
-    batch_size: 64   # Standard batch size
+    batch_size: 16   # 64 is Standard batch size
     
   swin_t:
     name: swin_t
@@ -77,7 +77,7 @@ transform:
   augmentation: true
 
 train:
-  epochs: 70 #
+  epochs: 50 #
   save_every: 5
   output_dir: "./checkpoints"
   # Early stopping configuration

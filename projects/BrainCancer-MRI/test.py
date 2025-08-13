@@ -22,20 +22,40 @@ def evaluate_model(model, test_loader, device, class_names):
     model.eval()
     all_preds = []
     all_labels = []
+    all_probs = []
 
     print("🧪 Running inference on test set...")
+    print(f"🔍 Model device: {next(model.parameters()).device}")
+    print(f"🔍 Data device: {device}")
 
     with torch.no_grad():
         for batch_idx, (data, target) in enumerate(test_loader):
             data, target = data.to(device), target.to(device)
+
+            # Debug: Check data statistics
+            if batch_idx == 0:
+                print(f"🔍 First batch - Data shape: {data.shape}")
+                print(
+                    f"🔍 First batch - Data range: [{data.min():.4f}, {data.max():.4f}]")
+                print(f"🔍 First batch - Data mean: {data.mean():.4f}")
+                print(f"🔍 First batch - Data std: {data.std():.4f}")
+                print(
+                    f"🔍 First batch - Target distribution: {torch.bincount(target)}")
+
             output = model(data)
+            probs = torch.softmax(output, dim=1)
             pred = output.argmax(dim=1)
 
             all_preds.extend(pred.cpu().numpy())
             all_labels.extend(target.cpu().numpy())
+            all_probs.extend(probs.cpu().numpy())
 
             if batch_idx % 10 == 0:
                 print(f"Processed batch {batch_idx}/{len(test_loader)}")
+
+    # Debug: Check prediction distribution
+    print(f"🔍 Prediction distribution: {np.bincount(all_preds)}")
+    print(f"🔍 True label distribution: {np.bincount(all_labels)}")
 
     return np.array(all_preds), np.array(all_labels)
 
@@ -146,6 +166,12 @@ def main(config_path, model_override=None):
         print(
             f"🖼️  Using model-specific image size: {model_config['img_size']}x{model_config['img_size']}")
 
+    # Debug: Print configuration details
+    print(f"🔍 Dataset path: {config['dataset']['path']}")
+    print(f"🔍 Image size: {config['dataset']['img_size']}")
+    print(f"🔍 Batch size: {config['dataset']['batch_size']}")
+    print(f"🔍 Num workers: {config['dataset']['num_workers']}")
+
     # Load model architecture
     weights = eval(model_config['weights']
                    ) if model_config['weights'] else None
@@ -218,8 +244,25 @@ def main(config_path, model_override=None):
     model = model.to(device)
     print(f"🖥️  Using device: {device}")
 
-    # Load test dataset only
-    _, _, test_ds = load_datasets(config, mean=None, std=None)
+    # Import normalization constants
+    try:
+        from normalization_constants import NORMALIZATION_MEAN, NORMALIZATION_STD
+        print(
+            f"📊 Using pre-computed normalization: mean={NORMALIZATION_MEAN}, std={NORMALIZATION_STD}")
+    except ImportError:
+        print("⚠️  No pre-computed normalization found. Computing from training data...")
+        # Fallback: compute normalization from training data
+        from utils.helpers import calculate_mean_std
+        train_ds, _, _ = load_datasets(
+            config, mean=None, std=None, grayscale=False)
+        NORMALIZATION_MEAN, NORMALIZATION_STD = calculate_mean_std(
+            train_ds, config['dataset']['batch_size'])
+        print(
+            f"📊 Computed normalization: mean={NORMALIZATION_MEAN}, std={NORMALIZATION_STD}")
+
+    # Load test dataset with proper normalization
+    _, _, test_ds = load_datasets(
+        config, mean=NORMALIZATION_MEAN, std=NORMALIZATION_STD, grayscale=False)
     test_loader = DataLoader(test_ds, batch_size=config['dataset']['batch_size'],
                              shuffle=False, num_workers=config['dataset']['num_workers'])
 

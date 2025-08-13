@@ -222,6 +222,10 @@ def main(config_path, grayscale=False):
     batch_size = model_config.get(
         'batch_size', config['dataset']['batch_size'])
 
+    # Use model-specific image size if available, otherwise use global setting
+    img_size = model_config.get('img_size', config['dataset']['img_size'])
+    print(f"📐 Using image size: {img_size}x{img_size}")
+
     # Use pre-computed normalization statistics if available, otherwise compute them
     if USE_PRECOMPUTED_STATS:
         print("📊 Using pre-computed normalization statistics...")
@@ -231,12 +235,22 @@ def main(config_path, grayscale=False):
         print(f"📊 Pre-computed std: {NORMALIZATION_STD}")
 
         # Load datasets with pre-computed normalization
+        # Create a temporary config with model-specific image size
+        temp_config = config.copy()
+        temp_config['dataset'] = config['dataset'].copy()
+        temp_config['dataset']['img_size'] = img_size
+
         train_ds, val_ds, _ = load_datasets(
-            config, mean=NORMALIZATION_MEAN, std=NORMALIZATION_STD, grayscale=grayscale)
+            temp_config, mean=NORMALIZATION_MEAN, std=NORMALIZATION_STD, grayscale=grayscale)
     else:
         # Load datasets without normalization first to compute mean/std
+        # Create a temporary config with model-specific image size
+        temp_config = config.copy()
+        temp_config['dataset'] = config['dataset'].copy()
+        temp_config['dataset']['img_size'] = img_size
+
         train_ds_raw, val_ds_raw, _ = load_datasets(
-            config, mean=None, std=None, grayscale=grayscale)
+            temp_config, mean=None, std=None, grayscale=grayscale)
 
         # Compute mean/std on training set only
         print("📊 Computing mean/std on training set...")
@@ -251,7 +265,7 @@ def main(config_path, grayscale=False):
         # Reload datasets with proper normalization
         print("📊 Reloading datasets with normalization...")
         train_ds, val_ds, _ = load_datasets(
-            config, mean=mean.tolist(), std=std.tolist(), grayscale=grayscale)
+            temp_config, mean=mean.tolist(), std=std.tolist(), grayscale=grayscale)
 
     # Set up optimized data loading
     dataloader_kwargs = {
@@ -650,15 +664,46 @@ def main(config_path, grayscale=False):
                 print(
                     f"💾 New best model saved! Val Acc: {val_acc:.2f}% (improvement: {(val_acc_decimal - (best_val_acc - min_delta))*100:.3f}%)")
 
-                # Log best model to MLflow for potential registration
+                # Log best model to MLflow and Wandb
                 try:
-                    # Create input example for model signature on the same device as model
-                    # Save best model checkpoint
-
                     print(
                         f"🏆 New best model saved! Validation accuracy: {val_acc:.2f}%")
                     print(
                         f"💾 Best model checkpoint saved to: {best_model_path}")
+
+                    # Log best model to MLflow
+                    if mlflow_enabled and mlflow_context:
+                        try:
+                            # Log the model artifact (for backward compatibility)
+                            mlflow.log_artifact(best_model_path, "best_model")
+
+                            # Log the model as MLflow PyTorch model (enables UI registration)
+                            mlflow.pytorch.log_model(
+                                pytorch_model=model,
+                                artifact_path="best_model",
+                                code_paths=["models/", "data/", "utils/"]
+                            )
+
+                            mlflow.set_tag("best_model_path", best_model_path)
+                            mlflow.set_tag("best_val_accuracy",
+                                           f"{val_acc:.2f}%")
+                            mlflow.set_tag("best_model_epoch", epoch)
+                            mlflow.set_tag("model_registered", "true")
+                            print(
+                                "✅ Best model logged to MLflow (with registration capability)")
+                        except Exception as e:
+                            print(
+                                f"⚠️  Failed to log best model to MLflow: {e}")
+
+                    # Log best model to Wandb
+                    try:
+                        wandb.save(best_model_path)
+                        wandb.run.summary["best_val_accuracy"] = val_acc
+                        wandb.run.summary["best_model_epoch"] = epoch
+                        wandb.run.summary["best_model_path"] = best_model_path
+                        print("✅ Best model logged to Wandb")
+                    except Exception as e:
+                        print(f"⚠️  Failed to log best model to Wandb: {e}")
 
                 except Exception as e:
                     print(f"⚠️  Failed to save best model: {e}")
@@ -759,6 +804,20 @@ def main(config_path, grayscale=False):
                 print(f"💾 Saving checkpoint at epoch {epoch+1}")
                 save_checkpoint(model, epoch, config)
 
+                # Log model to MLflow for registration capability
+                if mlflow_enabled and mlflow_context:
+                    try:
+                        mlflow.pytorch.log_model(
+                            pytorch_model=model,
+                            artifact_path=f"model_epoch_{epoch+1}",
+                            code_paths=["models/", "data/", "utils/"]
+                        )
+                        print(
+                            f"✅ Model logged to MLflow for epoch {epoch+1} (can be registered from UI)")
+                    except Exception as e:
+                        print(
+                            f"⚠️  Failed to log model to MLflow for epoch {epoch+1}: {e}")
+
         # Training completed - model registration handled separately
         print(
             f"🏆 Training completed! Best validation accuracy: {best_val_acc*100:.2f}%")
@@ -771,6 +830,44 @@ def main(config_path, grayscale=False):
         print(f"💾 Best model saved to: {best_model_path}")
         print(
             f"📝 To register the model with MLflow, run: python register_model.py --model {selected_model}")
+
+        # Final logging of best model to MLflow and Wandb
+        try:
+            # Log final best model to MLflow
+            if mlflow_enabled and mlflow_context:
+                try:
+                    # Log the model artifact (for backward compatibility)
+                    mlflow.log_artifact(best_model_path, "final_best_model")
+
+                    # Log the model as MLflow PyTorch model (enables UI registration)
+                    mlflow.pytorch.log_model(
+                        pytorch_model=model,
+                        artifact_path="model",
+                        registered_model_name=f"brain-cancer-mri-{selected_model}",
+                        # Include source code
+                        code_paths=["models/", "data/", "utils/"]
+                    )
+
+                    mlflow.set_tag("final_best_val_accuracy",
+                                   f"{best_val_acc*100:.2f}%")
+                    mlflow.set_tag("final_best_model_epoch", "final")
+                    mlflow.set_tag("model_registered", "true")
+                    print(
+                        "✅ Final best model logged to MLflow (with registration capability)")
+                except Exception as e:
+                    print(f"⚠️  Failed to log final best model to MLflow: {e}")
+
+            # Log final best model to Wandb
+            try:
+                wandb.save(best_model_path)
+                wandb.run.summary["final_best_val_accuracy"] = best_val_acc * 100
+                wandb.run.summary["final_best_model_path"] = best_model_path
+                print("✅ Final best model logged to Wandb")
+            except Exception as e:
+                print(f"⚠️  Failed to log final best model to Wandb: {e}")
+
+        except Exception as e:
+            print(f"⚠️  Failed to log final best model: {e}")
 
         # Log model to wandb
         wandb.save("model.pth")
@@ -806,7 +903,7 @@ if __name__ == '__main__':
     parser.add_argument('--config', type=str, default='config/config.yaml',
                         help='Path to config file (default: config/config.yaml)')
     parser.add_argument('--model', type=str, default=None,
-                        help='Override model selection (resnet18, resnet50, swin_t, swin_s, efficientnet_b0, vit_b_16)')
+                        help='Override model selection (resnet18, resnet50, swin_t, swin_s, efficientnet_b0, vit_b_16, medical_cnn, xception_medical)')
     parser.add_argument('--epochs', type=int, default=None,
                         help='Override number of epochs')
     parser.add_argument('--batch-size', type=int, default=None,
@@ -819,7 +916,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     print(f"📋 Arguments parsed:")
-    print(f"  Model: {args.model}")
+    print(f"  Model: {args.model or 'default from config'}")
     print(f"  Config: {args.config}")
     print(f"  Epochs: {args.epochs}")
     print(f"  Batch Size: {args.batch_size}")
@@ -861,6 +958,9 @@ if __name__ == '__main__':
         main(temp_config_path, grayscale=args.grayscale)
 
         # Clean up
-        os.remove(temp_config_path)
+        try:
+            os.remove(temp_config_path)
+        except FileNotFoundError:
+            pass  # File was already removed or doesn't exist
     else:
         main(args.config, grayscale=args.grayscale)

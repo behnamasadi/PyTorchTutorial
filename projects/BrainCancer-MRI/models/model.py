@@ -112,8 +112,6 @@ def get_model(name, num_classes, weights):
         # Load pretrained backbone
         base_model = efficientnet_b0(weights=weights)
 
-
-
         # Get feature dimension after adaptive pooling
         # 1280 for EfficientNet-B0
         feature_dim = base_model.classifier[1].in_features
@@ -121,9 +119,6 @@ def get_model(name, num_classes, weights):
         # Create Kaggle-inspired classifier (matches the TensorFlow Sequential model)
         # TF model: [base_model, Flatten(), Dropout(0.3), Dense(128, relu), Dropout(0.25), Dense(4, softmax)]
         classifier = nn.Sequential(
-            # Global max pooling (like TF pooling='max')
-            nn.AdaptiveMaxPool2d(1),
-            nn.Flatten(),
             nn.Dropout(0.3),
             nn.Linear(feature_dim, 128),
             nn.ReLU(),

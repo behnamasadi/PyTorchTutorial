@@ -47,7 +47,20 @@ import mlflow
 import mlflow.pytorch
 from datetime import datetime
 import torch
+import requests
 from models.model import get_model
+
+
+def check_mlflow_server(uri):
+    """Check if MLflow server is running and accessible"""
+    try:
+        # Try to connect to the MLflow server
+        response = requests.get(f"{uri}/health", timeout=5)
+        if response.status_code == 200:
+            return True
+    except requests.exceptions.RequestException:
+        pass
+    return False
 
 
 def load_model_metadata(model_name, model_output_dir):
@@ -161,9 +174,35 @@ def register_model_in_mlflow(model_name, model_output_dir, version, description,
     metadata = load_model_metadata(model_name, model_output_dir)
 
     # Set up MLflow tracking for model registry
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    mlflow_uri = os.path.join(script_dir, 'mlruns')
-    mlflow.set_tracking_uri(mlflow_uri)
+    # Load config to get the correct MLflow tracking URI
+    config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config', 'config.yaml')
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
+    
+    # Use the MLflow tracking URI from config, fallback to local if not available
+    mlflow_uri = config.get('monitoring', {}).get('mlflow_tracking_uri', 'http://127.0.0.1:5000')
+    print(f"🔗 Using MLflow tracking URI: {mlflow_uri}")
+    
+    # Test MLflow connection
+    print(f"🔍 Testing MLflow server connection...")
+    if not check_mlflow_server(mlflow_uri):
+        print(f"❌ MLflow server is not accessible at {mlflow_uri}")
+        print("💡 Please start your MLflow server:")
+        print("   mlflow server --host 127.0.0.1 --port 5000")
+        print("   Or check your mlflow_tracking_uri in config.yaml")
+        return False
+    
+    try:
+        mlflow.set_tracking_uri(mlflow_uri)
+        # Test connection by trying to list experiments
+        mlflow.search_experiments()
+        print("✅ MLflow connection successful!")
+    except Exception as e:
+        print(f"❌ MLflow connection failed: {e}")
+        print("💡 Make sure your MLflow server is running:")
+        print("   mlflow server --host 127.0.0.1 --port 5000")
+        print("   Or check your mlflow_tracking_uri in config.yaml")
+        return False
 
     # Create model registry experiment for organization
     registry_experiment_name = "brain-cancer-mri-model-registry"

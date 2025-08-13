@@ -41,10 +41,12 @@ mlruns/
 */mlruns/*
 tensorboard_logs/
 */tensorboard_logs/*
+checkpoints/
 logs/
 *.log
 *.out
 *.err
+*.db
 
 # ===== EXPERIMENTAL AND TEMPORARY FILES =====
 temp/
