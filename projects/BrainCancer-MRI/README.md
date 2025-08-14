@@ -21,7 +21,7 @@ A comprehensive deep learning project for brain tumor classification using MRI i
 
 This project implements a convolutional neural network to classify brain MRI images into three categories:
 - **Glioma Tumor**
-- **Meningioma Tumor**
+- **Meningioma Tumor** 
 - **Pituitary Tumor**
 
 ### **Key Features**

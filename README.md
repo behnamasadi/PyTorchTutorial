@@ -110,9 +110,11 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Feature Map](conv/cross_correlation_convolution.ipynb#8.-Feature-Map)
 
 ## [Modern CNN Architectures](#)
-- LeNet, AlexNet, VGG
-- ResNet (Skip Connections)
-- EfficientNet, MobileNet (for mobile)
+- LeNet
+- AlexNet
+- VGG
+- [ResNet](modern_CNN_architectures/resnet.ipynb)
+- [EfficientNet, MobileNet (for mobile)](modern_CNN_architectures/efficientnet.ipynb)
 
 ## [Image Preprocessing & Augmentation Workflows](#)
 - [Custom Dataset, ImageFolder, random_split, Subset](dataset/index.ipynb)  
