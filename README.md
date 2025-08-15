@@ -113,8 +113,12 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - LeNet
 - AlexNet
 - VGG
+- U-Net, nnU-Net, 
+- DeepLab, 
+- MONAI
 - [ResNet](modern_CNN_architectures/resnet.ipynb)
 - [EfficientNet, MobileNet (for mobile)](modern_CNN_architectures/efficientnet.ipynb)
+- [YOLO (You Only Look Once)](modern_CNN_architectures/yolo.ipynb)
 
 ## [Image Preprocessing & Augmentation Workflows](#)
 - [Custom Dataset, ImageFolder, random_split, Subset](dataset/index.ipynb)  
