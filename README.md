@@ -167,7 +167,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Diffusion Models (Denoising Score Matching)](diffusion_models/index.ipynb)
 - Contrastive Learning (SimCLR, MoCo)
 - Self-Supervised Learning
-- Zero-shot & Few-shot Learning
+- [Zero-shot & Few-shot Learning](zero_shot_few_shot_learning/index.ipynb)
 - [Transfer learning, Fine tuning, Backbone, Neck, Head ](transfer_learning/transfer_learning.ipynb)  
 - Large Language Models (LLMs)
 - [Ensembling Models](model_ensembles/index.ipynb)
