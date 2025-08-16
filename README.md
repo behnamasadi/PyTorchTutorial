@@ -143,7 +143,11 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Positional Encoding](vit/index.ipynb#Step-6:-Add-Positional-Encoding)
 - Transformer Encoder/Decoder
 - [Vision Transformer (ViT)](vit/index.ipynb)
-- [Transformer-Based Model for Monocular Visual](vit_monocular_vision/index.ipynb)
+- [ViT for Monocular Visual odometry](vit_monocular_vision/vit_monocular_vo.ipynb)
+  - [Model Design](vit_monocular_vo.ipynb#III.-Model-Design-Variants)
+  - [Evaluation Metrics ATE,ATE](vit_monocular_vo.ipynb#IV.-Evaluation-Metrics)
+  - [Unsupervised / Supervised VO](vit_monocular_vo.ipynb#Unsupervised-/-Self-Supervised-VO)
+  - [Loss Functions Used in VO](vit_monocular_vo.ipynb#I.-Types-of-Loss-Functions-Used-in-VO)
 - Transformer Applications (BERT, GPT overview)
 
 ---
