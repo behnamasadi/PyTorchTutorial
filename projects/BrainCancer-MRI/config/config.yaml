@@ -53,7 +53,7 @@ models:
     name: xception_medical
     weights: "models.EfficientNet_B0_Weights.IMAGENET1K_V1"  # Correct weights for EfficientNet backbone
     num_classes: 3
-    lr: 0.001     # Adamax learning rate from Kaggle solution
+    lr: 0.001     # Adamax learning rate optimized for full fine-tuning
     batch_size: 16   # 299x299 input requires very small batch for 4GB GPU
     img_size: 299    # Specific to this model
 

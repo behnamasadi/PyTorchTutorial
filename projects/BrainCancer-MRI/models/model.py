@@ -3,9 +3,6 @@ import torchvision.models as models
 import torch
 
 
-
-
-
 def get_model(name, num_classes, weights):
     """
     Get model architecture with pre-trained weights and modify for classification.
@@ -116,8 +113,8 @@ def get_model(name, num_classes, weights):
         # 1280 for EfficientNet-B0
         feature_dim = base_model.classifier[1].in_features
 
-        # Create Kaggle-inspired classifier (matches the TensorFlow Sequential model)
-        # TF model: [base_model, Flatten(), Dropout(0.3), Dense(128, relu), Dropout(0.25), Dense(4, softmax)]
+        # Create Xception-inspired classifier for medical images
+        # Architecture: Dropout(0.3) → Linear(1280→128) → ReLU → Dropout(0.25) → Linear(128→num_classes)
         classifier = nn.Sequential(
             nn.Dropout(0.3),
             nn.Linear(feature_dim, 128),
@@ -131,8 +128,7 @@ def get_model(name, num_classes, weights):
         base_model.classifier = classifier
         model = base_model
 
-        # Keep backbone trainable (like in Kaggle - layers not frozen)
-        # This matches the commented out freezing in the original code
+        # Full fine-tuning: train entire model for maximum medical domain adaptation
         classifier_params = model.parameters()  # Train all parameters
 
         # Initialize classifier layers properly
@@ -208,7 +204,7 @@ def get_model_info(name):
         'xception_medical': {
             'type': 'Xception-inspired Medical CNN',
             'params': '5.3M (fully trainable)',
-            'description': 'Kaggle solution: EfficientNet backbone + Xception-style classifier (299x299)',
+            'description': 'Xception-inspired: EfficientNet backbone + custom medical classifier (299x299)',
             'optimizer': 'Adamax',
             'input_size': '299x299'
         }

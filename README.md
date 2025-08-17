@@ -76,6 +76,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Back Propagation](backpropagation/index.ipynb)  
 - [Activation Functions](activation_functions/index.ipynb)  
 - [Loss Functions](loss_functions/index.ipynb)  
+- [Inductive Bias](inductive_bias/index.ipynb)  
 
 
 ## [Training Process](#)

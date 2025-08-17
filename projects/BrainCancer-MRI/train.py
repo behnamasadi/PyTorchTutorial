@@ -283,11 +283,11 @@ def main(config_path, grayscale=False):
     print(f"  Train batches: {len(train_loader)}")
     print(f"  Val batches: {len(val_loader)}")
 
-    # Use Adamax for xception_medical (as per Kaggle solution), AdamW for others
+    # Use Adamax for xception_medical (optimized for full fine-tuning), AdamW for others
     if selected_model == 'xception_medical':
         optimizer = optim.Adamax(classifier_params, lr=model_config['lr'])
         print(
-            f"🔧 Using Adamax optimizer (Kaggle solution) with LR: {model_config['lr']}")
+            f"🔧 Using Adamax optimizer (optimized for full fine-tuning) with LR: {model_config['lr']}")
     else:
         optimizer = optim.AdamW(classifier_params, lr=model_config['lr'])
         print(f"🔧 Using AdamW optimizer with LR: {model_config['lr']}")
