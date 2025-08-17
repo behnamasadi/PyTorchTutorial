@@ -122,8 +122,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [YOLO (You Only Look Once)](modern_CNN_architectures/yolo.ipynb)
 
 ## [Image Preprocessing & Augmentation Workflows](#)
-- [Custom Dataset, ImageFolder, random_split, Subset](dataset/index.ipynb)  
-- [DataLoader](dataloader/index.ipynb)  
+- [DataLoader, Custom Dataset, ImageFolder, random_split, Subset](dataset/index.ipynb)  
 - [Transforms, Pre-Processing, Data Augmentation](transform_pre_processing_augmentation/index.ipynb)  
 
 
