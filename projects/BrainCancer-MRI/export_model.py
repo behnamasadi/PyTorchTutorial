@@ -71,7 +71,7 @@ def get_model_info_for_export(model_name):
         'swin_s': {'input_size': (1, 3, 224, 224), 'description': 'Swin Transformer Small'},
         'vit_b_16': {'input_size': (1, 3, 224, 224), 'description': 'Vision Transformer'},
         'medical_cnn': {'input_size': (1, 3, 224, 224), 'description': 'Medical CNN'},
-        'xception_medical': {'input_size': (1, 3, 299, 299), 'description': 'Xception Medical (Full Fine-tuning)'}
+        'xception_medical': {'input_size': (1, 3, 224, 224), 'description': 'Xception Medical (Full Fine-tuning)'}
     }
     return info.get(model_name, {'input_size': (1, 3, 224, 224), 'description': 'Unknown Model'})
 
