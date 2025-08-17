@@ -81,7 +81,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 ## [Training Process](#)
 
-- [Optimizer Package](optim_package/index.ipynb)  
+- [Optimizer Package](optim_package/optimizers.ipynb)  
 - [Learning Rate & Schedulers (Step, Cosine Annealing, etc.)](optim_package/index.ipynb#Learning-Rate-Schedulers-(Schedulers))
 - Overfitting & Underfitting
 - [Regularization](regularization/index.ipynb) 
