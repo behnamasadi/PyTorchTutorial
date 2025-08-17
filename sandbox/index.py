@@ -1,79 +1,54 @@
+from torchvision import transforms
 import torch
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import numpy as np
-from matplotlib import cm
-import torch.nn as nn
+import torchvision.models as models
 import torch.optim as optim
-import torch.nn.functional as F
-import torch.utils.data as data
-import torch.utils.data.dataset as dataset
+import torchvision.datasets as datasets
+from torch.utils.data import DataLoader, Dataset, random_split
+import torch.nn as nn
 
 
-def ackley_function(x, y):
-    """
-    Calculates the value of the Ackley function at the point (x, y).
+class MRIDataset(Dataset):
+    def __init__(self, data, labels):
+        self.data = data
+        self.labels = labels
 
-    The Ackley function is a non-convex function, often used as a
-    performance test problem for optimization algorithms.
+    def __len__(self):
+        return len(self.data)
 
-    Args:
-      x: The x-coordinate of the point.
-      y: The y-coordinate of the point.
-
-    Returns:
-      The value of the Ackley function at (x, y).
-    """
-    return -20*np.exp(-0.2*np.sqrt(0.5*(x**2 + y**2))) - np.exp(0.5*(np.cos(2*np.pi*x) + np.cos(2*np.pi*y))) + 20 + np.e
+    def __getitem__(self, idx):
+        return self.data[idx], self.labels[idx]
 
 
-g = torch.Generator()
-low = -5
-high = 5
-g.manual_seed(42)
-points_2d = torch.rand(size=(2000, 2), generator=g) * (high - low) + low
-print("Generated 2D points:\n", points_2d)
+seed = 42
+torch.manual_seed(seed)
 
-z = ackley_function(points_2d[:, 0], points_2d[:, 1])
-print("Ackley function values (z):\n", z)
+data = torch.randint(low=0, high=20, size=(10,))
+labels = torch.randint(low=0, high=4, size=(10,))
 
-# Convert PyTorch tensors to NumPy arrays for plotting
-x_np = points_2d[:, 0].numpy()
-y_np = points_2d[:, 1].numpy()
-z_np = z.numpy()
-
-# Create the 3D plot
-fig = plt.figure(figsize=(10, 8))
-ax = fig.add_subplot(111, projection='3d')
-
-# Tri-Surface plot of the points
-ax.plot_trisurf(x_np, y_np, z_np, cmap=cm.viridis,
-                linewidth=0.2, antialiased=True)
-
-# Add labels and title
-ax.set_xlabel('x')
-ax.set_ylabel('y')
-ax.set_zlabel('z (Ackley Function Value)')
-ax.set_title('3D Surface Plot of Ackley Function Values')
-
-# Show the plot
-plt.show()
+# print(data)
+# print(labels)
 
 
-class functionApproximation(nn.Module):
-    def __init__(self):
-        super().__init__(input_dim=2, output_dim=1, hidden_dim=100)
-        self.fc1 = nn.Linear(input_dim, hidden_dim)
-        self.fc2 = nn.Linear(hidden_dim, hidden_dim)
-        self.fc3 = nn.Linear(hidden_dim, output_dim)
+dataset = MRIDataset(data=data, labels=labels)
+train_dataset, val_dataset, test_dataset = random_split(
+    dataset, [0.7, 0.15, 0.15], generator=torch.Generator().manual_seed(seed))
 
-    def forward(self, x):
-        x = torch.relu(self.fc1(x))
-        x = torch.relu(self.fc2(x))
-        x = self.fc3(x)
-        return x
+print(train_dataset)
+print(val_dataset)
+print(test_dataset)
+for d, l in train_dataset:
+    print(d.item(), l.item())
 
 
-model = functionApproximation()
-criterion = nn.MSELoss()
-optimizer = optim.Adam(model.parameters(), lr=0.01)
+batch_size = 4
+loader = DataLoader(dataset, batch_size=batch_size,
+                    shuffle=True, num_workers=2, pin_memory=True)
+
+for batch in loader:
+    targets, input = batch
+    print(targets)
+    print(input)
+    print('='*50)
+
+
+exit(0)
