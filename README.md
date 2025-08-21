@@ -82,7 +82,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 ## [Training Process](#)
 
 - [Optimizer Package](optim_package/optimizers.ipynb)  
-- [Learning Rate & Schedulers (Step, Cosine Annealing, etc.)](optim_package/index.ipynb#Learning-Rate-Schedulers-(Schedulers))
+- [Learning Rate & Schedulers (Step, Cosine Annealing, etc.)](optim_package/optimizers.ipynb#Learning-Rate-Schedulers-(Schedulers))
 - Overfitting & Underfitting
 - [Regularization](regularization/index.ipynb) 
 - [Dropout Layers](dropout_layers/index.ipynb)
@@ -95,6 +95,8 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
     * [Early Stopping](index.ipynb#2.-Implement-Early-Stopping)
     * [Visualize Metrics](learning_monitoring/index.ipynb#4.-Visualize-Metrics)
 - [Real World Practices for Training and Regularization and PyTorch training template](PyTorch_training_template/index.ipynb)
+- [Function Approximation](function_approximation/function_approximation.py)
+
 
 ---
 
