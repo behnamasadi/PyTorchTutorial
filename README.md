@@ -68,8 +68,9 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
     - [Exclusion from the DAG](grad_package/grad.ipynb#Exclusion-from-the-DAG)  
     - [Leaf Tensor](grad_package/grad.ipynb#Leaf)  
     - [No Grad](grad_package/grad.ipynb#no_grad())  
-    - [Zero Grad](grad_package/grad.ipynb#zero_grad)  
-    - [Model Saving & Loading (Serialization)](serialization_saving_loading/index.ipynb)  
+    - [Zero Grad](grad_package/grad.ipynb#zero_grad) 
+    - [requires_grad](grad_package/grad.ipynb#requires_grad) 
+- [Model Saving & Loading (Serialization)](serialization_saving_loading/index.ipynb)  
 
 ## [Neural Network Basics](#)
 - [Neural Networks, Manifolds, and Topology](https://colah.github.io/posts/2014-03-NN-Manifolds-Topology/)  
@@ -86,8 +87,11 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - Overfitting & Underfitting
 - [Regularization](regularization/index.ipynb) 
 - [Dropout Layers](dropout_layers/index.ipynb)
-- [Batch Normalization](batch_normalization/index.ipynb)
-- [Layer Normalization](layer_normalization/index.ipynb)
+- [Normalization](batch_layer_instance_group_normalization/index.ipynb)
+  - [Batch Normalization](batch_layer_instance_group_normalization/batch_normalization.ipynb)
+  - [Layer Normalization](batch_layer_instance_group_normalization/layer_normalization.ipynb)
+  - [Instance Normalization](batch_layer_instance_group_normalization/instance_normalization.ipynb) 
+  - [Group Normalization](batch_layer_instance_group_normalization/group_normalization.ipynb)
 - [Weight Initialization Strategies](weight_initialization/index.ipynb)
 - [Evaluation vs Training Mode](learning_monitoring/index.ipynb)
     * [Training, Validation, and Test Set](learning_monitoring/index.ipynb#Training-and-Validation-set)
@@ -221,3 +225,6 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Data Versioning](infrastructure_and_best_practices/data_versioning/index.ipynb)
 - [Logging and Debugging](infrastructure_and_best_practices/logging_and_debugging/index.ipynb)
 - [Project Structure & Best Practices](infrastructure_and_best_practices/project_structure/index.ipynb)
+
+[Deep Learning based SLAM](#)
+  -[MatchAnything](deep_learning_based_SLAM/match_anything/index.ipynb)
