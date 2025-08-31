@@ -99,6 +99,13 @@ except ImportError as e:
     sys.exit(1)
 
 
+def create_input_example(model_config, config):
+    """Create input example tensor for MLflow model signature"""
+    img_size = model_config.get('img_size', config['dataset']['img_size'])
+    # batch_size=1, channels=3, height=img_size, width=img_size
+    return torch.randn(1, 3, img_size, img_size)
+
+
 def get_hardware_info():
     """Get current hardware utilization info"""
     info = {}
@@ -678,9 +685,13 @@ def main(config_path, grayscale=False):
                             mlflow.log_artifact(best_model_path, "best_model")
 
                             # Log the model as MLflow PyTorch model (enables UI registration)
+                            # Create input example for model signature
+                            input_example = create_input_example(
+                                model_config, config)
                             mlflow.pytorch.log_model(
                                 pytorch_model=model,
                                 artifact_path="best_model",
+                                input_example=input_example,
                                 code_paths=["models/", "data/", "utils/"]
                             )
 
@@ -807,9 +818,13 @@ def main(config_path, grayscale=False):
                 # Log model to MLflow for registration capability
                 if mlflow_enabled and mlflow_context:
                     try:
+                        # Create input example for model signature
+                        input_example = create_input_example(
+                            model_config, config)
                         mlflow.pytorch.log_model(
                             pytorch_model=model,
                             artifact_path=f"model_epoch_{epoch+1}",
+                            input_example=input_example,
                             code_paths=["models/", "data/", "utils/"]
                         )
                         print(
@@ -840,10 +855,13 @@ def main(config_path, grayscale=False):
                     mlflow.log_artifact(best_model_path, "final_best_model")
 
                     # Log the model as MLflow PyTorch model (enables UI registration)
+                    # Create input example for model signature
+                    input_example = create_input_example(model_config, config)
                     mlflow.pytorch.log_model(
                         pytorch_model=model,
                         artifact_path="model",
                         registered_model_name=f"brain-cancer-mri-{selected_model}",
+                        input_example=input_example,
                         # Include source code
                         code_paths=["models/", "data/", "utils/"]
                     )
