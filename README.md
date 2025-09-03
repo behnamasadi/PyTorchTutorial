@@ -84,7 +84,6 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 - [Optimizer Package](optim_package/optimizers.ipynb)  
 - [Learning Rate & Schedulers (Step, Cosine Annealing, etc.)](optim_package/optimizers.ipynb#Learning-Rate-Schedulers-(Schedulers))
-- Overfitting & Underfitting
 - [Regularization](regularization/index.ipynb) 
 - [Dropout Layers](dropout_layers/index.ipynb)
 - [Normalization](batch_layer_instance_group_normalization/index.ipynb)
@@ -105,6 +104,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 ---
 
 ## [CNN Building Blocks](#)
+
 - [Convolution vs Cross-Correlation](conv/cross_correlation_convolution.ipynb#1.-Cross-Correlation)
 - [Shape of Output](cross_correlation_convolution.ipynb#4.Shape-of-the-Convolution-Output)
 - [RGB Image Convolution](conv/cross_correlation_convolution.ipynb#5.Convolution-in-RGB-Images)
@@ -116,16 +116,38 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [1x1, Dilated, Transposed Convolution (Upsampling) Convolution](conv/cross_correlation_convolution.ipynb#3.-Most-Common-Types-of-Convolution-in-Deep-Learning)
 - [Feature Map](conv/cross_correlation_convolution.ipynb#8.-Feature-Map)
 
-## [Modern CNN Architectures](#)
-- LeNet
-- AlexNet
-- VGG
-- U-Net, nnU-Net, 
-- DeepLab, 
-- MONAI
-- [ResNet](modern_CNN_architectures/resnet.ipynb)
-- [EfficientNet, MobileNet (for mobile)](modern_CNN_architectures/efficientnet.ipynb)
-- [YOLO (You Only Look Once)](modern_CNN_architectures/yolo.ipynb)
+## [Modern Vision Architectures](#)
+
+#### [**Image Classification**](#)
+- [VGG](image_classification/vgg.ipynb)
+- [ResNet](image_classification/resnet.ipynb)
+- [EfficientNet](image_classification/efficientnet.ipynb)
+- [MobileNet](image_classification/efficientnet.ipynb)
+
+#### [**Image Segmentation**](#)
+- [Semantic Segmentation vs. Instance Segmentation](segmentation/index.ipynb)
+- [U-Net](segmentation/unet.ipynb)
+- [nnU-Net](segmentation/nnunet.ipynb)  
+- [DeepLab](segmentation/deeplab.ipynb)
+- [MONAI](segmentation/monai.ipynb)  
+- [SAM 2](segmentation/SAM2.ipynb)
+
+
+#### [**Object Detection**](#)
+- [Object Detection Evaluation Metrics](object_detection/object_detection_evaluation_metrics.ipynb)
+- [YOLO (You Only Look Once)](object_detection/yolo.ipynb)
+- [Faster R-CNN](object_detection/faster_rcnn.ipynb) 
+- [SSD (Single Shot Detector)](object_detection/ssd.ipynb) 
+- [RetinaNet](object_detection/retinanet.ipynb) 
+
+#### [**Multi-Task & Specialized**](#)
+- [Mask R-CNN](modern_CNN_architectures/mask_rcnn.ipynb) - Instance segmentation + detection
+- [DETR](modern_CNN_architectures/detr.ipynb) - Transformer-based detection
+- [Swin Transformer](modern_CNN_architectures/swin_transformer.ipynb) - Hierarchical vision transformer
+
+
+#### [**Self-Supervised Representation Learning**](#)
+- DINOv3 - Self-supervised ViT pretraining for strong general-purpose visual features
 
 ## [Image Preprocessing & Augmentation Workflows](#)
 - [DataLoader, Custom Dataset, ImageFolder, random_split, Subset](dataset/index.ipynb)  
@@ -135,26 +157,20 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 ---
 
 
-## [**Sequence Modeling**](#)
-[Encoder/ Decoder Architecture](encoder/index.ipynb)  
-[Variational Autoencoders](machine_learning/nn/encoders.ipynb)  
-- Teacher Forcing
+
+
 
 ---
 
 ## [**Attention & Transformers**](#) 
 - [Transformer Architecture](transformer/attention.ipynb)
-- Attention Mechanism (Additive, Dot-Product)
-- Self-Attention & Multi-Head Attention
 - [Positional Encoding](vit/index.ipynb#Step-6:-Add-Positional-Encoding)
-- Transformer Encoder/Decoder
 - [Vision Transformer (ViT)](vit/index.ipynb)
 - [ViT for Monocular Visual odometry](vit_monocular_vision/vit_monocular_vo.ipynb)
   - [Model Design](vit_monocular_vo.ipynb#III.-Model-Design-Variants)
   - [Evaluation Metrics ATE,ATE](vit_monocular_vo.ipynb#IV.-Evaluation-Metrics)
   - [Unsupervised / Supervised VO](vit_monocular_vo.ipynb#Unsupervised-/-Self-Supervised-VO)
   - [Loss Functions Used in VO](vit_monocular_vo.ipynb#I.-Types-of-Loss-Functions-Used-in-VO)
-- Transformer Applications (BERT, GPT overview)
 
 ---
 
@@ -167,15 +183,13 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 ---
 
 ## [**Advanced Topics & Research Trends**](#) 
-
-- Autoencoders (Vanilla, Variational)
-- GANs (Generator, Discriminator, Losses)
+- [Encoder/ Decoder Architecture](encoder/index.ipynb)  
+- [Variational Autoencoders](machine_learning/nn/encoders.ipynb)  
 - [Diffusion Models (Denoising Score Matching)](diffusion_models/index.ipynb)
 - Contrastive Learning (SimCLR, MoCo)
 - Self-Supervised Learning
 - [Zero-shot & Few-shot Learning](zero_shot_few_shot_learning/index.ipynb)
 - [Transfer learning, Fine tuning, Backbone, Neck, Head ](transfer_learning/transfer_learning.ipynb)  
-- Large Language Models (LLMs)
 - [Ensembling Models](model_ensembles/index.ipynb)
 - [Flow Matching](flow_matching/index.ipynb)
 
@@ -212,6 +226,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Pre-release Quality Gates](pre_deployment_quality_and_validation/pre_release_quality_gates/index.ipynb)
 - [Packaging for Inference](pre_deployment_quality_and_validation/packaging_for_inference/index.ipynb)
 - [Model Deployment (ONNX, TorchScript)](pre_deployment_quality_and_validation/model_deployment_ONNX_torchscript/index.ipynb)
+- [TensorRT](pre_deployment_quality_and_validation/tensor_rt.ipynb)
 - Quantization & Pruning
 
 [Deployment & Operations](deployment_and_operations/index.ipynb)
