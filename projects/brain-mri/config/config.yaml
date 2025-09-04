@@ -1,0 +1,14 @@
+models:
+  mobilenet_v2:
+    weights: "torch.MobileNet_V2_Weights"
+    batch_size: 64
+    lr: 0.0001
+
+  efficientnet_b0:
+    name: efficientnet_b0
+    weights: "models.EfficientNet_B0_Weights.IMAGENET1K_V1"
+    num_classes: 3
+    lr: 0.001
+    batch_size: 32  # Efficient model can handle larger batches
+
+model: efficientnet_b0  # Choose from: mobilenet_v2, efficientnet_b0

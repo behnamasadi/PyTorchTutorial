@@ -131,6 +131,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [DeepLab](segmentation/deeplab.ipynb)
 - [MONAI](segmentation/monai.ipynb)  
 - [SAM 2](segmentation/SAM2.ipynb)
+- [Saliency Detection](segmentation/saliency_detection.ipynb)
 
 
 #### [**Object Detection**](#)
