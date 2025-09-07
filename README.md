@@ -17,7 +17,7 @@ conda activate PyTorchTutorial
 3. Install pytorch, torchvision, cuda tensorboard, jupyter, matplotlib, pydot:
 
 ```
-conda install pytorch torchvision  pytorch-cuda -c pytorch -c nvidia 
+conda install pytorch torchvision shap  pytorch-cuda -c pytorch -c nvidia 
 conda install tensorboard
 conda install -c conda-forge matplotlib  
 conda install pydot
@@ -33,6 +33,7 @@ conda install conda-forge::seaborn
 pip install torchviz
 pip install mlflow
 pip install wandb
+pip install shap
 ```
 
 
@@ -154,13 +155,6 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [DataLoader, Custom Dataset, ImageFolder, random_split, Subset](dataset/index.ipynb)  
 - [Transforms, Pre-Processing, Data Augmentation](transform_pre_processing_augmentation/index.ipynb)  
 
-
----
-
-
-
-
-
 ---
 
 ## [**Attention & Transformers**](#) 
@@ -214,6 +208,19 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [LLM Visualization](https://bbycroft.net/llm)
 
 
+---
+
+## [XAI (Explainable Artificial Intelligence)](xai/index.ipynb)
+- [Model-agnostic (post-hoc explanations)](#)
+  - [SHAP (SHapley Additive exPlanations)](xai/shap.ipynb)
+  - [Saliency Maps / Grad-CAM](xai/grad-cam.ipynb)
+
+
+
+---
+
+
+
 ## [**Production Engineering & MLOps**](#)
 [Training stack & monitoring](training_stack_and_monitoring/index.ipynb)
 - [Experiment Tracking (TensorBoard, WandB)](training_stack_and_monitoring/weights_and_biases_WandB/WandB.ipynb)
@@ -242,5 +249,9 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Logging and Debugging](infrastructure_and_best_practices/logging_and_debugging/index.ipynb)
 - [Project Structure & Best Practices](infrastructure_and_best_practices/project_structure/index.ipynb)
 
-[Deep Learning based SLAM](#)
+
+
+
+## [Deep Learning based SLAM](#)
   -[MatchAnything](deep_learning_based_SLAM/match_anything/index.ipynb)
+

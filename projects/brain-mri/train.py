@@ -4,13 +4,30 @@ import torch
 import yaml
 import tqdm
 import models.model
-import wandb
-import mlflow
+from torchvision.datasets import ImageFolder
 
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
-seed = 42
+#from torch.utils.data import dataloader, dataset, random_split
+from torch.utils.data import DataLoader, random_split,dataset
 
+
+# import wandb
+# import mlflow
+
+
+device_default = "cuda" if torch.cuda.is_available() else "cpu"
+seed_default =42
+batch_size_default=64
+epochs_default=20
+learning_rate_default=0.001
+patience_default=10
+lengths=[70,15,15]
+
+def validate_config(config):
+    required_keys = ["models", "selected_model"]
+    for key in required_keys:
+        if key not in config:
+            raise ValueError(f"Missing required config key: {key}")
 
 parser = argparse.ArgumentParser(
     description="Train brain MRI classification model",
@@ -18,7 +35,7 @@ parser = argparse.ArgumentParser(
 )
 parser.add_argument(
     "-c", "--config",
-    default=resource_path('config', 'config.yaml'),
+    default=resource_path('config', 'config_dev.yaml'),
     help="Path to configuration file"
 )
 parser.add_argument(
@@ -44,13 +61,13 @@ parser.add_argument(
 parser.add_argument(
     "--device",
     type=str,
-    default=device,
+    default=device_default,
     help="Device to use for training (cuda/cpu)"
 )
 parser.add_argument(
     "--seed",
     type=int,
-    default=42,
+    default=seed_default,
     help="Random seed for reproducibility"
 )
 
@@ -76,18 +93,62 @@ if __name__ == "__main__":
     with open(cfg) as file_cfg:
         config = yaml.safe_load(file_cfg)
 
+    validate_config(config)
+
     # Get model and batch size from args or config
-    model = args.model_name if args.model_name else config.get(
-        "model", "default_model")
-    batch_size = args.batch_size if args.batch_size else config.get(
-        "batch_size", 32)
+    # model_name = args.model_name if args.model_name else config.get("selected_model", "efficientnet_b0")
+    model_name = args.model_name if args.model_name else config.get("selected_model")
+    
+    
+    batch_size = args.batch_size if args.batch_size else config.get("models", {}).get(str(model_name), {}).get("batch_size", batch_size_default) 
 
     # Get other training parameters
-    epochs = args.epochs if args.epochs else config.get("epochs", 10)
+    epochs = args.epochs if args.epochs else config.get("epochs", epochs_default)
     learning_rate = args.learning_rate if args.learning_rate else config.get(
-        "learning_rate", 0.001)
+        "learning_rate", learning_rate_default)
 
-    print(f"Model: {model}")
+    print(f"Model: {model_name}")
     print(f"Batch size: {batch_size}")
     print(f"Epochs: {epochs}")
     print(f"Learning rate: {learning_rate}")
+    
+    
+    # Get number of classes from config or use default
+    num_classes = config.get("models", {}).get(str(model_name), {}).get("num_classes", 3)
+    
+    # Initialize the model
+    model = models.model.get_model(
+        model_name=str(model_name),
+        num_classes=num_classes,
+        pretrained=True
+    )
+    
+    # Move model to device
+    model = model.to(device)
+    
+    print(f"Model loaded: {model.__class__.__name__}")
+    print(f"Number of classes: {num_classes}")
+    
+    # p.numel() Returns the total number of elements in the input tensor
+    print(f"Model parameters: {sum(p.numel() for p in model.parameters()):,}")
+    
+    
+    class brainImageFolder(ImageFolder) :
+        def __init__(self, root, transform = None, target_transform = None, loader = ..., is_valid_file = None, allow_empty = False):
+            super().__init__(root, transform, target_transform, loader, is_valid_file, allow_empty)
+        
+    
+    
+    # class brainImageDataset()
+    datase
+    random_split(dataset=)
+    
+    
+    # dataloader.DataLoader( batch_size=batch_size, generator="",num_workers=,pin_memory=True, )
+    
+    for epoch in range(epochs):
+        for batch_idx in range(batch_size):
+            model.train()
+            # print(".")
+            pass
+

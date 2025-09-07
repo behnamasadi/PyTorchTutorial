@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "utility"
+version = "0.1.0"
+description = "utility package"
+authors = [
+{name = "Behnam Asadi", email = "me@example.com"}
+]
+dependencies = []
+
+[tool.setuptools.packages.find]
+include = ["utility*"]
+exclude = ["models*", "conv_shape*", "test*"]
+
+[project.optional-dependencies]
+test = ["pytest>=7.0.0", "pytest-cov>=4.0.0"]
