@@ -79,7 +79,7 @@ print(f"Output shape: {output.shape}")
 # Save model using resource_path
 model_path = resource_path("models", "best_myMNIST.pth")
 print("model_path: ", model_path)
-exit()
+
 # Create models directory if it doesn't exist
 model_path.parent.mkdir(parents=True, exist_ok=True)
 torch.save(myMNIST.state_dict(), model_path)
