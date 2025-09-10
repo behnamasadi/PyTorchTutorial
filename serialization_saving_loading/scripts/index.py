@@ -45,26 +45,6 @@ class SimpleMNISTModel(nn.Module):
         x = self.classifier(x)
         return x
 
-    def freeze_features(self):
-        """Freeze all feature extraction layers (conv layers)"""
-        for param in self.features.parameters():
-            param.requires_grad = False
-
-    def unfreeze_features(self):
-        """Unfreeze all feature extraction layers (conv layers)"""
-        for param in self.features.parameters():
-            param.requires_grad = True
-
-    def freeze_classifier(self):
-        """Freeze all classifier layers"""
-        for param in self.classifier.parameters():
-            param.requires_grad = False
-
-    def unfreeze_classifier(self):
-        """Unfreeze all classifier layers"""
-        for param in self.classifier.parameters():
-            param.requires_grad = True
-
 
 # Create model and test it
 myMNIST = SimpleMNISTModel()
