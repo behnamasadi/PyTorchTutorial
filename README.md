@@ -141,11 +141,9 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Faster R-CNN](object_detection/faster_rcnn.ipynb) 
 - [SSD (Single Shot Detector)](object_detection/ssd.ipynb) 
 - [RetinaNet](object_detection/retinanet.ipynb) 
+- [DETR](object_detection/detr.ipynb) 
+- [Mask R-CNN - Instance segmentation + detection](object_detection/mask_rcnn.ipynb) 
 
-#### [**Multi-Task & Specialized**](#)
-- [Mask R-CNN](modern_CNN_architectures/mask_rcnn.ipynb) - Instance segmentation + detection
-- [DETR](modern_CNN_architectures/detr.ipynb) - Transformer-based detection
-- [Swin Transformer](modern_CNN_architectures/swin_transformer.ipynb) - Hierarchical vision transformer
 
 
 #### [**Self-Supervised Representation Learning**](#)
@@ -161,6 +159,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Transformer Architecture](transformer/attention.ipynb)
 - [Positional Encoding](vit/index.ipynb#Step-6:-Add-Positional-Encoding)
 - [Vision Transformer (ViT)](vit/index.ipynb)
+- [Swin Transformer](vit/swin_transformer.ipynb) 
 - [ViT for Monocular Visual odometry](vit_monocular_vision/vit_monocular_vo.ipynb)
   - [Model Design](vit_monocular_vo.ipynb#III.-Model-Design-Variants)
   - [Evaluation Metrics ATE,ATE](vit_monocular_vo.ipynb#IV.-Evaluation-Metrics)
@@ -170,8 +169,6 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 ---
 
 
-
-
 ## [**3D Deep Learning**](#) 
 - [PyTorch3D](PyTorch3D/index.ipynb)
 
@@ -179,7 +176,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 ## [**Advanced Topics & Research Trends**](#) 
 - [Encoder/ Decoder Architecture](encoder/index.ipynb)  
-- [Variational Autoencoders](machine_learning/nn/encoders.ipynb)  
+- [Variational Autoencoders](encoder/variational_autoencoders)  
 - [Diffusion Models (Denoising Score Matching)](diffusion_models/index.ipynb)
 - Contrastive Learning (SimCLR, MoCo)
 - Self-Supervised Learning
@@ -192,7 +189,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 
 
-## [**Multimodal Models**](multimodal_models)
+## [**Multimodal Models**](multimodal_models/index.ipynb)
 - [Vision-Language Models (VLM)](multimodal_models/vision_language_models.ipynb)
 - [Text-to-Image Models](multimodal_models/text_to_image.ipynb)
 - [Audio-Visual Models](multimodal_models/audio_visual.ipynb)
