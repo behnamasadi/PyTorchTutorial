@@ -1,46 +1,44 @@
 import torchvision.models as models
 import torch
 import torch.nn as nn
-from typing import Optional
+from torchvision.models import WeightsEnum
 
 
-def get_model(model_name: str, num_classes: int = 3, pretrained: bool = True) -> nn.Module:
-    """
-    Get a model by name with proper configuration.
-    
-    Args:
-        model_name: Name of the model to load
-        num_classes: Number of output classes (default: 3 for brain MRI)
-        pretrained: Whether to use pretrained weights
-        
-    Returns:
-        Configured model ready for training
-        
-    Raises:
-        ValueError: If model_name is not supported
-    """
-    model_name = model_name.lower()
-    
-    if model_name == "mobilenet_v2":
-        model = models.mobilenet_v2(weights=models.MobileNet_V2_Weights.DEFAULT if pretrained else None)
-        # Modify the classifier for our number of classes
-        model.classifier = nn.Sequential(
-            nn.Dropout(0.2),
-            nn.Linear(model.classifier[1].in_features, num_classes)
+class xception_medical(nn.Module):
+    def __init__(self, num_classes: int, weights: WeightsEnum):
+        super().__init__()
+        self.backbone = models.efficientnet_b0(weights=weights)
+
+        feature_dim = self.backbone.classifier[1].in_features  # Should be 1280
+
+        self.classifier = nn.Sequential(
+            nn.Dropout(0.3),
+            nn.Linear(in_features=feature_dim, out_features=128),
+            nn.ReLU(),
+            nn.Dropout(0.25),
+            nn.Linear(128, num_classes)
         )
-        
-    elif model_name == "efficientnet_b0":
-        model = models.efficientnet_b0(weights=models.EfficientNet_B0_Weights.DEFAULT if pretrained else None)
-        # Modify the classifier for our number of classes
-        model.classifier = nn.Sequential(
-            nn.Dropout(0.2),
-            nn.Linear(model.classifier[1].in_features, num_classes)
-        )
-        
+
+        self.backbone.classifier = self.classifier
+
+        # Initialize classifier layers properly, does this model non deterministic
+        for layer in self.backbone.classifier:
+            if isinstance(layer, nn.Linear):
+                nn.init.normal_(layer.weight, mean=0.0, std=0.01)
+                nn.init.constant_(layer.bias, 0.0)
+
+        return
+
+    def forward(self, x):
+        return self.backbone(x)
+
+
+def get_model(model_name: str, weights: WeightsEnum, num_classes: int) -> torch.nn.Module:
+    if model_name == "efficientnet_b0":
+        return models.efficientnet_b0(weights=weights)
+    elif model_name == "mobilenet_v2":
+        return models.mobilenet_v2(weights=weights)
+    elif model_name == "xception_medical":
+        return xception_medical(num_classes=num_classes, weights=weights)
     else:
-        supported_models = ["mobilenet_v2", "efficientnet_b0"]
-        raise ValueError(f"Unsupported model: {model_name}. Supported models: {supported_models}")
-    
-    return model
-# mobilenet_v2 = models.mobilenet_v2(weights=torch.MobileNet_V2_Weights.DEFAULT)
-# mobilenetv2.parameters
+        raise ValueError(f"Unknown model: {model_name}")

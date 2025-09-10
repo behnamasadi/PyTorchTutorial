@@ -1,14 +1,37 @@
 models:
   mobilenet_v2:
-    weights: "torch.MobileNet_V2_Weights"
+    weights: torch.MobileNet_V2_Weights
     batch_size: 64
     lr: 0.0001
-
+    epochs: 20
   efficientnet_b0:
     name: efficientnet_b0
-    weights: "models.EfficientNet_B0_Weights.IMAGENET1K_V1"
+    weights: models.EfficientNet_B0_Weights.IMAGENET1K_V1
     num_classes: 3
     lr: 0.001
-    batch_size: 128  # Efficient model can handle larger batches
+    batch_size: 128
+    epochs: 20
+  xception_medical:
+    name: xception_medical
+    weights: models.EfficientNet_B0_Weights.IMAGENET1K_V1
+    num_classes: 3
+    lr: 0.001
+    batch_size: 128
+    epochs: 20
 
-selected_model: efficientnet_b0  # Choose from: mobilenet_v2, efficientnet_b0
+selected_model: xception_medical
+data_stats:
+  seed: 42
+  img_size: 224
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15000000000000002
+  mean:
+  - 0.15453478693962097
+  - 0.15453478693962097
+  - 0.15453478693962097
+  std:
+  - 0.1718335598707199
+  - 0.1718335598707199
+  - 0.1718335598707199
+  data_path: data/Brain_Cancer raw MRI data/Brain_Cancer
