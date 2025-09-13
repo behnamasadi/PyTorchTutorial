@@ -219,8 +219,8 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 
 ## [**Production Engineering & MLOps**](#)
-[Training stack & monitoring](training_stack_and_monitoring/index.ipynb)
-- [Experiment Tracking (TensorBoard, WandB)](training_stack_and_monitoring/weights_and_biases_WandB/WandB.ipynb)
+[Experiment Tracking & Monitoring](training_stack_and_monitoring/index.ipynb)
+- [Weights & Biases](weights_and_biases/index.ipynb)
 - [MLFlow](training_stack_and_monitoring/MLFlow/index.ipynb)
 - [Training-time Monitoring](training_stack_and_monitoring/training_time_monitoring/index.ipynb)
 - [TensorBoard & Model Debugging](training_stack_and_monitoring/tensorboard/index.ipynb)  
