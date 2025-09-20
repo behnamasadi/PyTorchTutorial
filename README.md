@@ -106,15 +106,14 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 ## [CNN Building Blocks](#)
 
-- [Convolution vs Cross-Correlation](conv/cross_correlation_convolution.ipynb#1.-Cross-Correlation)
+- [Convolution, Cross-Correlation, Transposed Convolution (Deconvolution), 1x1 Convolution](conv/cross_correlation_convolution.ipynb#1.-Cross-Correlation)
 - [Shape of Output](cross_correlation_convolution.ipynb#4.Shape-of-the-Convolution-Output)
 - [RGB Image Convolution](conv/cross_correlation_convolution.ipynb#5.Convolution-in-RGB-Images)
 - [Convolution as Matrix Multiplication](conv/cross_correlation_convolution.ipynb#Convolution-as-Matrix-Multiplication)
 - [Conv2d class vs conv2d function](conv/cross_correlation_convolution.ipynb#PyTorch-Conv2d-class-vs-conv2d-function)
 - [Unfold/ fold](cross_correlation_convolution.ipynb#torch.nn.Unfold)
 - [Padding, Stride, Dilation](conv/cross_correlation_convolution.ipynb#4.Shape-of-the-Convolution-Output)
-- [Pooling (Max, Average, Adaptive)](conv/cross_correlation_convolution.ipynb#Pooling)
-- [1x1, Dilated, Transposed Convolution (Upsampling) Convolution](conv/cross_correlation_convolution.ipynb#3.-Most-Common-Types-of-Convolution-in-Deep-Learning)
+- [Pooling (Max, Average, Adaptive), Order of Relu and  Max Pooling](max_pooling/index.ipynb)
 - [Feature Map](conv/cross_correlation_convolution.ipynb#8.-Feature-Map)
 
 ## [Modern Vision Architectures](#)
