@@ -151,6 +151,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 ## [Image Preprocessing & Augmentation Workflows](#)
 - [DataLoader, Custom Dataset, ImageFolder, random_split, Subset](dataset/index.ipynb)  
 - [Transforms, Pre-Processing, Data Augmentation](transform_pre_processing_augmentation/index.ipynb)  
+- [OpenCV and PIL Image Format](opencv_pil/index.ipynb)
 
 ---
 
