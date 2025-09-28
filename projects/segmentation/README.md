@@ -1481,6 +1481,267 @@ id,rle_mask
 3. **Memory Issues**: Process images in batches
 4. **Slow Inference**: Use GPU acceleration and batch processing
 
+## IoU Loss Function Analysis
+
+### **Why We Didn't Use IoU Loss Initially**
+
+#### **1. IoU Loss Challenges:**
+- **Non-differentiable**: IoU has zero gradients when there's no overlap
+- **Training Instability**: Can cause training to get stuck early
+- **Sparse Gradients**: Limited learning signal for small objects
+- **Implementation Complexity**: More complex than standard losses
+
+#### **2. Our Choice: Cross-Entropy + Dice Loss**
+- **Cross-Entropy**: Provides strong gradients for all pixels
+- **Dice Loss**: Approximates IoU while being differentiable
+- **Combined Benefits**: Stable training + segmentation-aware optimization
+
+### **IoU Loss Implementation**
+
+#### **1. Standard IoU Loss**
+```python
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class IoULoss(nn.Module):
+    """Intersection over Union Loss for segmentation"""
+    
+    def __init__(self, smooth=1e-6):
+        super(IoULoss, self).__init__()
+        self.smooth = smooth
+    
+    def forward(self, inputs, targets):
+        # Convert logits to probabilities
+        inputs = F.softmax(inputs, dim=1)
+        
+        # Get foreground class (class 1)
+        inputs = inputs[:, 1, :, :]  # [B, H, W]
+        targets = targets.float()    # [B, H, W]
+        
+        # Flatten tensors
+        inputs = inputs.view(-1)
+        targets = targets.view(-1)
+        
+        # Calculate intersection and union
+        intersection = (inputs * targets).sum()
+        union = inputs.sum() + targets.sum() - intersection
+        
+        # Calculate IoU
+        iou = (intersection + self.smooth) / (union + self.smooth)
+        
+        # Return IoU loss (1 - IoU)
+        return 1 - iou
+
+# Usage in training
+iou_loss = IoULoss()
+loss = iou_loss(logits, masks)
+```
+
+#### **2. Focal IoU Loss (Better for Imbalanced Data)**
+```python
+class FocalIoULoss(nn.Module):
+    """Focal IoU Loss with attention to hard examples"""
+    
+    def __init__(self, alpha=1, gamma=2, smooth=1e-6):
+        super(FocalIoULoss, self).__init__()
+        self.alpha = alpha
+        self.gamma = gamma
+        self.smooth = smooth
+    
+    def forward(self, inputs, targets):
+        # Convert logits to probabilities
+        inputs = F.softmax(inputs, dim=1)
+        inputs = inputs[:, 1, :, :]  # Foreground class
+        targets = targets.float()
+        
+        # Flatten
+        inputs = inputs.view(-1)
+        targets = targets.view(-1)
+        
+        # Calculate IoU
+        intersection = (inputs * targets).sum()
+        union = inputs.sum() + targets.sum() - intersection
+        iou = (intersection + self.smooth) / (union + self.smooth)
+        
+        # Focal weighting
+        focal_weight = self.alpha * (1 - iou) ** self.gamma
+        
+        # Focal IoU loss
+        return focal_weight * (1 - iou)
+```
+
+#### **3. Tversky Loss (IoU Variant)**
+```python
+class TverskyLoss(nn.Module):
+    """Tversky Loss - IoU with different weights for FP/FN"""
+    
+    def __init__(self, alpha=0.3, beta=0.7, smooth=1e-6):
+        super(TverskyLoss, self).__init__()
+        self.alpha = alpha  # Weight for false positives
+        self.beta = beta    # Weight for false negatives
+        self.smooth = smooth
+    
+    def forward(self, inputs, targets):
+        inputs = F.softmax(inputs, dim=1)
+        inputs = inputs[:, 1, :, :]
+        targets = targets.float()
+        
+        # Flatten
+        inputs = inputs.view(-1)
+        targets = targets.view(-1)
+        
+        # Calculate intersection and differences
+        intersection = (inputs * targets).sum()
+        false_positives = (inputs * (1 - targets)).sum()
+        false_negatives = ((1 - inputs) * targets).sum()
+        
+        # Tversky index
+        tversky = (intersection + self.smooth) / (
+            intersection + self.alpha * false_positives + 
+            self.beta * false_negatives + self.smooth
+        )
+        
+        return 1 - tversky
+```
+
+### **Comparison of Loss Functions**
+
+| Loss Function | Pros | Cons | Best For |
+|---------------|------|------|----------|
+| **Cross-Entropy** | Stable gradients, fast training | Not segmentation-aware | General classification |
+| **Dice Loss** | Segmentation-aware, handles imbalance | Can be unstable | Medical imaging |
+| **IoU Loss** | Direct optimization of IoU metric | Zero gradients, unstable | Large objects |
+| **Focal IoU** | Focuses on hard examples | Complex hyperparameters | Imbalanced datasets |
+| **Tversky Loss** | Controls FP/FN balance | Requires tuning | Specific precision/recall needs |
+
+### **Hybrid Loss Functions**
+
+#### **1. Combined IoU + Cross-Entropy**
+```python
+class CombinedLoss(nn.Module):
+    """Combine IoU loss with Cross-Entropy for stability"""
+    
+    def __init__(self, ce_weight=0.5, iou_weight=0.5):
+        super(CombinedLoss, self).__init__()
+        self.ce_weight = ce_weight
+        self.iou_weight = iou_weight
+        self.ce_loss = nn.CrossEntropyLoss(ignore_index=255)
+        self.iou_loss = IoULoss()
+    
+    def forward(self, inputs, targets):
+        ce = self.ce_loss(inputs, targets)
+        iou = self.iou_loss(inputs, targets)
+        return self.ce_weight * ce + self.iou_weight * iou
+
+# Usage
+combined_loss = CombinedLoss(ce_weight=0.3, iou_weight=0.7)
+```
+
+#### **2. Adaptive Loss Weighting**
+```python
+class AdaptiveLoss(nn.Module):
+    """Adaptive weighting based on training progress"""
+    
+    def __init__(self, initial_ce_weight=0.8, final_ce_weight=0.2):
+        super(AdaptiveLoss, self).__init__()
+        self.initial_ce_weight = initial_ce_weight
+        self.final_ce_weight = final_ce_weight
+        self.ce_loss = nn.CrossEntropyLoss(ignore_index=255)
+        self.iou_loss = IoULoss()
+    
+    def forward(self, inputs, targets, epoch, total_epochs):
+        # Gradually shift from CE to IoU
+        progress = epoch / total_epochs
+        ce_weight = self.initial_ce_weight * (1 - progress) + self.final_ce_weight * progress
+        iou_weight = 1 - ce_weight
+        
+        ce = self.ce_loss(inputs, targets)
+        iou = self.iou_loss(inputs, targets)
+        return ce_weight * ce + iou_weight * iou
+```
+
+### **When to Use IoU Loss**
+
+#### **✅ Good Cases:**
+- **Large Objects**: When salt deposits are substantial
+- **Balanced Datasets**: Similar amounts of salt/no-salt
+- **Stable Training**: After initial convergence with CE
+- **Fine-tuning**: As a secondary loss for optimization
+
+#### **❌ Avoid When:**
+- **Small Objects**: Salt deposits are tiny
+- **Imbalanced Data**: Very little salt in images
+- **Early Training**: Can cause instability
+- **Sparse Masks**: Many empty masks in dataset
+
+### **Recommended Loss Strategy for TGS Salt**
+
+#### **Phase 1: Initial Training (Epochs 1-20)**
+```python
+# Stable training with CE + Dice
+loss = 0.3 * ce_loss + 2.0 * dice_loss
+```
+
+#### **Phase 2: Fine-tuning (Epochs 21-50)**
+```python
+# Add IoU for final optimization
+loss = 0.2 * ce_loss + 1.5 * dice_loss + 0.3 * iou_loss
+```
+
+#### **Phase 3: Advanced Training**
+```python
+# Adaptive weighting
+loss = adaptive_loss(logits, masks, epoch, total_epochs)
+```
+
+### **Implementation in Current Training**
+
+To add IoU loss to your current training:
+
+```python
+# Add to train.py
+from losses import IoULoss
+
+# Initialize IoU loss
+iou_loss = IoULoss()
+
+# Modify loss calculation
+def calculate_loss(logits, masks, epoch, total_epochs):
+    ce = ce_loss(logits, masks)
+    dice = dice_loss(logits, masks)
+    
+    # Add IoU after epoch 20
+    if epoch >= 20:
+        iou = iou_loss(logits, masks)
+        return 0.2 * ce + 1.5 * dice + 0.3 * iou
+    else:
+        return 0.3 * ce + 2.0 * dice
+```
+
+### **Expected Performance Impact**
+
+| Loss Function | Dice Score | IoU Score | Training Stability |
+|---------------|------------|-----------|-------------------|
+| **CE + Dice** | 0.70+ | 0.55+ | High |
+| **CE + Dice + IoU** | 0.72+ | 0.58+ | Medium |
+| **Focal IoU** | 0.68+ | 0.60+ | Low |
+| **Tversky Loss** | 0.71+ | 0.57+ | Medium |
+
+### **Conclusion**
+
+We didn't use IoU loss initially because:
+1. **Training Stability**: CE + Dice provides more stable gradients
+2. **Implementation Simplicity**: Easier to debug and optimize
+3. **Proven Results**: Our current approach achieves excellent performance
+
+However, **IoU loss can be beneficial** for:
+- **Final optimization**: After initial convergence
+- **Large objects**: When salt deposits are substantial
+- **Metric alignment**: Direct optimization of evaluation metric
+
+The **recommended approach** is to start with CE + Dice (as we did) and optionally add IoU loss in later epochs for fine-tuning.
+
 ## References
 
 - Original Challenge: TGS Salt Identification Challenge
