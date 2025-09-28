@@ -806,6 +806,106 @@ model = torch.hub.load('HRNet/HRNet-Semantic-Segmentation', 'hrnet_w48', pretrai
 - **Multi-Scale Fusion**: Combines different resolutions
 - **Best for**: Fine-grained segmentation, high-resolution images
 
+**7. MONAI (Medical Open Network for AI)**
+Specialized framework for medical imaging with state-of-the-art models:
+
+```python
+import monai
+from monai.networks.nets import UNet, DynUNet, SegResNet
+from monai.transforms import Compose, LoadImaged, AddChanneld, Spacingd, ScaleIntensityRanged
+
+# MONAI UNet with advanced features
+model = UNet(
+    spatial_dims=2,
+    in_channels=3,
+    out_channels=2,
+    channels=(16, 32, 64, 128, 256),
+    strides=(2, 2, 2, 2),
+    num_res_units=2,
+    norm=monai.networks.layers.Norm.BATCH,
+    dropout=0.2
+)
+
+# MONAI Dynamic UNet (adaptive to input size)
+model = DynUNet(
+    spatial_dims=2,
+    in_channels=3,
+    out_channels=2,
+    kernel_size=[3, 3, 3, 3, 3, 3],
+    strides=[1, 2, 2, 2, 2, 2],
+    upsample_kernel_size=[2, 2, 2, 2, 2],
+    filters=[64, 96, 128, 192, 256, 384, 512],
+    norm_name="instance",
+    deep_supervision=True
+)
+
+# MONAI SegResNet (ResNet + U-Net hybrid)
+model = SegResNet(
+    blocks_down=[1, 2, 2, 4],
+    blocks_up=[1, 1, 1],
+    init_filters=16,
+    in_channels=3,
+    out_channels=2,
+    dropout_prob=0.2
+)
+```
+
+**Key Features:**
+- **Medical Optimized**: Designed specifically for medical imaging
+- **Advanced Transforms**: Comprehensive data augmentation pipeline
+- **Multiple Architectures**: UNet, DynUNet, SegResNet, AttentionUNet
+- **Deep Supervision**: Multi-scale loss for better training
+- **Instance Normalization**: Better for medical images than BatchNorm
+- **Best for**: Medical imaging, small datasets, domain-specific tasks
+
+**Performance**: Typically achieves 75-85% Dice score on medical datasets
+
+**8. SAM2 (Segment Anything Model 2)**
+Meta's latest foundation model for universal segmentation:
+
+```python
+import torch
+from sam2.build_sam import build_sam2
+from sam2.sam2_image_predictor import SAM2ImagePredictor
+
+# Load SAM2 model
+sam2_checkpoint = "sam2_hiera_large.pt"
+model_cfg = "sam2_hiera_l.yaml"
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
+sam2_model = build_sam2(model_cfg, sam2_checkpoint, device=device)
+predictor = SAM2ImagePredictor(sam2_model)
+
+# Set image for prediction
+predictor.set_image(image)
+
+# Generate masks (automatic segmentation)
+masks, scores, logits = predictor.predict()
+
+# Or use prompts for guided segmentation
+masks, scores, logits = predictor.predict(
+    point_coords=[[100, 100]],  # Point prompt
+    point_labels=[1],           # 1 for foreground, 0 for background
+    multimask_output=True
+)
+
+# Box prompt
+masks, scores, logits = predictor.predict(
+    box=np.array([50, 50, 200, 200]),  # [x1, y1, x2, y2]
+    multimask_output=True
+)
+```
+
+**Key Features:**
+- **Foundation Model**: Pre-trained on massive datasets (11M images, 1.1B masks)
+- **Zero-Shot**: Works without fine-tuning on new tasks
+- **Multi-Modal**: Supports points, boxes, text, and automatic segmentation
+- **High Quality**: State-of-the-art segmentation quality
+- **Video Support**: Can segment objects across video frames
+- **Best for**: General segmentation, few-shot learning, research applications
+
+**Performance**: Achieves 80-90%+ Dice score on diverse segmentation tasks
+
 #### Model Comparison Table
 
 | Model | Parameters | Speed | Accuracy | Best Use Case |
@@ -817,26 +917,181 @@ model = torch.hub.load('HRNet/HRNet-Semantic-Segmentation', 'hrnet_w48', pretrai
 | **SegNet** | ~29M | Fast | Good | Real-time, memory-efficient |
 | **LinkNet** | ~11M | Very Fast | Good | Mobile, real-time |
 | **HRNet** | ~65M | Slow | Excellent | High-resolution, fine details |
+| **MONAI UNet** | ~17M | Fast | Excellent | Medical imaging, domain-specific |
+| **MONAI DynUNet** | ~25M | Medium | Excellent | Variable input sizes, medical |
+| **MONAI SegResNet** | ~35M | Medium | Excellent | Medical imaging, hybrid architecture |
+| **SAM2** | ~2.4B | Slow | Outstanding | Universal segmentation, zero-shot |
 
 #### Model Selection Guide
 
 **For Your TGS Salt Dataset:**
 
 1. **Current U-Net**: Good baseline, works well with small datasets
-2. **DeepLabV3+**: Best overall performance, handles complex boundaries
-3. **PSPNet**: Good for multi-scale salt deposits
-4. **LinkNet**: Fast alternative with good performance
+2. **MONAI UNet**: Excellent for geological/medical-like data, optimized transforms
+3. **DeepLabV3+**: Best overall performance, handles complex boundaries
+4. **SAM2**: Outstanding zero-shot performance, no training required
+5. **PSPNet**: Good for multi-scale salt deposits
+6. **LinkNet**: Fast alternative with good performance
 
 **Performance Expectations:**
 
-| Model | Expected Dice Score | Training Time | Memory Usage |
-|-------|-------------------|---------------|--------------|
-| **U-Net** | 70% (current) | Fast | Low |
-| **DeepLabV3+** | 75-80% | Medium | Medium |
-| **PSPNet** | 73-78% | Medium | Medium |
-| **LinkNet** | 68-73% | Very Fast | Low |
+| Model | Expected Dice Score | Training Time | Memory Usage | Setup Complexity |
+|-------|-------------------|---------------|--------------|------------------|
+| **U-Net** | 70% (current) | Fast | Low | Low |
+| **MONAI UNet** | 75-82% | Fast | Low | Medium |
+| **MONAI DynUNet** | 78-85% | Medium | Medium | Medium |
+| **SAM2** | 80-90% | None (zero-shot) | High | High |
+| **DeepLabV3+** | 75-80% | Medium | Medium | Low |
+| **PSPNet** | 73-78% | Medium | Medium | Medium |
+| **LinkNet** | 68-73% | Very Fast | Low | Low |
 
 #### Implementation Examples
+
+**MONAI UNet for Salt Segmentation:**
+```python
+# Install MONAI first: pip install monai
+import monai
+from monai.networks.nets import UNet
+from monai.transforms import Compose, LoadImaged, AddChanneld, ScaleIntensityRanged, ToTensord
+
+# MONAI UNet optimized for salt segmentation
+model = UNet(
+    spatial_dims=2,
+    in_channels=3,
+    out_channels=2,
+    channels=(16, 32, 64, 128, 256),
+    strides=(2, 2, 2, 2),
+    num_res_units=2,
+    norm=monai.networks.layers.Norm.BATCH,
+    dropout=0.2,
+    act="RELU"
+)
+
+# MONAI transforms for data preprocessing
+train_transforms = Compose([
+    LoadImaged(keys=["image", "label"]),
+    AddChanneld(keys=["image", "label"]),
+    ScaleIntensityRanged(keys=["image"], a_min=0, a_max=255, b_min=0.0, b_max=1.0),
+    ToTensord(keys=["image", "label"])
+])
+
+# Training with MONAI
+from monai.losses import DiceLoss, DiceCELoss
+from monai.metrics import DiceMetric
+
+loss_function = DiceCELoss(to_onehot_y=True, softmax=True)
+dice_metric = DiceMetric(include_background=False, reduction="mean")
+```
+
+**MONAI Dynamic UNet (Adaptive to Input Size):**
+```python
+from monai.networks.nets import DynUNet
+
+# Dynamic UNet that adapts to different input sizes
+model = DynUNet(
+    spatial_dims=2,
+    in_channels=3,
+    out_channels=2,
+    kernel_size=[3, 3, 3, 3, 3, 3],
+    strides=[1, 2, 2, 2, 2, 2],
+    upsample_kernel_size=[2, 2, 2, 2, 2],
+    filters=[64, 96, 128, 192, 256, 384, 512],
+    norm_name="instance",
+    deep_supervision=True,  # Multi-scale supervision
+    deep_supr_num=3
+)
+```
+
+**SAM2 Zero-Shot Segmentation:**
+```python
+# Install SAM2: pip install git+https://github.com/facebookresearch/segment-anything-2.git
+import torch
+import numpy as np
+from sam2.build_sam import build_sam2
+from sam2.sam2_image_predictor import SAM2ImagePredictor
+
+# Load SAM2 model (download checkpoints from Meta)
+sam2_checkpoint = "sam2_hiera_large.pt"  # or sam2_hiera_base.pt for smaller model
+model_cfg = "sam2_hiera_l.yaml"
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
+sam2_model = build_sam2(model_cfg, sam2_checkpoint, device=device)
+predictor = SAM2ImagePredictor(sam2_model)
+
+def segment_salt_with_sam2(image_path):
+    """Segment salt deposits using SAM2 zero-shot"""
+    # Load and preprocess image
+    image = cv2.imread(image_path)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    
+    # Set image for prediction
+    predictor.set_image(image)
+    
+    # Method 1: Automatic segmentation (generates all possible masks)
+    masks, scores, logits = predictor.predict()
+    
+    # Method 2: Point-based prompting (click on salt region)
+    point_coords = np.array([[100, 100]])  # Click coordinates
+    point_labels = np.array([1])           # 1 for foreground
+    masks, scores, logits = predictor.predict(
+        point_coords=point_coords,
+        point_labels=point_labels,
+        multimask_output=True
+    )
+    
+    # Method 3: Box-based prompting (draw bounding box around salt)
+    box = np.array([50, 50, 200, 200])  # [x1, y1, x2, y2]
+    masks, scores, logits = predictor.predict(
+        box=box,
+        multimask_output=True
+    )
+    
+    # Select best mask based on score
+    best_mask = masks[np.argmax(scores)]
+    return best_mask
+
+# Usage example
+salt_mask = segment_salt_with_sam2("path/to/seismic_image.png")
+```
+
+**SAM2 with Custom Training (Fine-tuning):**
+```python
+# Fine-tune SAM2 for salt segmentation
+from sam2.build_sam import build_sam2
+from sam2.sam2_image_predictor import SAM2ImagePredictor
+
+# Load base SAM2 model
+sam2_model = build_sam2(model_cfg, sam2_checkpoint, device=device)
+
+# Fine-tune on your salt dataset
+def fine_tune_sam2(model, train_dataloader, epochs=10):
+    optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4)
+    criterion = torch.nn.BCEWithLogitsLoss()
+    
+    for epoch in range(epochs):
+        for batch in train_dataloader:
+            images, masks = batch
+            
+            # Forward pass
+            predictor = SAM2ImagePredictor(model)
+            predictor.set_image(images[0])
+            
+            # Use ground truth as prompt
+            predicted_masks, scores, logits = predictor.predict()
+            
+            # Compute loss
+            loss = criterion(logits, masks.float())
+            
+            # Backward pass
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            
+            print(f"Epoch {epoch}, Loss: {loss.item():.4f}")
+
+# Fine-tune SAM2
+fine_tune_sam2(sam2_model, train_dataloader)
+```
 
 **Quick DeepLabV3+ Integration:**
 ```python
@@ -880,18 +1135,36 @@ class SaltPSPNet(nn.Module):
 
 #### Recommendations for TGS Salt Dataset
 
-1. **Start with DeepLabV3+**: Likely to give best results
-2. **Try PSPNet**: Good for multi-scale salt deposits
-3. **Consider LinkNet**: If you need faster inference
-4. **Stick with U-Net**: If current results are sufficient
+1. **Try SAM2 First**: Zero-shot performance, no training required, likely best results
+2. **MONAI UNet**: Excellent for geological data, optimized for medical/domain-specific tasks
+3. **DeepLabV3+**: Best traditional approach, handles complex boundaries well
+4. **MONAI DynUNet**: Good for variable input sizes and multi-scale features
+5. **PSPNet**: Good for multi-scale salt deposits
+6. **Consider LinkNet**: If you need faster inference
+7. **Stick with U-Net**: If current results are sufficient
 
 #### Expected Improvements
 
 Upgrading from U-Net to advanced models typically provides:
+
+**Traditional Models (DeepLabV3+, PSPNet, etc.):**
 - **5-15% Dice Score Improvement**
 - **Better Boundary Detection**
 - **More Robust to Scale Variations**
 - **Better Generalization**
+
+**MONAI Models:**
+- **5-20% Dice Score Improvement** (especially for domain-specific data)
+- **Better Medical/Geological Image Handling**
+- **Advanced Data Augmentation Pipeline**
+- **Multi-scale Supervision**
+
+**SAM2 (Zero-shot):**
+- **10-25% Dice Score Improvement** (no training required)
+- **Outstanding Boundary Precision**
+- **Universal Segmentation Capability**
+- **Interactive Segmentation with Prompts**
+- **Video Segmentation Support**
 
 ## Implementation Guide
 
@@ -923,6 +1196,290 @@ Upgrading from U-Net to advanced models typically provides:
 2. **Evaluation**: Test on validation set for detailed metrics
 3. **Visualization**: Generate prediction masks for sample images
 4. **Optimization**: Consider data augmentation for further improvement
+5. **Kaggle Submission**: Format predictions for competition submission
+
+## Kaggle Submission Guide
+
+### Submission Format Requirements
+
+For the TGS Salt Identification Challenge on Kaggle, you need to submit predictions in a specific format:
+
+#### **Required Output Format:**
+- **File**: `submission.csv`
+- **Columns**: `id`, `rle_mask`
+- **Format**: Run-Length Encoding (RLE) of binary masks
+
+#### **RLE Format Explanation:**
+RLE compresses binary masks by storing consecutive pixel values:
+- **Format**: `start1 length1 start2 length2 ...`
+- **Example**: `1 3 10 5` means pixels 1-3 and 10-14 are foreground (salt)
+
+### Complete Submission Pipeline
+
+#### **1. Create Inference Script**
+```python
+import torch
+import numpy as np
+import pandas as pd
+import cv2
+from pathlib import Path
+from tqdm import tqdm
+import torchvision.transforms as transforms
+from models import unet
+
+def rle_encode(mask):
+    """Convert binary mask to RLE string"""
+    pixels = mask.flatten()
+    pixels = np.concatenate([[0], pixels, [0]])
+    runs = np.where(pixels[1:] != pixels[:-1])[0] + 1
+    runs[1::2] -= runs[::2]
+    return ' '.join(str(x) for x in runs)
+
+def rle_decode(rle_str, shape):
+    """Convert RLE string back to binary mask"""
+    s = rle_str.split()
+    starts, lengths = [np.asarray(x, dtype=int) for x in (s[0:][::2], s[1:][::2])]
+    starts -= 1
+    ends = starts + lengths
+    img = np.zeros(shape[0] * shape[1], dtype=np.uint8)
+    for lo, hi in zip(starts, ends):
+        img[lo:hi] = 1
+    return img.reshape(shape)
+
+def predict_test_set(model_path, test_dir, output_csv):
+    """Generate predictions for test set and create submission file"""
+    
+    # Load trained model
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model = unet.UNet(input_channel=3, n_classes=2, base=64)
+    model.load_state_dict(torch.load(model_path, map_location=device))
+    model.to(device)
+    model.eval()
+    
+    # Image preprocessing
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ])
+    
+    # Get test image paths
+    test_path = Path(test_dir)
+    test_images = list(test_path.glob("*.png"))
+    
+    predictions = []
+    
+    print(f"Processing {len(test_images)} test images...")
+    
+    with torch.no_grad():
+        for img_path in tqdm(test_images):
+            # Load and preprocess image
+            image = cv2.imread(str(img_path))
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            
+            # Remove alpha channel if present
+            if image.shape[2] == 4:
+                image = image[:, :, :3]
+            
+            # Pad to multiple of 32
+            h, w = image.shape[:2]
+            pad_h = (32 - h % 32) % 32
+            pad_w = (32 - w % 32) % 32
+            image = cv2.copyMakeBorder(image, 0, pad_h, 0, pad_w, cv2.BORDER_CONSTANT, value=0)
+            
+            # Transform
+            input_tensor = transform(image).unsqueeze(0).to(device)
+            
+            # Predict
+            output = model(input_tensor)
+            pred_mask = torch.argmax(output, dim=1).squeeze().cpu().numpy()
+            
+            # Remove padding
+            pred_mask = pred_mask[:h, :w]
+            
+            # Convert to binary (0=background, 1=salt)
+            pred_mask = (pred_mask == 1).astype(np.uint8)
+            
+            # Encode to RLE
+            rle = rle_encode(pred_mask)
+            
+            # Get image ID (filename without extension)
+            img_id = img_path.stem
+            
+            predictions.append({
+                'id': img_id,
+                'rle_mask': rle
+            })
+    
+    # Create submission DataFrame
+    submission_df = pd.DataFrame(predictions)
+    submission_df.to_csv(output_csv, index=False)
+    print(f"Submission file saved to {output_csv}")
+    
+    return submission_df
+
+# Usage
+if __name__ == "__main__":
+    model_path = "best_model.pth"
+    test_dir = "data/tgs_salt/test"  # Path to test images
+    output_csv = "submission.csv"
+    
+    submission_df = predict_test_set(model_path, test_dir, output_csv)
+    print(f"Generated {len(submission_df)} predictions")
+```
+
+#### **2. Enhanced Submission with Post-processing**
+```python
+def predict_with_postprocessing(model_path, test_dir, output_csv):
+    """Generate predictions with post-processing for better results"""
+    
+    # Load model (same as above)
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model = unet.UNet(input_channel=3, n_classes=2, base=64)
+    model.load_state_dict(torch.load(model_path, map_location=device))
+    model.to(device)
+    model.eval()
+    
+    def post_process_mask(mask, min_size=100):
+        """Post-process mask to remove small regions"""
+        # Remove small connected components
+        num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(mask, connectivity=8)
+        
+        # Filter out small components
+        filtered_mask = np.zeros_like(mask)
+        for i in range(1, num_labels):  # Skip background (label 0)
+            if stats[i, cv2.CC_STAT_AREA] >= min_size:
+                filtered_mask[labels == i] = 1
+        
+        return filtered_mask
+    
+    def test_time_augmentation(image, model, device):
+        """Apply test-time augmentation for better predictions"""
+        predictions = []
+        
+        # Original image
+        pred = model(image)
+        predictions.append(pred)
+        
+        # Horizontal flip
+        image_flip = torch.flip(image, dims=[3])
+        pred_flip = model(image_flip)
+        pred_flip = torch.flip(pred_flip, dims=[3])
+        predictions.append(pred_flip)
+        
+        # Average predictions
+        final_pred = torch.mean(torch.stack(predictions), dim=0)
+        return final_pred
+    
+    # Rest of the prediction code with post-processing
+    # ... (similar to above but with post_process_mask and TTA)
+```
+
+#### **3. Submission File Validation**
+```python
+def validate_submission(submission_csv):
+    """Validate submission file format"""
+    df = pd.read_csv(submission_csv)
+    
+    # Check required columns
+    required_cols = ['id', 'rle_mask']
+    if not all(col in df.columns for col in required_cols):
+        raise ValueError(f"Missing required columns: {required_cols}")
+    
+    # Check for missing values
+    if df.isnull().any().any():
+        raise ValueError("Submission file contains missing values")
+    
+    # Check RLE format
+    for idx, row in df.iterrows():
+        rle = row['rle_mask']
+        if rle == '' or rle is None:
+            continue  # Empty mask is valid
+        
+        try:
+            # Try to decode RLE
+            test_mask = rle_decode(rle, (101, 101))  # Standard test image size
+            if test_mask.shape != (101, 101):
+                raise ValueError(f"Invalid mask shape for image {row['id']}")
+        except Exception as e:
+            raise ValueError(f"Invalid RLE format for image {row['id']}: {e}")
+    
+    print("✓ Submission file validation passed!")
+    return True
+
+# Validate before submission
+validate_submission("submission.csv")
+```
+
+#### **4. Complete Submission Workflow**
+```python
+def create_kaggle_submission():
+    """Complete workflow for Kaggle submission"""
+    
+    # Step 1: Generate predictions
+    print("Step 1: Generating predictions...")
+    submission_df = predict_test_set(
+        model_path="best_model.pth",
+        test_dir="data/tgs_salt/test",
+        output_csv="submission.csv"
+    )
+    
+    # Step 2: Validate submission
+    print("Step 2: Validating submission...")
+    validate_submission("submission.csv")
+    
+    # Step 3: Create backup
+    import shutil
+    shutil.copy("submission.csv", f"submission_backup_{pd.Timestamp.now().strftime('%Y%m%d_%H%M%S')}.csv")
+    
+    # Step 4: Display sample predictions
+    print("Step 3: Sample predictions:")
+    print(submission_df.head())
+    
+    # Step 5: Statistics
+    print(f"\nSubmission Statistics:")
+    print(f"Total predictions: {len(submission_df)}")
+    print(f"Empty masks: {sum(submission_df['rle_mask'] == '')}")
+    print(f"Non-empty masks: {sum(submission_df['rle_mask'] != '')}")
+    
+    return submission_df
+
+# Run complete submission workflow
+submission = create_kaggle_submission()
+```
+
+### **Submission Checklist**
+
+Before submitting to Kaggle:
+
+1. **File Format**: Ensure `submission.csv` has exactly 2 columns: `id`, `rle_mask`
+2. **Image IDs**: Match exactly with test set image filenames (without extension)
+3. **RLE Format**: Valid run-length encoding strings
+4. **No Missing Values**: All rows must have valid data
+5. **File Size**: Should be reasonable (not too large or too small)
+6. **Test Locally**: Validate on a few test images first
+
+### **Expected Submission File Structure**
+```csv
+id,rle_mask
+0a0c0df5,1 1 2 1 5 1 8 1 11 1 14 1 17 1 20 1 23 1 26 1 29 1 32 1 35 1 38 1 41 1 44 1 47 1 50 1 53 1 56 1 59 1 62 1 65 1 68 1 71 1 74 1 77 1 80 1 83 1 86 1 89 1 92 1 95 1 98 1
+0a0c0df6,
+0a0c0df7,1 1 2 1 5 1 8 1 11 1 14 1 17 1 20 1 23 1 26 1 29 1 32 1 35 1 38 1 41 1 44 1 47 1 50 1 53 1 56 1 59 1 62 1 65 1 68 1 71 1 74 1 77 1 80 1 83 1 86 1 89 1 92 1 95 1 98 1
+```
+
+### **Tips for Better Kaggle Scores**
+
+1. **Test-Time Augmentation**: Use multiple predictions and average them
+2. **Post-processing**: Remove small connected components
+3. **Ensemble Models**: Combine multiple trained models
+4. **Threshold Tuning**: Optimize confidence thresholds
+5. **Cross-Validation**: Ensure model generalizes well
+
+### **Common Issues and Solutions**
+
+1. **RLE Format Errors**: Use provided `rle_encode()` function
+2. **Shape Mismatches**: Ensure output matches input image dimensions
+3. **Memory Issues**: Process images in batches
+4. **Slow Inference**: Use GPU acceleration and batch processing
 
 ## References
 
