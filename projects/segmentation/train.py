@@ -25,7 +25,7 @@ from torch.optim import AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 from tgs_salt_dataset import TgsSaltSemanticDataset
-from models import unet
+from models import unet, resnet_unet
 from utils.file_utils import resource_path
 from loss_functions.soft_dice import SoftDiceLoss
 import wandb
@@ -356,7 +356,9 @@ def main() -> None:
         train_dataloader, validation_dataloader = create_data_loaders(config)
 
         # Initialize model
-        model = unet.UNet(input_channel=3, n_classes=2, base=64)
+        # model = unet.UNet(input_channel=3, n_classes=2, base=64)
+        model = resnet_unet.ResNetUNet(num_classes=2)
+
         model = model.to(device)
         logger.info(f"Model initialized on device: {device}")
 
