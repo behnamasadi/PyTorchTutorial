@@ -34,6 +34,7 @@ class BasicBlock(ResidualBlockBase):
         # Identity or 1x1 projection on the skip path to match shape
         needs_projection = (stride != 1) or (in_channels != out_channels)
         if needs_projection:
+            print("needs_projection")
             self.skip = nn.Sequential(
                 nn.Conv2d(in_channels, out_channels, kernel_size=1,
                           stride=stride, bias=False),
@@ -87,6 +88,10 @@ class ResNet(nn.Module):
         self.block_cls: Type[ResidualBlockBase] = block_cls
 
         # ----- Stem -----
+        self.stem_out_channels = 64
+        print(f"Adding Stem, in_channels={in_channels}, out_channels={self.stem_out_channels} , kernel_size=7, stride=2, padding=3",
+              in_channels, self.stem_out_channels)
+
         self.stem_conv = nn.Conv2d(
             in_channels, 64, kernel_size=7, stride=2, padding=3, bias=False)
         self.stem_bn = nn.BatchNorm2d(64)
@@ -97,6 +102,11 @@ class ResNet(nn.Module):
         self.current_channels: int = 64
 
         # ----- Stages (conv2_x .. conv5_x) -----
+
+        print("Each block is either of type ResidualBlockBase or Bottleneck")
+
+        print(
+            "The ResidualBlockBase is consist of x ──> [Conv → BN → ReLU → Conv → BN] ──> + ──> ReLU ──> output")
 
         print("# ----- Stage 1 -----")
         self.layer1 = self._build_stage(
@@ -139,20 +149,22 @@ class ResNet(nn.Module):
 
         blocks: List[nn.Module] = []
 
-        # 1) First block in the stage: may change spatial size & width
+        # 1) First block in the stage
         print(
             f"First block in the stage, in_channels={self.current_channels}, planes={planes}, stride={first_stride}")
+
         block_mod = self.block_cls(  # <-- instantiate the CLASS
             in_channels=self.current_channels,
             planes=planes,
-            stride=first_stride,
-        )
+            stride=first_stride)
         blocks.append(block_mod)
 
         # After the first block, the stage's channel width is planes * expansion
         self.current_channels = planes * self.block_cls.expansion
+
         print(
-            f"After the first block, the stage's channel width is planes * expansion={self.current_channels}")
+            f"After the first block, the stage's channel width is planes * expansion = {planes} x {self.block_cls.expansion} = {self.current_channels}"
+        )
 
         # 2) Remaining blocks: keep same width and stride=1
         for i in range(1, num_blocks):
@@ -164,7 +176,7 @@ class ResNet(nn.Module):
             blocks.append(block_mod)
 
             print(
-                f"block number {i}, in_channels={self.current_channels}, planes={planes}, stride=1")
+                f"block number {i+1}, in_channels={self.current_channels}, planes={planes}, stride=1")
 
         return nn.Sequential(*blocks)
 
@@ -205,20 +217,20 @@ def resnet34(num_classes: int = 1000, in_channels: int = 3) -> ResNet:
 
 # ---------- Quick smoke test ----------
 if __name__ == "__main__":
-    # model = resnet18(num_classes=10)
-    # x = torch.randn(2, 3, 224, 224)
-    # logits = model(x)
-    # print(type(BasicBlock))         # <class 'type'>  (a CLASS)
-    # # True (an INSTANCE inside the stage)
-    # print(isinstance(model.layer1[0], BasicBlock))
-    # print(logits.shape)             # torch.Size([2, 10])
-
-    # ------------------------------------
-
-    model = resnet34(num_classes=10)
+    model = resnet18(num_classes=10)
     x = torch.randn(2, 3, 224, 224)
     logits = model(x)
     print(type(BasicBlock))         # <class 'type'>  (a CLASS)
     # True (an INSTANCE inside the stage)
     print(isinstance(model.layer1[0], BasicBlock))
     print(logits.shape)             # torch.Size([2, 10])
+
+    # ------------------------------------
+
+    # model = resnet34(num_classes=10)
+    # x = torch.randn(2, 3, 224, 224)
+    # logits = model(x)
+    # print(type(BasicBlock))         # <class 'type'>  (a CLASS)
+    # # True (an INSTANCE inside the stage)
+    # print(isinstance(model.layer1[0], BasicBlock))
+    # print(logits.shape)             # torch.Size([2, 10])
