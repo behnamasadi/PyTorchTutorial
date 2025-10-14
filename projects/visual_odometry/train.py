@@ -1,12 +1,27 @@
-"""Training script for TGS Salt segmentation using U-Net with optimized loss weighting.
+"""
 
-This script follows ML workflow best practices including:
-- Comprehensive type annotations
-- Google-style docstrings
-- Proper error handling and logging
-- Modular design with single responsibility functions
-- Experiment tracking with Weights & Biases
-- Configuration management
+Training recipe (self-sup monocular VO, KITTI)
+
+    1. Preprocess: resize to 192×640, keep fx, fy, cx, cy scaled accordingly.
+    2. Batching: sample snippets (length 3) → (t−1, t, t+1).
+    3. Forward:
+        - Depth_t = DepthNet(I_t).
+        - For each source s∈{t−1,t+1}: T_{t→s} = PoseNet(I_t, I_s).
+        - Warp I_s→t using Depth_t, T_{t→s}, K (pinhole). Compute photometric loss with SSIM+L1; take min over sources per pixel.
+
+    4. Regularize: smoothness on Depth_t (edge-aware with image gradients).
+    5. Masking: auto-mask when photometric error of identity warp < reprojection error (static scenes).
+    6. Optim: AdamW, lr 1e-4 (Depth), 1e-4 (Pose); cosine decay; weight decay 1e-4.
+    7. Tricks: random brightness/contrast jitter, random flips (careful with flips + poses).
+    8. Logging: show sample depth maps, photometric error heatmaps, and train/val losses.
+
+Evaluation
+
+    1. Pose: ATE/RPE (TUM style) on TUM or EuRoC; KITTI Odometry sequence metrics (t_rel, r_rel).
+    2. Depth (if you evaluate on GT): AbsRel, SqRel, RMSE, RMSE_log, δ<1.25^n.
+    3. Ablations: with/without auto-mask; with/without min reprojection; ResNet18 vs Swin-Tiny encoder.
+
+
 """
 
 from pathlib import Path
@@ -24,11 +39,21 @@ from torch.utils.data import Dataset, DataLoader, random_split
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
-from tgs_salt_dataset import TgsSaltSemanticDataset
+
 from models import unet
 from utils.file_utils import resource_path
 from loss_functions.soft_dice import SoftDiceLoss
 import wandb
+
+
+# 3
+from models.depth_net import DepthNetResNet18
+from models.pose_net import PoseNetSmall
+from losses.photometric_loss import compute_min_reprojection_loss
+from losses.smoothness_loss import smoothness_loss
+from models.geometry import disp_to_depth
+# 3
+
 
 # Configure logging
 logging.basicConfig(
@@ -345,6 +370,14 @@ def should_early_stop(
     return should_stop, patience_counter
 
 
+def disp_to_depth(disp, min_depth=0.1, max_depth=100.0):
+    min_disp = 1.0 / max_depth
+    max_disp = 1.0 / min_depth
+    scaled_disp = min_disp + (max_disp - min_disp) * disp
+    depth = 1.0 / scaled_disp
+    return depth
+
+
 def main() -> None:
     """Main training function following ML workflow best practices."""
     try:
@@ -479,6 +512,84 @@ def main() -> None:
         logger.error(f"Training failed: {e}")
         wandb.finish(exit_code=1)
         raise
+
+
+# ---------- Core: one training step with min reprojection ----------
+
+def train_step_min_reproj(
+    depth_net: nn.Module,
+    pose_net: nn.Module,
+    batch: Dict[str, torch.Tensor],
+    # [B,3,3] intrinsics at the current scale (full-res)
+    K: torch.Tensor,
+    optimizer: torch.optim.Optimizer,
+    scaler: torch.cuda.amp.GradScaler = None,
+    min_depth=0.1, max_depth=100.0,
+    use_amp=True
+):
+    """
+    batch should contain:
+      batch["t"]     -> target frame I_t   [B,3,H,W]
+      batch["srcs"]  -> list of source frames [ list of tensors [B,3,H,W] ], e.g., [I_{t-1}, I_{t+1}]
+    Returns: total_loss (tensor), logs (dict)
+    """
+    device = next(depth_net.parameters()).device
+    I_t = batch["t"].to(device)
+    srcs: List[torch.Tensor] = [s.to(device) for s in batch["srcs"]]
+    B, _, H, W = I_t.shape
+
+    K = K.to(device)
+    K_inv = torch.inverse(K)
+
+    depth_net.train()
+    pose_net.train()
+    optimizer.zero_grad(set_to_none=True)
+
+    # ---- Forward depth (multi-scale) ----
+    with torch.cuda.amp.autocast(enabled=use_amp):
+        disp_dict = depth_net(I_t)
+        # full-res disparity
+        disp = disp_dict["disp_0"]  # [B,1,H,W]
+        depth = disp_to_depth(disp, min_depth, max_depth)  # [B,1,H,W]
+
+        # ---- Predict poses to each source ----
+        T_list = []
+        for I_s in srcs:
+            inp = torch.cat([I_t, I_s], dim=1)  # [B,6,H,W] (or 9 if 3 frames)
+            pose_6d = pose_net(inp)             # [B,6]
+            T_t2s = se3_to_SE3(pose_6d)         # [B,4,4]
+            T_list.append(T_t2s)
+
+        # ---- Warp each source into target view ----
+        reproj_errors = []
+        for I_s, T_t2s in zip(srcs, T_list):
+            I_warp = projective_warp(I_s, depth, T_t2s, K, K_inv)  # [B,3,H,W]
+            pe = photometric_error(I_t, I_warp)                    # [B,1,H,W]
+            reproj_errors.append(pe)
+
+        # ---- Min reprojection across sources ----
+        # stack: [B, S, 1, H, W] -> min over S (dimension 1)
+        E = torch.stack(reproj_errors, dim=1)   # [B,S,1,H,W]
+        min_E, _ = torch.min(E, dim=1)          # [B,1,H,W]
+
+        # ---- Your extra terms can be added here (e.g., smoothness on disp/depth) ----
+        total_loss = min_E.mean()
+
+    # ---- Backward / step ----
+    if scaler is not None and use_amp:
+        scaler.scale(total_loss).backward()
+        scaler.step(optimizer)
+        scaler.update()
+    else:
+        total_loss.backward()
+        optimizer.step()
+
+    logs = {
+        "loss/min_reproj": min_E.mean().item(),
+        "disp_mean": disp.mean().item(),
+        "depth_mean": depth.mean().item(),
+    }
+    return total_loss, logs
 
 
 if __name__ == "__main__":
