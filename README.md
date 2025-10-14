@@ -164,7 +164,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
   - [Model Design](vit_monocular_vo.ipynb#III.-Model-Design-Variants)
   - [Evaluation Metrics ATE,ATE](vit_monocular_vo.ipynb#IV.-Evaluation-Metrics)
   - [Unsupervised / Supervised VO](vit_monocular_vo.ipynb#Unsupervised-/-Self-Supervised-VO)
-  - [Loss Functions Used in VO](vit_monocular_vo.ipynb#I.-Types-of-Loss-Functions-Used-in-VO)
+  - [Loss Functions Used in VO/ SLAM](vit_monocular_vo.ipynb#I.-Types-of-Loss-Functions-Used-in-VO)
 
 ---
 
@@ -250,5 +250,6 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 
 ## [Deep Learning based SLAM](#)
-  -[MatchAnything](deep_learning_based_SLAM/match_anything/index.ipynb)
+  -[MatchAnything](SLAM/match_anything/index.ipynb)
+  -[DepthNet, PoseNet Visual Odometry](projects/visual_odometry/KITTI.ipynb)
 
