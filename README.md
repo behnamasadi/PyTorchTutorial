@@ -175,6 +175,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 ---
 
 ## [**Advanced Topics & Research Trends**](#) 
+- [Automatic Mixed Precision amp](amp/index.ipynb)  
 - [Encoder/ Decoder Architecture](encoder/index.ipynb)  
 - [Variational Autoencoders](encoder/variational_autoencoders)  
 - [Diffusion Models (Denoising Score Matching)](diffusion_models/index.ipynb)
@@ -250,6 +251,6 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 
 ## [Deep Learning based SLAM](#)
-  -[MatchAnything](SLAM/match_anything/index.ipynb)
-  -[DepthNet, PoseNet Visual Odometry](projects/visual_odometry/KITTI.ipynb)
+[MatchAnything](SLAM/match_anything/index.ipynb)
+[DepthNet, PoseNet Visual Odometry](projects/visual_odometry/KITTI.ipynb)
 

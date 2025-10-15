@@ -8,7 +8,7 @@ from sklearn.preprocessing import StandardScaler
 
 # Set default device for all tensors
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-torch.set_default_device(device)
+# torch.set_default_device(device)
 
 
 class FunctionDataset(Dataset):
@@ -63,29 +63,50 @@ batch_size = 64
 
 
 def main():
+    # ===== CONFIGURATION: Change these values to test different ranges =====
+    x_min, x_max = -20, 20  # Try: (-10, 10), (0, 50), (-100, 100), etc.
+    n_samples = 1000
+    # ========================================================================
+
     # Generate data
-    n_samples = 1000  # More data
-    x = torch.linspace(-20, 20, n_samples).reshape(-1, 1)
-    y = torch.sin(x) + 0.05 * torch.randn(n_samples, 1)
+    x = torch.linspace(x_min, x_max, n_samples).reshape(-1, 1).to(device)
+    y = torch.sin(x) + 0.05 * torch.randn(n_samples, 1).to(device)
 
     # Convert to numpy for plotting
-    x_np = x.numpy()
-    y_np = y.numpy()
+    x_np = x.cpu().numpy()
+    y_np = y.cpu().numpy()
 
     plt.plot(x_np, y_np, ".")
-    plt.title("Generated Training Data")
+    plt.title(f"Generated Training Data (x range: [{x_min}, {x_max}])")
     plt.xlabel("x")
     plt.ylabel("y")
     plt.show()
 
-    # Simple normalization - just scale x to [-1, 1] and keep y as is
-    x_normalized = x / 20.0  # Scale x to [-1, 1]
-    y_normalized = y  # Keep y as is (already in good range)
+    # Normalize both x and y using mean/std standardization (consistent approach)
+    x_mean = x.mean()
+    x_std = x.std()
+    x_normalized = (x - x_mean) / x_std  # Standardize x to ~N(0,1)
+
+    y_mean = y.mean()
+    y_std = y.std()
+    y_normalized = (y - y_mean) / y_std  # Standardize y to ~N(0,1)
+
+    # Store normalization parameters for later denormalization
+    norm_params = {
+        'x_mean': x_mean,
+        'x_std': x_std,
+        'y_mean': y_mean,
+        'y_std': y_std,
+        'x_min': x_min,
+        'x_max': x_max
+    }
 
     print(f"Original x range: [{x.min():.2f}, {x.max():.2f}]")
+    print(f"Original x mean: {x_mean:.4f}, std: {x_std:.4f}")
     print(
         f"Normalized x range: [{x_normalized.min():.2f}, {x_normalized.max():.2f}]")
     print(f"Original y range: [{y.min():.2f}, {y.max():.2f}]")
+    print(f"Original y mean: {y_mean:.4f}, std: {y_std:.4f}")
     print(
         f"Normalized y range: [{y_normalized.min():.2f}, {y_normalized.max():.2f}]")
 
@@ -103,7 +124,7 @@ def main():
         test_set, batch_size=batch_size, shuffle=False)
 
     # Create model, optimizer, and loss function
-    model = FunctionModel()
+    model = FunctionModel().to(device)
 
     # Better initialization
     # for module in model.modules():
@@ -202,20 +223,23 @@ def main():
     # Test the model on full range (with proper denormalization)
     with torch.no_grad():
         # Generate test data in original scale
-        x_test_original = torch.linspace(-20, 20, 1000).reshape(-1, 1)
+        x_test_original = torch.linspace(
+            norm_params['x_min'], norm_params['x_max'], 1000).reshape(-1, 1).to(device)
 
-        # Normalize test data using the same scaling
-        x_test_normalized = x_test_original / 20.0
+        # Normalize test data using the SAME mean/std as training
+        x_test_normalized = (
+            x_test_original - norm_params['x_mean']) / norm_params['x_std']
 
-        # Get predictions
+        # Get predictions (in normalized space)
         y_pred_normalized = model(x_test_normalized)
 
-        # Denormalize predictions (y was not normalized, so no need to denormalize)
-        y_pred_original = y_pred_normalized
+        # Denormalize predictions back to original scale
+        y_pred_original = y_pred_normalized * \
+            norm_params['y_std'] + norm_params['y_mean']
 
         # Convert to numpy for plotting
-        x_test_np = x_test_original.numpy()
-        y_pred_np = y_pred_original.numpy()
+        x_test_np = x_test_original.cpu().numpy()
+        y_pred_np = y_pred_original.cpu().numpy()
 
         plt.subplot(1, 2, 2)
         plt.plot(x_np, y_np, ".", alpha=0.5, label="Training Data")
@@ -223,7 +247,8 @@ def main():
                  linewidth=2, label="Model Prediction")
         plt.plot(x_test_np, np.sin(x_test_np), "--",
                  linewidth=2, label="True sin(x)")
-        plt.title("Function Approximation Results (with Simple Normalization)")
+        plt.title(
+            "Function Approximation Results (with Standardized Inputs/Outputs)")
         plt.xlabel("x")
         plt.ylabel("y")
         plt.legend()
