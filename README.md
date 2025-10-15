@@ -158,21 +158,12 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 ## [**Attention & Transformers**](#) 
 - [Transformer Architecture](transformer/attention.ipynb)
 - [Positional Encoding](vit/index.ipynb#Step-6:-Add-Positional-Encoding)
-- [Vision Transformer (ViT)](vit/index.ipynb)
 - [Swin Transformer](vit/swin_transformer.ipynb) 
-- [ViT for Monocular Visual odometry](vit_monocular_vision/vit_monocular_vo.ipynb)
-  - [Model Design](vit_monocular_vo.ipynb#III.-Model-Design-Variants)
-  - [Evaluation Metrics ATE,ATE](vit_monocular_vo.ipynb#IV.-Evaluation-Metrics)
-  - [Unsupervised / Supervised VO](vit_monocular_vo.ipynb#Unsupervised-/-Self-Supervised-VO)
-  - [Loss Functions Used in VO/ SLAM](vit_monocular_vo.ipynb#I.-Types-of-Loss-Functions-Used-in-VO)
+
+
 
 ---
 
-
-## [**3D Deep Learning**](#) 
-- [PyTorch3D](PyTorch3D/index.ipynb)
-
----
 
 ## [**Advanced Topics & Research Trends**](#) 
 - [Automatic Mixed Precision amp](amp/index.ipynb)  
@@ -251,6 +242,10 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 
 ## [Deep Learning based SLAM](#)
-[MatchAnything](SLAM/match_anything/index.ipynb)
-[DepthNet, PoseNet Visual Odometry](projects/visual_odometry/KITTI.ipynb)
-
+- [MatchAnything](SLAM/match_anything/index.ipynb)
+- [DepthNet, PoseNet](projects/visual_odometry/KITTI.ipynb)
+- [ViT for Monocular Visual odometry](vit_monocular_vision/vit_monocular_vo.ipynb)
+  - [Model Design](vit_monocular_vo.ipynb#III.-Model-Design-Variants)
+  - [Evaluation Metrics ATE,ATE](vit_monocular_vo.ipynb#IV.-Evaluation-Metrics)
+  - [Unsupervised / Supervised VO](vit_monocular_vo.ipynb#Unsupervised-/-Self-Supervised-VO)
+  - [Loss Functions Used in VO/ SLAM](vit_monocular_vo.ipynb#I.-Types-of-Loss-Functions-Used-in-VO)
