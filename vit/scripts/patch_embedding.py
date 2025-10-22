@@ -104,3 +104,7 @@ print(pos_embed.shape)
 print(x.size(1))
 tmp = pos_embed[:, :x.size(1)]
 print(tmp.shape)
+
+
+tmp = pos_embed[:, :, :x.size(1)]
+print(tmp.shape)

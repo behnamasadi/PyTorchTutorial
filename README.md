@@ -145,8 +145,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 
 
-#### [**Self-Supervised Representation Learning**](#)
-- DINOv3 - Self-supervised ViT pretraining for strong general-purpose visual features
+
 
 ## [Image Preprocessing & Augmentation Workflows](#)
 - [DataLoader, Custom Dataset, ImageFolder, random_split, Subset](dataset/index.ipynb)  
@@ -157,10 +156,11 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 ## [**Attention & Transformers**](#) 
 - [Transformer Architecture](transformer/attention.ipynb)
-- [Positional Encoding](vit/index.ipynb#Step-6:-Add-Positional-Encoding)
+- [Vision Transformer](vit/vit.ipynb)
 - [Swin Transformer](vit/swin_transformer.ipynb) 
-
-
+- [DINOv3 - Self-supervised ViT Pretraining for Strong General-Purpose Visual Features](#)
+- [CLIP](#)
+- [DeiT](#)
 
 ---
 
@@ -171,7 +171,6 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Variational Autoencoders](encoder/variational_autoencoders)  
 - [Diffusion Models (Denoising Score Matching)](diffusion_models/index.ipynb)
 - Contrastive Learning (SimCLR, MoCo)
-- Self-Supervised Learning
 - [Zero-shot & Few-shot Learning](zero_shot_few_shot_learning/index.ipynb)
 - [Transfer learning, Fine tuning, Backbone, Neck, Head ](transfer_learning/transfer_learning.ipynb)  
 - [Ensembling Models](model_ensembles/index.ipynb) 
@@ -242,6 +241,8 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 
 ## [Deep Learning based SLAM](#)
+- [VGGSfM](https://github.com/facebookresearch/vggsfm)
+- [InstantSfM](https://github.com/cre185/InstantSfM)
 - [MatchAnything](SLAM/match_anything/index.ipynb)
 - [DepthNet, PoseNet](projects/visual_odometry/KITTI.ipynb)
 - [ViT for Monocular Visual odometry](vit_monocular_vision/vit_monocular_vo.ipynb)
