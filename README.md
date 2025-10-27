@@ -113,7 +113,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Conv2d class vs conv2d function](conv/cross_correlation_convolution.ipynb#PyTorch-Conv2d-class-vs-conv2d-function)
 - [Unfold/ fold](cross_correlation_convolution.ipynb#torch.nn.Unfold)
 - [Padding, Stride, Dilation](conv/cross_correlation_convolution.ipynb#4.Shape-of-the-Convolution-Output)
-- [Pooling (Max, Average, Adaptive), Order of Relu and  Max Pooling](max_pooling/index.ipynb)
+- [Pooling (Max, Average, Adaptive), Order of Relu and  Max Pooling](pooling/index.ipynb)
 - [Feature Map](conv/cross_correlation_convolution.ipynb#8.-Feature-Map)
 
 ## [Modern Vision Architectures](#)
@@ -149,18 +149,21 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 ## [Image Preprocessing & Augmentation Workflows](#)
 - [DataLoader, Custom Dataset, ImageFolder, random_split, Subset](dataset/index.ipynb)  
-- [Transforms, Pre-Processing, Data Augmentation](transform_pre_processing_augmentation/index.ipynb)  
+- [Transforms, Pre-Processing](transform_pre_processing_augmentation/transform_pre_processing.ipynb)  
+- [Data Augmentation](transform_pre_processing_augmentation/augmentation.ipynb)  
 - [OpenCV and PIL Image Format](opencv_pil/index.ipynb)
 
 ---
 
 ## [**Attention & Transformers**](#) 
 - [Transformer Architecture](transformer/attention.ipynb)
+- [Relative Positional Encoding](transformer/relative_positional_encoding)
 - [Vision Transformer](vit/vit.ipynb)
 - [Swin Transformer](vit/swin_transformer.ipynb) 
-- [DINOv3 - Self-supervised ViT Pretraining for Strong General-Purpose Visual Features](#)
-- [CLIP](#)
-- [DeiT](#)
+- [DINO](transformer/DINO.ipynb)  
+- [CLIP](transformer/CLIP.ipynb)  
+- [DeiT](transformer/DeiT.ipynb)  
+- [Pyramid Vision Transformer](transformer/pyramid_vision_transformer.ipynb)
 
 ---
 
@@ -170,12 +173,17 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Encoder/ Decoder Architecture](encoder/index.ipynb)  
 - [Variational Autoencoders](encoder/variational_autoencoders)  
 - [Diffusion Models (Denoising Score Matching)](diffusion_models/index.ipynb)
-- Contrastive Learning (SimCLR, MoCo)
+- [Contrastive Learning](contrastive_learning/index.ipynb)
 - [Zero-shot & Few-shot Learning](zero_shot_few_shot_learning/index.ipynb)
 - [Transfer learning, Fine tuning, Backbone, Neck, Head ](transfer_learning/transfer_learning.ipynb)  
 - [Ensembling Models](model_ensembles/index.ipynb) 
 - [Flow Matching](flow_matching/index.ipynb) 
 - [Making Network Deterministic](deterministic_network/index.ipynb) 
+- [Knowledge Distillation](knowledge_distillation/index.ipynb)
+- [Neural Architecture Search (NAS)](neural_architecture_search/index.ipynb)
+- [PyTorch Image Models ( timm )](timm_image_model/index.ipynb)
+- [Stochastic Depth](stochastic_depth/index.ipynb)
+
 ---
 
 
@@ -195,7 +203,6 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [open-webui](https://github.com/open-webui/open-webui)  
 - [LLM Visualization](https://bbycroft.net/llm)
 
-
 ---
 
 ## [XAI (Explainable Artificial Intelligence)](xai/index.ipynb)
@@ -203,11 +210,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
   - [SHAP (SHapley Additive exPlanations)](xai/shap.ipynb)
   - [Saliency Maps / Grad-CAM](xai/grad-cam.ipynb)
 
-
-
 ---
-
-
 
 ## [**Production Engineering & MLOps**](#)
 [Experiment Tracking & Monitoring](training_stack_and_monitoring/index.ipynb)
@@ -237,8 +240,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Logging and Debugging](infrastructure_and_best_practices/logging_and_debugging/index.ipynb)
 - [Project Structure & Best Practices](infrastructure_and_best_practices/project_structure/index.ipynb)
 
-
-
+---
 
 ## [Deep Learning based SLAM](#)
 - [VGGSfM](https://github.com/facebookresearch/vggsfm)

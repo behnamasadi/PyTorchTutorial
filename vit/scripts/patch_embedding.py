@@ -108,3 +108,6 @@ print(tmp.shape)
 
 tmp = pos_embed[:, :, :x.size(1)]
 print(tmp.shape)
+
+
+# pos_embed[:, :x.size(1)] and not pos_embed[:, :, :x.size(1)]
