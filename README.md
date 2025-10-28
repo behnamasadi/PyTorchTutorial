@@ -116,13 +116,17 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Pooling (Max, Average, Adaptive), Order of Relu and  Max Pooling](pooling/index.ipynb)
 - [Feature Map](conv/cross_correlation_convolution.ipynb#8.-Feature-Map)
 
+---
 ## [Modern Vision Architectures](#)
+
 
 #### [**Image Classification**](#)
 - [VGG](image_classification/vgg.ipynb)
 - [ResNet](image_classification/resnet.ipynb)
 - [EfficientNet](image_classification/efficientnet.ipynb)
 - [MobileNet](image_classification/efficientnet.ipynb)
+
+---
 
 #### [**Image Segmentation**](#)
 - [Semantic Segmentation vs. Instance Segmentation](segmentation/index.ipynb)
@@ -133,6 +137,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [SAM 2](segmentation/SAM2.ipynb)
 - [Saliency Detection](segmentation/saliency_detection.ipynb)
 
+---
 
 #### [**Object Detection**](#)
 - [Object Detection Evaluation Metrics](object_detection/object_detection_evaluation_metrics.ipynb)
@@ -143,9 +148,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [DETR](object_detection/detr.ipynb) 
 - [Mask R-CNN - Instance segmentation + detection](object_detection/mask_rcnn.ipynb) 
 
-
-
-
+---
 
 ## [Image Preprocessing & Augmentation Workflows](#)
 - [DataLoader, Custom Dataset, ImageFolder, random_split, Subset](dataset/index.ipynb)  
@@ -158,15 +161,15 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 ## [**Attention & Transformers**](#) 
 - [Transformer Architecture](transformer/attention.ipynb)
 - [Relative Positional Encoding](transformer/relative_positional_encoding)
-- [Vision Transformer](vit/vit.ipynb)
-- [Swin Transformer](vit/swin_transformer.ipynb) 
+- [Vision Transformer](transformer/vit.ipynb)
+- [Swin Transformer](transformer/swin_transformer.ipynb) 
 - [DINO](transformer/DINO.ipynb)  
 - [CLIP](transformer/CLIP.ipynb)  
 - [DeiT](transformer/DeiT.ipynb)  
 - [Pyramid Vision Transformer](transformer/pyramid_vision_transformer.ipynb)
+- [Feature Pyramid Network (FPN)](feature_pyramid_network)
 
 ---
-
 
 ## [**Advanced Topics & Research Trends**](#) 
 - [Automatic Mixed Precision amp](amp/index.ipynb)  
@@ -252,3 +255,5 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
   - [Evaluation Metrics ATE,ATE](vit_monocular_vo.ipynb#IV.-Evaluation-Metrics)
   - [Unsupervised / Supervised VO](vit_monocular_vo.ipynb#Unsupervised-/-Self-Supervised-VO)
   - [Loss Functions Used in VO/ SLAM](vit_monocular_vo.ipynb#I.-Types-of-Loss-Functions-Used-in-VO)
+
+---
