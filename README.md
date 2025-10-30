@@ -167,7 +167,8 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [CLIP](transformer/CLIP.ipynb)  
 - [DeiT](transformer/DeiT.ipynb)  
 - [Pyramid Vision Transformer](transformer/pyramid_vision_transformer.ipynb)
-- [Feature Pyramid Network (FPN)](feature_pyramid_network)
+- [Feature Pyramid Network (FPN)](feature_pyramid_network/index.ipynb)
+- [Temporal Transformer](transformer/temporal_transformer.ipynb)
 
 ---
 
@@ -186,7 +187,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Neural Architecture Search (NAS)](neural_architecture_search/index.ipynb)
 - [PyTorch Image Models ( timm )](timm_image_model/index.ipynb)
 - [Stochastic Depth](stochastic_depth/index.ipynb)
-
+- [3D CNN](3D_CNN)
 ---
 
 
