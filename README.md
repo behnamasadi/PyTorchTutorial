@@ -124,7 +124,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [VGG](image_classification/vgg.ipynb)
 - [ResNet](image_classification/resnet.ipynb)
 - [EfficientNet](image_classification/efficientnet.ipynb)
-- [MobileNet](image_classification/efficientnet.ipynb)
+- [MobileNet](image_classification/mobilenet.ipynb)
 
 ---
 
