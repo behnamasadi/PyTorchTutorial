@@ -111,7 +111,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [RGB Image Convolution](conv/cross_correlation_convolution.ipynb#5.Convolution-in-RGB-Images)
 - [Convolution as Matrix Multiplication](conv/cross_correlation_convolution.ipynb#Convolution-as-Matrix-Multiplication)
 - [Conv2d class vs conv2d function](conv/cross_correlation_convolution.ipynb#PyTorch-Conv2d-class-vs-conv2d-function)
-- [Unfold/ fold](cross_correlation_convolution.ipynb#torch.nn.Unfold)
+- [Unfold/ fold](unfold/index.ipynb)
 - [Padding, Stride, Dilation](conv/cross_correlation_convolution.ipynb#4.Shape-of-the-Convolution-Output)
 - [Pooling (Max, Average, Adaptive), Order of Relu and  Max Pooling](pooling/index.ipynb)
 - [Feature Map](conv/cross_correlation_convolution.ipynb#8.-Feature-Map)
@@ -187,7 +187,10 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Neural Architecture Search (NAS)](neural_architecture_search/index.ipynb)
 - [PyTorch Image Models ( timm )](timm_image_model/index.ipynb)
 - [Stochastic Depth](stochastic_depth/index.ipynb)
-- [3D CNN](3D_CNN)
+- [3D CNN](3D_CNN/index.ipynb)
+- [Squeeze-and-Excitation Networks (SENet)](squeeze_and_excitation_networks_SENet.ipynb)
+- [Convolutional Block Attention Module (CBAM)](convolutional_block_attention_module_CBAM.ipynb)
+
 ---
 
 
