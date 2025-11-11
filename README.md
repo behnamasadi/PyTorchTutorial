@@ -60,7 +60,8 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 
 ## [**PyTorch Fundamentals**](#) 
-- [PyTorch Tensor Basics & Data Types](data_types/index.ipynb)  
+- [PyTorch Tensor Basics & Data Types](data_types/index.ipynb) 
+- [Einsum Operator](einsum_operator/index.ipynb) 
 - [Grad Package](grad_package/)  
     - [Computational Graph](grad_package/grad.ipynb#Computational-Graph)  
     - [Autograd](grad_package/grad.ipynb#Autograd)  
@@ -190,6 +191,11 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [3D CNN](3D_CNN/index.ipynb)
 - [Squeeze-and-Excitation Networks (SENet)](squeeze_and_excitation_networks_SENet.ipynb)
 - [Convolutional Block Attention Module (CBAM)](convolutional_block_attention_module_CBAM.ipynb)
+- [MBConv](MBConv/index.ipynb)
+- [Fused-MBConv](Fused-MBConv/index.ipynb)
+- [Double Descent](bias_variance_tradeoff_double_descent/index.ipynb)
+- [Receptive Field](receptive_field/index.ipynb)
+- [Universal Approximation Theorem](universal_approximation_theorem/index.ipynb)
 
 ---
 
@@ -259,5 +265,11 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
   - [Evaluation Metrics ATE,ATE](vit_monocular_vo.ipynb#IV.-Evaluation-Metrics)
   - [Unsupervised / Supervised VO](vit_monocular_vo.ipynb#Unsupervised-/-Self-Supervised-VO)
   - [Loss Functions Used in VO/ SLAM](vit_monocular_vo.ipynb#I.-Types-of-Loss-Functions-Used-in-VO)
+
+---
+
+## [Books](#)
+- [Learning Deep Representations of Data Distributions](https://ma-lab-berkeley.github.io/deep-representation-learning-book/)
+- [The Principles of Diffusion Models](https://www.arxiv.org/abs/2510.21890)
 
 ---
