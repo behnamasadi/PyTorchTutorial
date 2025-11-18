@@ -124,6 +124,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 - [VGG](image_classification/vgg.ipynb)
 - [ResNet](image_classification/resnet.ipynb)
+- [RegNet](image_classification/regnet.ipynb)
 - [EfficientNet](image_classification/efficientnet.ipynb)
 - [MobileNet](image_classification/mobilenet.ipynb)
 
@@ -131,7 +132,8 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 #### [**Image Segmentation**](#)
 
-- [Semantic Segmentation vs. Instance Segmentation](segmentation/index.ipynb)
+- [Semantic, Instance, and Panoptic Segmentation](segmentation/index.ipynb)
+    -[Panoptic Architectures](segmentation/index.ipynb)
 - [U-Net](segmentation/unet.ipynb)
 - [nnU-Net](segmentation/nnunet.ipynb)  
 - [DeepLab](segmentation/deeplab.ipynb)
@@ -279,9 +281,11 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 ---
 
-## [Books](#)
+## [Free Books and Online Courses](#)
 
 - [Learning Deep Representations of Data Distributions](https://ma-lab-berkeley.github.io/deep-representation-learning-book/)
 - [The Principles of Diffusion Models](https://www.arxiv.org/abs/2510.21890)
-
+- [3D Scanning & Motion Capture (TUM-Matthias Niessner)](https://niessner.github.io/3DScanning/)
+- [Machine Learning for 3D Data](https://3dml.kaist.ac.kr/)
+- [Neural Radiance Fields | NeRF ](https://www.youtube.com/watch?v=Q1zqf5tfeJw)
 ---
