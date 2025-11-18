@@ -55,7 +55,7 @@ tmp/
 */tmp/*
 experiments/
 */experiments/*
-sandbox/
+sandbox/*
 */sandbox/*
 mlartifacts/
 */mlartifacts/*
