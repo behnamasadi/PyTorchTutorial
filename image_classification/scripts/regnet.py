@@ -18,7 +18,7 @@ all_RegNetY = timm.list_models("*regnety*")
 for m in all_RegNetY:
     print(m)
 
-model_name = "regnety_002"
+model_name = "regnety_032"
 model = timm.create_model(model_name, pretrained=True, features_only=True)
 
 cfg = model.pretrained_cfg

@@ -192,7 +192,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Flow Matching](flow_matching/index.ipynb)
 - [Making Network Deterministic](deterministic_network/index.ipynb)
 - [Knowledge Distillation](knowledge_distillation/index.ipynb)
-- [Neural Architecture Search (NAS)](neural_architecture_search/index.ipynb)
+- [Neural Architecture Search (NAS), and Design Spaces](neural_architecture_search_design_spaces/index.ipynb)
 - [PyTorch Image Models ( timm )](timm_image_model/index.ipynb)
 - [Stochastic Depth](stochastic_depth/index.ipynb)
 - [3D CNN](3D_CNN/index.ipynb)
