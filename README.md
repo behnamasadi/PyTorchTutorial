@@ -121,13 +121,14 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 ## [Modern Vision Architectures](#)
 
-#### [**Image Classification**](#)
+#### [**CNN Architectures**](#)
 
-- [VGG](image_classification/vgg.ipynb)
-- [ResNet](image_classification/resnet.ipynb)
-- [RegNet](image_classification/regnet.ipynb)
-- [EfficientNet](image_classification/efficientnet.ipynb)
-- [MobileNet](image_classification/mobilenet.ipynb)
+- [VGG](cnn_architectures/vgg.ipynb)
+- [ResNet](cnn_architectures/resnet.ipynb)
+- [RegNet](cnn_architectures/regnet.ipynb)
+- [EfficientNet](cnn_architectures/efficientnet.ipynb)
+- [MobileNet](cnn_architectures/mobilenet.ipynb)
+- [ConvNeXt](cnn_architectures/)
 
 ---
 
