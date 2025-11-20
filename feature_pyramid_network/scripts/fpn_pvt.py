@@ -26,8 +26,7 @@ for i, model in enumerate(pvt_models):
 # PVT backbone
 backbone = timm.create_model(
     'pvt_v2_b2.in1k', pretrained=True, features_only=True)
-# Channels from timm summary: [64, 128, 320, 512]
-channels = [64, 128, 320, 512]
+
 
 H, W = 224, 224
 x = torch.randn(1, 3, H, W)
@@ -35,7 +34,12 @@ features = backbone(x)
 for c in features:
     print(c.shape)
 
-exit()
+C1, C2, C3, C4 = features
+
+print(C1.shape[-2:])
+print(C2.shape[-2:])
+print(C3.shape[-2:])
+print(C4.shape[-2:])
 
 
 class FPN(nn.Module):
@@ -51,7 +55,20 @@ class FPN(nn.Module):
     def forward(self, features):
         C1, C2, C3, C4 = features
 
+        # C1, C2, C3, C4 are
+        # torch.Size([1, 64, 56, 56])
+        # torch.Size([1, 128, 28, 28])
+        # torch.Size([1, 320, 14, 14])
+        # torch.Size([1, 512, 7, 7])
+        # so
+
+        # C1.shape[-2:] is torch.Size([56, 56])
+        # C2.shape[-2:] is torch.Size([28, 28])
+        # C3.shape[-2:] is torch.Size([14, 14])
+        # C4.shape[-2:] is torch.Size([7, 7])
+
         P4 = self.lateral[3](C4)
+
         P3 = self.lateral[2](C3) + nn.functional.interpolate(P4,
                                                              size=C3.shape[-2:], mode='nearest')
         P2 = self.lateral[1](C2) + nn.functional.interpolate(P3,
@@ -63,12 +80,21 @@ class FPN(nn.Module):
         P2 = self.smooth[1](P2)
         P3 = self.smooth[2](P3)
         P4 = self.smooth[3](P4)
+
+        for P in [P4, P3, P2, P1]:
+            print("P:", P.shape)
+            print("--------")
         return [P1, P2, P3, P4]
 
 
 # Example
 x = torch.randn(1, 3, 224, 224)
 features = backbone(x)
+
+
+# Infer channels automatically from backbone outputs
+channels = [feat.shape[1] for feat in features]
+
 fpn = FPN(channels)
 pyramid = fpn(features)
 for i, p in enumerate(pyramid):
