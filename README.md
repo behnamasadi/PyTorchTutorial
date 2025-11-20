@@ -73,6 +73,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
   - [Zero Grad](grad_package/grad.ipynb#zero_grad)
   - [requires_grad](grad_package/grad.ipynb#requires_grad)
 - [Model Saving & Loading (Serialization)](serialization_saving_loading/index.ipynb)  
+- [Parameters Registration, ModuleList](modulelist/index.ipynb)
 
 ## [Neural Network Basics](#)
 
