@@ -1,0 +1,60 @@
+# model.yaml - Model architecture and hyperparameters
+# This file contains model-specific configurations that don't change between training and evaluation
+
+# Available model configurations
+models:
+  convnextv2_tiny:
+    name: convnextv2_tiny
+    pretrained: true
+    num_classes: 5  # Should match data.yaml
+    num_features: 768  # ConvNeXtV2-Tiny feature dimension
+    input_size: 224
+    batch_size: 16  # Model-specific batch size for 3.68 GiB GPU
+  
+  convnextv2_base:
+    name: convnextv2_base
+    pretrained: true
+    num_classes: 5
+    num_features: 1024  # ConvNeXtV2-Base feature dimension
+    input_size: 224
+    batch_size: 8  # Smaller batch for larger model
+    
+  tf_efficientnetv2_s:
+    name: tf_efficientnetv2_s
+    pretrained: true
+    num_classes: 5
+    num_features: 1280  # EfficientNetV2 feature dimension
+    input_size: 288
+    batch_size: 16  # Smaller batch for larger input size
+  
+  tf_efficientnetv2_m:
+    name: tf_efficientnetv2_m
+    pretrained: true
+    num_classes: 5
+    num_features: 1280
+    input_size: 320
+    batch_size: 8  # Even smaller for larger model and input
+  
+  tf_efficientnetv2_l:
+    name: tf_efficientnetv2_l
+    pretrained: true
+    num_classes: 5
+    num_features: 1280
+    input_size: 384
+    batch_size: 4  # Smallest batch for largest model
+  
+  regnety_004:
+    name: regnety_004
+    pretrained: true
+    num_classes: 5
+    num_features: 440  # RegNetY-4GF feature dimension
+    input_size: 224
+    batch_size: 8  # Similar to convnextv2_tiny
+  
+  regnety_006:
+    name: regnety_006
+    pretrained: true
+    num_classes: 5
+    num_features: 608  # RegNetY-8GF feature dimension
+    input_size: 224
+    batch_size: 4  # Smaller for larger model

@@ -1,0 +1,97 @@
+# train.yaml - Training-specific configuration
+# Inherits/common data from data.yaml and model.yaml
+
+# Model selection (can reference model.yaml or specify directly)
+model: tf_efficientnetv2_s  # Override default_model from model.yaml if needed
+
+# Training strategy (Medical Fine-Tuning: Two-Stage)
+training:
+  # Stage 1: Freeze backbone, train classifier only
+  stage1:
+    enabled: true
+    freeze_backbone: true
+    epochs: 5  # 3-10 recommended for medical images
+    learning_rate: 0.0001  # 1e-3 or 1e-4
+    
+  # Stage 2: Unfreeze backbone, end-to-end training
+  stage2:
+    enabled: true
+    freeze_backbone: false
+    epochs: 45  # 10-50 recommended for medical images
+    learning_rate: 0.00003  # 1e-5 or 3e-5
+    lr_schedule: "cosine"  # "cosine" or "ReduceLROnPlateau"
+    lr_schedule_params:
+      # For ReduceLROnPlateau
+      patience: 5
+      factor: 0.5
+      min_lr: 1e-7
+      # For CosineAnnealingLR
+      T_max: 45
+      eta_min: 1e-7
+  
+  # Training settings
+  total_epochs: 50  # stage1.epochs + stage2.epochs
+  save_every: 5
+  output_dir: "./checkpoints"
+  
+  # Early stopping (applied during stage 2)
+  early_stopping:
+    enabled: true
+    patience: 15
+    min_delta: 0.0005
+    monitor: "val_loss"
+    mode: "min"
+  
+  # Optimizer
+  optimizer:
+    name: "AdamW"
+    weight_decay: 0.01
+  
+  # Loss function
+  loss:
+    name: "CrossEntropyLoss"
+    label_smoothing: 0.0
+
+# Data configuration for training
+# Reference data.yaml, but override training-specific settings
+data:
+  path: "./data/train"  # Training data path (from data.yaml)
+  shuffle: true  # Override default for training
+  num_workers: 8
+  pin_memory: true
+  prefetch_factor: 4
+  persistent_workers: true
+  drop_last: true  # Drop last incomplete batch during training
+  
+  # Validation data (from data.yaml)
+  val_path: "./data/val"
+  val_shuffle: false
+  
+  # Data augmentation (enabled for training)
+  augmentation:
+    enabled: true
+    # Augmentation settings from data.yaml or override here
+
+# Performance optimization
+performance:
+  mixed_precision: false  # Disable AMP to prevent NaN issues
+  compile_model: false  # Disable compilation for stability
+  channels_last: false
+  benchmark_cudnn: true
+  gradient_accumulation: 1
+  max_grad_norm: 1.0
+
+# Monitoring and logging
+monitoring:
+  tensorboard_log_dir: "./runs"
+  mlflow_experiment_name: "Lungs Disease Dataset (4 types + normal)"
+  mlflow_tracking_uri: "http://127.0.0.1:5000"
+  wandb:
+    project: "Lungs Disease Dataset (4 types + normal)"
+    entity: null
+    name: null
+    tags: ["lungs-disease", "classification", "pytorch", "training"]
+    notes: "Lungs Disease Dataset (4 types + normal) classification - Training"
+
+# Reproducibility
+seed: 42

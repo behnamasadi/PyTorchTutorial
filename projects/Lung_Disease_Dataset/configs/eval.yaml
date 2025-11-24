@@ -1,0 +1,78 @@
+# eval.yaml - Evaluation-specific configuration
+# Inherits/common data from data.yaml and model.yaml
+
+# Model to evaluate (path to checkpoint or model name)
+model:
+  # Option 1: Path to trained checkpoint
+  checkpoint_path: "./checkpoints/best_model.pt"
+  
+  # Option 2: Model name (if evaluating pre-trained model)
+  # name: convnextv2_tiny
+  # pretrained: true
+
+# Evaluation settings
+evaluation:
+  # Which split to evaluate on
+  split: "test"  # "test", "val", or "train"
+  
+  # Evaluation metrics
+  metrics:
+    - "accuracy"
+    - "precision"
+    - "recall"
+    - "f1_score"
+    - "confusion_matrix"
+    - "classification_report"
+    - "roc_auc"  # For binary classification
+    - "per_class_metrics"
+  
+  # Output settings
+  save_predictions: true
+  save_confusion_matrix: true
+  save_classification_report: true
+  output_dir: "./results"
+  
+  # Visualization
+  visualize:
+    confusion_matrix: true
+    roc_curves: true
+    per_class_metrics: true
+
+# Data configuration for evaluation
+# Reference data.yaml, but override evaluation-specific settings
+data:
+  # Test data path (from data.yaml)
+  test_path: "./data/test"
+  batch_size: 64  # Can be larger for evaluation (no gradients)
+  shuffle: false  # Never shuffle during evaluation
+  num_workers: 8
+  pin_memory: true
+  prefetch_factor: 4
+  persistent_workers: true
+  drop_last: false  # Include all samples, even last incomplete batch
+  
+  # No augmentation during evaluation
+  augmentation:
+    enabled: false
+
+# Performance optimization (evaluation can use different settings)
+performance:
+  mixed_precision: false  # Usually not needed for evaluation
+  compile_model: false
+  channels_last: false
+  benchmark_cudnn: false  # Not needed for evaluation
+
+# Monitoring (can log evaluation results)
+monitoring:
+  mlflow_experiment_name: "Lungs Disease Dataset (4 types)"
+  mlflow_tracking_uri: "http://127.0.0.1:5000"
+  wandb:
+    project: "Lungs Disease Dataset (4 types)"
+    entity: null
+    tags: ["lungs-disease", "classification", "pytorch", "evaluation"]
+    log_metrics: true
+    log_artifacts: true
+
+# Reproducibility
+seed: 42
+

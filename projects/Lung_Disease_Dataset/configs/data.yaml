@@ -1,0 +1,38 @@
+paths:
+  root: ./data
+  train: ./data/train
+  val: ./data/val
+  test: ./data/test
+dataset:
+  num_classes: 5
+  class_names:
+  - Bacterial Pneumonia
+  - Corona Virus Disease
+  - Normal
+  - Tuberculosis
+  - Viral Pneumonia
+  image_size: 224
+  channels: 3
+  normalize_grayscale: true
+dataloader:
+  num_workers: 4
+  pin_memory: true
+  prefetch_factor: 2
+  persistent_workers: true
+  shuffle: false
+  drop_last: false
+normalization:
+  mean:
+  - 0.49495694041252136
+  - 0.49495694041252136
+  - 0.49495694041252136
+  std:
+  - 0.24466454982757568
+  - 0.24466454982757568
+  - 0.24466454982757568
+  _comment: Auto-computed by compute_normalization.py
+augmentation:
+  enabled: true
+  horizontal_flip: true
+  rotation: 10
+  color_jitter: 0.1
