@@ -13,13 +13,15 @@ os.environ['PYTHONWARNINGS'] = 'ignore'
 
 import timm
 # fmt: on
+model_name = "*tf_efficientnetv2_s*"
 
-
-all_convnext = timm.list_models("*convnext*")
+model_name = "*tf_efficientnetv2_l.in21k*"
+all_convnext = timm.list_models(model_name)
 # Get list of models with pretrained weights available (without downloading)
 # Note: pretrained models have variant suffixes (e.g., "convnextv2_tiny.fcmae_ft_in1k")
 # while base models don't (e.g., "convnextv2_tiny")
-models_with_pretrained = timm.list_models("*convnext*", pretrained=True)
+models_with_pretrained = timm.list_models(
+    "*tf_efficientnetv2_s*", pretrained=True)
 
 for m in all_convnext:
     # Check if any pretrained variant exists for this base model
@@ -36,8 +38,7 @@ for m in all_convnext:
         print(f"{status} {m} (no pretrained weights)")
 
 
-# model_name = "convnextv2_tiny"
-model_name = "regnety_004"
+model_name = "convnextv2_tiny"
 
 # Note: convnextv2_small doesn't have pretrained weights
 # Option 1: Use pretrained=False (random initialization)
@@ -52,24 +53,23 @@ except RuntimeError as e:
 
 
 print(model.num_features)
-exit()
+
 
 model_config = model.pretrained_cfg
 print(model_config)
 
 print(type(model_config["input_size"]))
-print(model_config["input_size"])
+print("input_size:", model_config["input_size"])
 (C, H, W) = model_config["input_size"]
 
 x = torch.randn(1, C, H, W)
 
 out = model(x)
-print(out.shape)
+print("output shape:", out.shape)
 
 features = model.forward_features(x)
-print(features.shape)
+print("features shape: ", features.shape)
 
 
-# exit()
-for name, params in model.named_parameters():
-    print(name, params.shape)
+# for name, params in model.named_parameters():
+#     print(name, params.shape)
