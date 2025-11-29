@@ -266,7 +266,8 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Data Versioning](infrastructure_and_best_practices/data_versioning/index.ipynb)
 - [Logging and Debugging](infrastructure_and_best_practices/logging_and_debugging/index.ipynb)
 - [Project Structure & Best Practices](infrastructure_and_best_practices/project_structure/index.ipynb)
-
+- [Running Your PyTorch Projects on RunPod Using a Single Docker Image and GHCR](infrastructure_and_best_practices/runpod-ghcr.ipynb)
+- [GitHub Actions CI Setup, CUDA with CPU Fallback](infrastructure_and_best_practices/github_action_ci.ipynb)
 ---
 
 ## [Deep Learning based SLAM](#)
