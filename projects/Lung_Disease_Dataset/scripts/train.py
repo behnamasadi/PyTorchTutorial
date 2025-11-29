@@ -812,18 +812,18 @@ def main(config_path: Path, device: str | None):
         try:
             wandb_cfg = monitoring_cfg.get("wandb", {})
             if wandb_cfg.get("project"):
-                # Check if WANDB_API_KEY is set (wandb will use it automatically)
-                # Works both locally (wandb login) and on RunPod (env var)
+                # Automatically login using WANDB_API_KEY if available
                 wandb_api_key = os.getenv("WANDB_API_KEY")
                 if wandb_api_key:
-                    print(
-                        f"✅ W&B API key found in environment (will be used automatically)")
+                    # Automatically login with the API key from environment
+                    wandb.login(key=wandb_api_key, relogin=True)
+                    print(f"✅ W&B automatically logged in using WANDB_API_KEY")
                 else:
                     print("ℹ️  WANDB_API_KEY not in environment.")
                     print(
                         "   W&B will try to use cached credentials or prompt for login.")
                     print(
-                        "   (This is normal for local development - run 'wandb login' once)")
+                        "   (Set WANDB_API_KEY environment variable for automatic login)")
 
                 wandb_run = wandb.init(
                     project=wandb_cfg.get("project"),

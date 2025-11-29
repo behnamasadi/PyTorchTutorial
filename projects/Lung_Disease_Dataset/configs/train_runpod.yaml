@@ -18,7 +18,7 @@ optimizer:
 
 loss:
   name: "CrossEntropyLoss"
-  label_smoothing: 0.0
+  label_smoothing: 0.1  # Helps prevent overfitting, especially for medical datasets
 
 training:
   stage1:
@@ -30,16 +30,29 @@ training:
   stage2:
     enabled: true
     freeze_backbone: false
-    epochs: 45
+    epochs: 30  # Reduced from 45 - stop earlier to prevent overfitting (you're already at 90%+)
     learning_rate: 3e-5
     lr_schedule: "cosine"
     lr_schedule_params:
-      T_max: 45
+      T_max: 30
       eta_min: 1e-7
 
-  total_epochs: 50
+  total_epochs: 35  # Stage1 (5) + Stage2 (30) = 35 total
   save_every: 5
   output_dir: "./checkpoints"
+
+# =========================
+#  MONITORING & LOGGING
+# =========================
+
+monitoring:
+  tensorboard_log_dir: "./runs"
+  wandb:
+    project: "lung-disease-classification"  # Your W&B project name
+    entity: null  # Leave null to use your default entity, or set to your team name
+    name: null  # Leave null for auto-generated name, or set a custom run name
+    tags: []  # Optional tags like ["runpod", "efficientnetv2", "medical"]
+    notes: ""  # Optional notes about this run
 
 # =========================
 #  MODEL-SPECIFIC BATCH SIZES
@@ -61,7 +74,7 @@ model_config:
   tf_efficientnetv2_s:
     batch_size: 32
   tf_efficientnetv2_m:
-    batch_size: 16
+    batch_size: 16  # Works well for 320x320 on RTX 5090 (32GB VRAM)
   tf_efficientnetv2_l:
     batch_size: 8
   vit_small_patch16_224:
@@ -83,9 +96,15 @@ data:
   val_path: "./data/val"
   # batch_size will be automatically resolved from model_config section above
   # based on the selected model
+  img_size: 320  # Match model's input_size (tf_efficientnetv2_m expects 320x320)
   num_workers: 12
   prefetch_factor: 4
   persistent_workers: true
   shuffle: true
   pin_memory: true
   drop_last: true
+  augmentation:
+    enabled: true
+    horizontal_flip: true
+    rotation: 10
+    color_jitter: 0.2  # Increased from 0.1 for better regularization
