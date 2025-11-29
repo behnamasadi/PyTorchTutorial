@@ -504,37 +504,46 @@ def run_stage(
 
         # Log to TensorBoard
         if tensorboard_writer:
-            tensorboard_writer.add_scalar(
-                f"{stage.name}/Train/Loss", train_loss, current_epoch)
-            tensorboard_writer.add_scalar(
-                f"{stage.name}/Train/Accuracy", train_acc, current_epoch)
-            tensorboard_writer.add_scalar(
-                f"{stage.name}/Val/Loss", val_loss, current_epoch)
-            tensorboard_writer.add_scalar(
-                f"{stage.name}/Val/Accuracy", val_acc, current_epoch)
-            tensorboard_writer.add_scalar(
-                f"{stage.name}/LearningRate", current_lr, current_epoch)
+            try:
+                tensorboard_writer.add_scalar(
+                    f"{stage.name}/Train/Loss", train_loss, current_epoch)
+                tensorboard_writer.add_scalar(
+                    f"{stage.name}/Train/Accuracy", train_acc, current_epoch)
+                tensorboard_writer.add_scalar(
+                    f"{stage.name}/Val/Loss", val_loss, current_epoch)
+                tensorboard_writer.add_scalar(
+                    f"{stage.name}/Val/Accuracy", val_acc, current_epoch)
+                tensorboard_writer.add_scalar(
+                    f"{stage.name}/LearningRate", current_lr, current_epoch)
+            except Exception as e:
+                print(f"⚠️  TensorBoard logging failed: {e}")
 
         # Log to Weights & Biases
         if wandb_run:
-            wandb_run.log({
-                f"{stage.name}/train_loss": train_loss,
-                f"{stage.name}/train_acc": train_acc,
-                f"{stage.name}/val_loss": val_loss,
-                f"{stage.name}/val_acc": val_acc,
-                f"{stage.name}/learning_rate": current_lr,
-                "epoch": current_epoch,
-            })
+            try:
+                wandb_run.log({
+                    f"{stage.name}/train_loss": train_loss,
+                    f"{stage.name}/train_acc": train_acc,
+                    f"{stage.name}/val_loss": val_loss,
+                    f"{stage.name}/val_acc": val_acc,
+                    f"{stage.name}/learning_rate": current_lr,
+                    "epoch": current_epoch,
+                })
+            except Exception as e:
+                print(f"⚠️  W&B logging failed: {e}")
 
         # Log to MLflow
         if mlflow_run:
-            mlflow.log_metrics({
-                f"{stage.name}_train_loss": train_loss,
-                f"{stage.name}_train_acc": train_acc,
-                f"{stage.name}_val_loss": val_loss,
-                f"{stage.name}_val_acc": val_acc,
-                f"{stage.name}_learning_rate": current_lr,
-            }, step=current_epoch)
+            try:
+                mlflow.log_metrics({
+                    f"{stage.name}_train_loss": train_loss,
+                    f"{stage.name}_train_acc": train_acc,
+                    f"{stage.name}_val_loss": val_loss,
+                    f"{stage.name}_val_acc": val_acc,
+                    f"{stage.name}_learning_rate": current_lr,
+                }, step=current_epoch)
+            except Exception as e:
+                print(f"⚠️  MLflow logging failed: {e}")
 
         if val_acc > best_acc:
             best_acc = val_acc
@@ -543,10 +552,17 @@ def run_stage(
 
             # Log best checkpoint
             if wandb_run:
-                wandb_run.log({"best_val_acc": best_acc,
-                              "best_epoch": current_epoch})
+                try:
+                    wandb_run.log({"best_val_acc": best_acc,
+                                  "best_epoch": current_epoch})
+                except Exception as e:
+                    print(f"⚠️  W&B best checkpoint logging failed: {e}")
             if mlflow_run:
-                mlflow.log_metric("best_val_acc", best_acc, step=current_epoch)
+                try:
+                    mlflow.log_metric(
+                        "best_val_acc", best_acc, step=current_epoch)
+                except Exception as e:
+                    print(f"⚠️  MLflow best checkpoint logging failed: {e}")
                 mlflow.log_artifact(str(ckpt_path), "checkpoints")
 
     return current_epoch, best_acc
@@ -607,58 +623,70 @@ def main(config_path: Path, device: str | None):
 
     # TensorBoard
     if TENSORBOARD_AVAILABLE:
-        tb_log_dir = monitoring_cfg.get("tensorboard_log_dir", "./runs")
-        tb_log_dir = resolve_path(tb_log_dir)
-        tb_log_dir.mkdir(parents=True, exist_ok=True)
-        tensorboard_writer = SummaryWriter(str(tb_log_dir))
-        print(f"📊 TensorBoard logging to: {tb_log_dir}")
+        try:
+            tb_log_dir = monitoring_cfg.get("tensorboard_log_dir", "./runs")
+            tb_log_dir = resolve_path(tb_log_dir)
+            tb_log_dir.mkdir(parents=True, exist_ok=True)
+            tensorboard_writer = SummaryWriter(str(tb_log_dir))
+            print(f"📊 TensorBoard logging to: {tb_log_dir}")
+        except Exception as e:
+            print(f"⚠️  TensorBoard logging disabled: {e}")
+            tensorboard_writer = None
 
     # Weights & Biases
     if WANDB_AVAILABLE:
-        wandb_cfg = monitoring_cfg.get("wandb", {})
-        if wandb_cfg.get("project"):
-            wandb_run = wandb.init(
-                project=wandb_cfg.get("project"),
-                entity=wandb_cfg.get("entity"),
-                name=wandb_cfg.get(
-                    "name") or f"{settings['model_name']}-training",
-                tags=wandb_cfg.get("tags", []),
-                notes=wandb_cfg.get("notes", ""),
-                config={
-                    "model": settings["model_name"],
-                    "model_settings": model_info,
-                    "data": data_cfg,
-                    "stage1": settings["stage1"].__dict__,
-                    "stage2": settings["stage2"].__dict__,
-                    "seed": settings["seed"],
-                }
-            )
-            print(
-                f"🔮 Weights & Biases logging enabled: {wandb_cfg.get('project')}")
+        try:
+            wandb_cfg = monitoring_cfg.get("wandb", {})
+            if wandb_cfg.get("project"):
+                wandb_run = wandb.init(
+                    project=wandb_cfg.get("project"),
+                    entity=wandb_cfg.get("entity"),
+                    name=wandb_cfg.get(
+                        "name") or f"{settings['model_name']}-training",
+                    tags=wandb_cfg.get("tags", []),
+                    notes=wandb_cfg.get("notes", ""),
+                    config={
+                        "model": settings["model_name"],
+                        "model_settings": model_info,
+                        "data": data_cfg,
+                        "stage1": settings["stage1"].__dict__,
+                        "stage2": settings["stage2"].__dict__,
+                        "seed": settings["seed"],
+                    }
+                )
+                print(
+                    f"🔮 Weights & Biases logging enabled: {wandb_cfg.get('project')}")
+        except Exception as e:
+            print(f"⚠️  Weights & Biases logging disabled: {e}")
+            wandb_run = None
 
     # MLflow
     if MLFLOW_AVAILABLE:
-        mlflow_uri = monitoring_cfg.get("mlflow_tracking_uri", "./mlruns")
-        mlflow.set_tracking_uri(mlflow_uri)
-        experiment_name = monitoring_cfg.get(
-            "mlflow_experiment_name", "lungs-disease")
-        mlflow.set_experiment(experiment_name)
-        mlflow_run = mlflow.start_run(
-            run_name=f"{settings['model_name']}-training")
-        mlflow.log_params({
-            "model": settings["model_name"],
-            "model_name": model_info["name"],
-            "num_classes": model_info["num_classes"],
-            "pretrained": model_info.get("pretrained", True),
-            "batch_size": data_cfg["batch_size"],
-            "image_size": data_cfg["image_size"],
-            "stage1_epochs": settings["stage1"].epochs,
-            "stage1_lr": settings["stage1"].learning_rate,
-            "stage2_epochs": settings["stage2"].epochs,
-            "stage2_lr": settings["stage2"].learning_rate,
-            "seed": settings["seed"],
-        })
-        print(f"📈 MLflow logging enabled: {experiment_name}")
+        try:
+            mlflow_uri = monitoring_cfg.get("mlflow_tracking_uri", "./mlruns")
+            mlflow.set_tracking_uri(mlflow_uri)
+            experiment_name = monitoring_cfg.get(
+                "mlflow_experiment_name", "lungs-disease")
+            mlflow.set_experiment(experiment_name)
+            mlflow_run = mlflow.start_run(
+                run_name=f"{settings['model_name']}-training")
+            mlflow.log_params({
+                "model": settings["model_name"],
+                "model_name": model_info["name"],
+                "num_classes": model_info["num_classes"],
+                "pretrained": model_info.get("pretrained", True),
+                "batch_size": data_cfg["batch_size"],
+                "image_size": data_cfg["image_size"],
+                "stage1_epochs": settings["stage1"].epochs,
+                "stage1_lr": settings["stage1"].learning_rate,
+                "stage2_epochs": settings["stage2"].epochs,
+                "stage2_lr": settings["stage2"].learning_rate,
+                "seed": settings["seed"],
+            })
+            print(f"📈 MLflow logging enabled: {experiment_name}")
+        except Exception as e:
+            print(f"⚠️  MLflow logging disabled: {e}")
+            mlflow_run = None
 
     total_epochs = 0
     best_accuracy = 0.0
@@ -683,19 +711,37 @@ def main(config_path: Path, device: str | None):
 
     # Log final model
     if wandb_run:
-        wandb_run.log_artifact(str(ckpt_path))
-        wandb_run.log_artifact(str(last_model_path))
+        try:
+            wandb_run.log_artifact(str(ckpt_path))
+            wandb_run.log_artifact(str(last_model_path))
+        except Exception as e:
+            print(f"⚠️  Failed to log artifacts to W&B: {e}")
+
     if mlflow_run:
-        mlflow.log_artifact(str(last_model_path), "models")
-        mlflow.pytorch.log_model(model, "model")
+        try:
+            mlflow.log_artifact(str(last_model_path), "models")
+            mlflow.pytorch.log_model(model, "model")
+        except Exception as e:
+            print(f"⚠️  Failed to log model to MLflow: {e}")
 
     # Close loggers
     if tensorboard_writer:
-        tensorboard_writer.close()
+        try:
+            tensorboard_writer.close()
+        except Exception as e:
+            print(f"⚠️  Failed to close TensorBoard: {e}")
+
     if wandb_run:
-        wandb_run.finish()
+        try:
+            wandb_run.finish()
+        except Exception as e:
+            print(f"⚠️  Failed to finish W&B run: {e}")
+
     if mlflow_run:
-        mlflow.end_run()
+        try:
+            mlflow.end_run()
+        except Exception as e:
+            print(f"⚠️  Failed to end MLflow run: {e}")
 
     print("\n✅ Training finished")
     print(f"Best validation accuracy: {best_accuracy*100:.2f}%")

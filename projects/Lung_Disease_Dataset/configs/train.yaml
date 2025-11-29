@@ -2,7 +2,7 @@
 # Inherits/common data from data.yaml and model.yaml
 
 # Model selection (can reference model.yaml or specify directly)
-model: tf_efficientnetv2_s  # Override default_model from model.yaml if needed
+model: tf_efficientnetv2_m  # Override default_model from model.yaml if needed
 
 # Training strategy (Medical Fine-Tuning: Two-Stage)
 training:

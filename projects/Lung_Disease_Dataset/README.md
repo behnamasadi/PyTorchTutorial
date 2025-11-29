@@ -7,6 +7,7 @@ A comprehensive deep learning project for "Lungs Disease Dataset" classification
 - [Project Overview](#project-overview)
 - [Architecture](#architecture)
 - [Project Structure](#project-structure)
+- [Training & Monitoring](#training--monitoring)
 
 
 ## Project Overview
@@ -341,3 +342,109 @@ This makes `lung_disease_dataset` importable from anywhere, and any changes to s
 4. **VS Code Ready** — Fully configured for seamless development
 5. **Packaging Ready** — Can be pip-installed, dockerized, or deployed
 6. **Collaboration Friendly** — Easy for others to understand and contribute
+
+## Training & Monitoring
+
+### Running Training
+
+To start training with the default configuration:
+
+```bash
+cd /path/to/Lung_Disease_Dataset
+python scripts/train.py
+```
+
+Or specify a custom config:
+
+```bash
+python scripts/train.py --config configs/train.yaml --device cuda:0
+```
+
+### Experiment Tracking & Logging
+
+The training script supports three logging backends for experiment tracking and visualization. All logging is **optional** — if a service is unavailable, training continues with a warning.
+
+#### TensorBoard
+
+**Local visualization of training metrics, loss curves, and model graphs.**
+
+Start TensorBoard server:
+
+```bash
+tensorboard --logdir=runs
+```
+
+Then open your browser at: `http://localhost:6006`
+
+**Default log directory:** `./runs` (configurable in `configs/train.yaml`)
+
+#### MLflow
+
+**Experiment tracking, model registry, and reproducibility.**
+
+Start MLflow tracking server:
+
+```bash
+mlflow ui
+```
+
+Then open your browser at: `http://localhost:5000`
+
+**Default artifacts directory:** `./mlruns` (configurable in `configs/train.yaml`)
+
+**Features:**
+- Parameter logging
+- Metrics tracking
+- Model versioning
+- Experiment comparison
+- Model artifact storage
+
+#### Weights & Biases (wandb)
+
+**Cloud-based experiment tracking with rich visualizations.**
+
+Login (first time only):
+
+```bash
+wandb login
+```
+
+Training will automatically log to your W&B account if configured in `configs/train.yaml`.
+
+**Features:**
+- Real-time metrics
+- System monitoring (GPU, CPU, memory)
+- Model checkpoints
+- Hyperparameter sweeps
+- Team collaboration
+
+### Monitoring GPU Usage
+
+Monitor GPU utilization during training:
+
+```bash
+watch -n 1 nvidia-smi
+```
+
+### Configuration
+
+Edit `configs/train.yaml` to configure logging:
+
+```yaml
+monitoring:
+  # TensorBoard
+  tensorboard_log_dir: "./runs"
+  
+  # MLflow
+  mlflow_tracking_uri: "./mlruns"
+  mlflow_experiment_name: "lungs-disease"
+  
+  # Weights & Biases
+  wandb:
+    project: "Lungs Disease Dataset (4 types + normal)"
+    entity: "your-username"  # Optional
+    tags: ["medical", "x-ray", "classification"]
+    notes: "Two-stage medical fine-tuning"
+```
+
+**Note:** If any logging service fails to connect (e.g., MLflow server not running), training will continue with a warning message.
