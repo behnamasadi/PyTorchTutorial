@@ -1,0 +1,130 @@
+# Global Python ignores
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+
+# Virtual environments
+.env
+.venv
+venv/
+env/
+
+# Cache files
+.cache/
+.ipynb_checkpoints/
+*.ipynb
+
+# ML training outputs (root-level)
+checkpoints/
+weights/
+artifacts/
+outputs/
+logs/
+runs/
+mlruns/
+mlartifacts/
+wandb/
+tensorboard/
+tb_logs/
+
+# Data downloads generated locally (root-level)
+data/
+datasets/
+downloads/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Build and packaging
+dist/
+build/
+*.egg-info/
+
+# Git
+.git/
+.gitignore
+
+# Docker files
+Dockerfile
+docker-compose.yml
+
+# Only include the shared projects + metadata
+/*
+!projects/
+!projects/**
+!requirements.txt
+!Dockerfile
+!.dockerignore
+
+# --- Within /projects enforce clean images ---
+
+# Exclude large runtime folders inside each project
+projects/**/checkpoints/**
+projects/**/runs/**
+projects/**/wandb/**
+
+# Ensure checkpoints/data for any project are excluded
+projects/MNIST/data/**
+projects/MNIST/checkpoints/**
+projects/MNIST/wandb/**
+projects/MNIST/results/**
+projects/MNIST/experiments/**
+projects/MNIST/*.pth
+projects/MNIST/*.pt
+projects/**/outputs/**
+projects/**/logs/**
+projects/**/artifacts/**
+projects/**/mlruns/**
+projects/**/mlartifacts/**
+projects/**/tensorboard/**
+projects/**/tb_logs/**
+
+# Exclude cached datasets but keep lightweight scripts
+/projects/*/data/
+/projects/*/data/**
+/projects/*/datasets/
+/projects/*/datasets/**
+/projects/*/downloaded_data/
+/projects/*/downloaded_data/**
+/projects/*/samples/
+/projects/*/samples/**
+/projects/*/kitti_dataset/
+/projects/*/kitti_dataset/**
+projects/**/data/**
+projects/**/datasets/**
+projects/**/downloaded_data/**
+projects/**/kitti_dataset/**
+projects/**/samples/**
+projects/**/leftImg8bit*/
+projects/**/leftImg8bit*/**
+projects/**/gtFine*/
+projects/**/gtFine*/**
+projects/**/KITI/**
+projects/**/KITTI/**
+projects/**/tgs_salt/**
+projects/**/tgs_salt*/
+projects/**/train*/
+projects/**/train*/**
+projects/**/val*/
+projects/**/val*/**
+projects/**/test*/
+projects/**/test*/**
+
+# Ensure compiled checkpoints/models stay excluded even if nested
+projects/**/models/*.pth
+projects/**/models/*.pt
+projects/**/models/*.onnx
+projects/**/best_model*.pth
+projects/**/best_model*.pt
+projects/**/checkpoint*.pth
+projects/**/checkpoint*.pt
+projects/**/last_model*.pth
+projects/**/last_model*.pt
+projects/**/model_final*.pth
+projects/**/__pycache__/**
+projects/**/.ipynb_checkpoints/**
+projects/**/wandb/**

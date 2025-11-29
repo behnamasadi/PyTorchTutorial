@@ -1,0 +1,27 @@
+name: Docker Image CI for GHCR
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Docker image tag (e.g., latest, v1.0.0)'
+        required: false
+        default: 'latest'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_ACTION_PAT }}
+      
+      - name: Build and push the image
+        run: |
+          docker build . -t ghcr.io/behnamasadi/kaggle-projects:${{ inputs.image_tag }}
+          docker push ghcr.io/behnamasadi/kaggle-projects:${{ inputs.image_tag }}

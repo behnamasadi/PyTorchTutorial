@@ -1,0 +1,15 @@
+torch
+torchvision
+torchaudio
+timm
+opencv-python
+numpy
+pandas
+pyyaml
+scikit-learn
+albumentations
+matplotlib
+tqdm
+tensorboard
+wandb
+kagglehub
