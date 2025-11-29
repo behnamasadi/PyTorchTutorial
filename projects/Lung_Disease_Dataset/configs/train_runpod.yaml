@@ -1,0 +1,91 @@
+# =========================
+#  GLOBAL SETTINGS
+# =========================
+
+seed: 42
+
+performance:
+  mixed_precision: true
+  channels_last: true
+  compile_model: false
+  benchmark_cudnn: true
+  gradient_accumulation: 1
+  max_grad_norm: 1.0
+
+optimizer:
+  name: "AdamW"
+  weight_decay: 0.01
+
+loss:
+  name: "CrossEntropyLoss"
+  label_smoothing: 0.0
+
+training:
+  stage1:
+    enabled: true
+    freeze_backbone: true
+    epochs: 5
+    learning_rate: 1e-4
+
+  stage2:
+    enabled: true
+    freeze_backbone: false
+    epochs: 45
+    learning_rate: 3e-5
+    lr_schedule: "cosine"
+    lr_schedule_params:
+      T_max: 45
+      eta_min: 1e-7
+
+  total_epochs: 50
+  save_every: 5
+  output_dir: "./checkpoints"
+
+# =========================
+#  MODEL-SPECIFIC BATCH SIZES
+# =========================
+
+model_config:
+  convnextv2_tiny:
+    batch_size: 256
+  convnextv2_small:
+    batch_size: 192
+  convnextv2_base:
+    batch_size: 128
+  convnext_tiny:
+    batch_size: 256
+  convnext_small:
+    batch_size: 192
+  convnext_base:
+    batch_size: 128
+  tf_efficientnetv2_s:
+    batch_size: 192
+  tf_efficientnetv2_m:
+    batch_size: 144
+  tf_efficientnetv2_l:
+    batch_size: 96
+  vit_small_patch16_224:
+    batch_size: 256
+  vit_base_patch16_224:
+    batch_size: 128
+  vit_large_patch16_224:
+    batch_size: 48
+
+# Select your model here
+model: tf_efficientnetv2_m
+
+# =========================
+#  DATA
+# =========================
+
+data:
+  path: "./data/train"
+  val_path: "./data/val"
+  # batch_size will be automatically resolved from model_config section above
+  # based on the selected model
+  num_workers: 12
+  prefetch_factor: 4
+  persistent_workers: true
+  shuffle: true
+  pin_memory: true
+  drop_last: true

@@ -34,6 +34,22 @@ Training-specific settings:
 
 **Usage:** Complete training configuration. References data.yaml and model.yaml.
 
+### **train_local.yaml** - Local Development Training Configuration
+Environment-specific training config for local machines (smaller GPUs):
+- Uses `model.yaml` batch_size defaults (small values, e.g., 4-16)
+- Lower `num_workers` (typically 4)
+- Optimized for local development
+
+**Usage:** `python scripts/train.py --config configs/train_local.yaml`
+
+### **train_runpod.yaml** - RunPod Training Configuration
+Environment-specific training config for RunPod (larger GPUs):
+- Overrides `model.yaml` with larger batch sizes (e.g., 32+)
+- Higher `num_workers` (typically 8)
+- Optimized for cloud GPU instances
+
+**Usage:** `python scripts/train.py --config configs/train_runpod.yaml`
+
 ### **eval.yaml** - Evaluation Configuration
 Evaluation-specific settings:
 - Model checkpoint path
@@ -135,16 +151,38 @@ def load_config(config_name: str):
 
 ## Example Usage
 
-### Training
+### Training (Default)
 ```bash
 python scripts/train.py --config configs/train.yaml
 ```
 
+### Training (Local Development)
+```bash
+python scripts/train.py --config configs/train_local.yaml
+```
+Uses smaller batch sizes from `model.yaml` defaults, suitable for local GPUs.
+
+### Training (RunPod/Cloud)
+```bash
+python scripts/train.py --config configs/train_runpod.yaml
+```
+Uses larger batch sizes (overrides `model.yaml`), suitable for cloud GPUs with more VRAM.
+
 The training script will:
 1. Load `data.yaml` for data defaults
 2. Load `model.yaml` for model architecture
-3. Load `train.yaml` and merge/override
+3. Load the specified train config (`train.yaml`, `train_local.yaml`, or `train_runpod.yaml`) and merge/override
 4. Use merged config for training
+
+### Batch Size Resolution Priority
+1. `train_*.yaml` `data.batch_size` (if specified) - **highest priority**
+2. `model.yaml` `models.{model_name}.batch_size` (model-specific defaults)
+3. `data.yaml` `dataloader.batch_size` (fallback default: 32)
+
+**Strategy:**
+- `model.yaml` contains small batch sizes suitable for local development
+- `train_local.yaml` omits `batch_size` to use `model.yaml` defaults
+- `train_runpod.yaml` explicitly sets larger `batch_size` to override `model.yaml`
 
 ### Evaluation
 ```bash

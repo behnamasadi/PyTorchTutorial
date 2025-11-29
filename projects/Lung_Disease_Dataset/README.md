@@ -20,24 +20,39 @@ This project implements a various convolutional neural network to classify chest
 - **Tuberculosis**
 - **Normal**
 
-[Dataset on Kaggle](https://www.kaggle.com/datasets/omkarmanohardalvi/lungs-disease-dataset-4-types)
+[Dataset on Kaggle](https://www.kaggle.com/datasets/khaleddev/lungs-disease-dataset-broken)
 
+#### Automatic Dataset Download
 
-```python
-import kagglehub
+The training script automatically downloads the dataset from Kaggle if it doesn't already exist. No manual download required!
 
-# Download latest version
-path = kagglehub.dataset_download("omkarmanohardalvi/lungs-disease-dataset-4-types")
-```
+**How it works:**
+- Checks if `data/train` and `data/val` directories already exist
+- If missing, automatically downloads from Kaggle using `kagglehub`
+- Organizes the data into the correct train/val/test structure
+- Uses cached downloads if available (no re-download needed)
 
+**Authentication:**
 
-or
+The script supports multiple authentication methods:
 
+1. **Environment Variables (RunPod/Docker):**
+   ```bash
+   export KAGGLE_USERNAME=your_username
+   export KAGGLE_KEY=your_api_key
+   ```
 
-```python
-kaggle datasets list -s "omkarmanohardalvi/lungs-disease-dataset-4-types"
-kaggle datasets download "omkarmanohardalvi/lungs-disease-dataset-4-types"
-```
+2. **Local Development:**
+   - Create `~/.kaggle/kaggle.json` with your credentials:
+     ```json
+     {
+       "username": "your_username",
+       "key": "your_api_key"
+     }
+     ```
+   - Or use `kagglehub.login()` in Python
+
+The script automatically detects which method to use and provides clear status messages.
 
 
 
@@ -347,18 +362,74 @@ This makes `lung_disease_dataset` importable from anywhere, and any changes to s
 
 ### Running Training
 
-To start training with the default configuration:
+#### Local Development
+
+For local development with smaller GPUs (e.g., 3-8GB VRAM):
 
 ```bash
 cd /path/to/Lung_Disease_Dataset
-python scripts/train.py
+python scripts/train.py --config configs/train_local.yaml
 ```
 
-Or specify a custom config:
+**Features:**
+- Uses model-specific batch sizes from `model.yaml` (small values: 4-16)
+- Optimized for local GPUs
+- Lower `num_workers` (4) for typical local machines
+- Uses local credentials (`~/.kaggle/kaggle.json` or `wandb login`)
+
+#### RunPod/Cloud Deployment
+
+For cloud GPUs with more VRAM (e.g., RTX 5090 with 32GB):
 
 ```bash
-python scripts/train.py --config configs/train.yaml --device cuda:0
+python scripts/train.py --config configs/train_runpod.yaml
 ```
+
+**Features:**
+- Model-specific batch sizes optimized for large GPUs (48-256 depending on model)
+- Higher `num_workers` (12) for cloud instances
+- Uses environment variables for authentication (see below)
+
+**Default Configuration:**
+
+If no config is specified, the script uses `train_runpod.yaml` by default:
+
+```bash
+python scripts/train.py  # Uses train_runpod.yaml
+```
+
+#### Custom Configuration
+
+Specify a custom config file:
+
+```bash
+python scripts/train.py --config configs/train_local.yaml --device cuda:0
+```
+
+### Environment-Specific Batch Sizes
+
+The project uses different batch sizes for different environments and models:
+
+#### Local Development (`train_local.yaml`)
+- Uses batch sizes from `model.yaml` (small values for local GPUs)
+- Example: EfficientNetV2-M uses batch_size: 8
+
+#### RunPod/Cloud (`train_runpod.yaml`)
+- Model-specific batch sizes optimized for large GPUs (RTX 5090, 32GB VRAM):
+  - ConvNeXtV2-Tiny: 256
+  - EfficientNetV2-S: 192
+  - EfficientNetV2-M: 144
+  - EfficientNetV2-L: 96
+  - ViT-Large: 48
+  - And more...
+
+**Batch Size Resolution Priority:**
+1. `model_config` section in train config (highest priority)
+2. `data.batch_size` override
+3. `model.yaml` defaults
+4. Fallback: 32
+
+You can easily adjust batch sizes in `train_runpod.yaml` based on your GPU's VRAM.
 
 ### Experiment Tracking & Logging
 
@@ -403,13 +474,21 @@ Then open your browser at: `http://localhost:5000`
 
 **Cloud-based experiment tracking with rich visualizations.**
 
-Login (first time only):
+**Local Development:**
+Login once (credentials are cached):
 
 ```bash
 wandb login
 ```
 
-Training will automatically log to your W&B account if configured in `configs/train.yaml`.
+**RunPod/Docker:**
+Use environment variable (no login needed):
+
+```bash
+export WANDB_API_KEY=your_api_key
+```
+
+Training will automatically log to your W&B account if configured in the training config file.
 
 **Features:**
 - Real-time metrics
@@ -448,3 +527,75 @@ monitoring:
 ```
 
 **Note:** If any logging service fails to connect (e.g., MLflow server not running), training will continue with a warning message.
+
+## RunPod/Docker Deployment
+
+The project is fully configured to work in both local development and cloud deployment environments (RunPod, Docker, etc.).
+
+### Docker Setup
+
+Run the training in a Docker container with GPU support:
+
+```bash
+docker run -it --gpus all \
+  -e KAGGLE_USERNAME=$KAGGLE_USERNAME \
+  -e KAGGLE_KEY=$KAGGLE_KEY \
+  -e WANDB_API_KEY=$WANDB_API_KEY \
+  -e HOME=/workspace \
+  -v $HOME:/workspace \
+  ghcr.io/behnamasadi/kaggle-projects:latest bash
+```
+
+Then inside the container:
+
+```bash
+python scripts/train.py --config configs/train_runpod.yaml
+```
+
+### Environment Variables
+
+The following environment variables are supported for RunPod/Docker:
+
+| Variable | Purpose | Local Alternative |
+|----------|---------|-------------------|
+| `KAGGLE_USERNAME` | Kaggle API username | `~/.kaggle/kaggle.json` |
+| `KAGGLE_KEY` | Kaggle API key | `~/.kaggle/kaggle.json` |
+| `WANDB_API_KEY` | Weights & Biases API key | `wandb login` |
+| `HOME` | Home directory for cache/config | Default `~` |
+
+### Dual Environment Support
+
+The code automatically detects the environment and adapts:
+
+**Local Environment:**
+- Uses `~/.kaggle/kaggle.json` for Kaggle authentication
+- Uses cached `wandb login` credentials
+- Uses default `HOME` directory
+- Shows: `💻 Running in local environment`
+
+**RunPod/Docker Environment:**
+- Uses `KAGGLE_USERNAME` and `KAGGLE_KEY` environment variables
+- Uses `WANDB_API_KEY` environment variable
+- Uses `HOME=/workspace` for cache/config
+- Shows: `🌐 Running in RunPod/Docker environment`
+
+**Automatic Fallback:**
+- If environment variables are missing, falls back to local methods
+- Clear status messages indicate which authentication method is being used
+- Training continues even if some credentials are missing (with warnings)
+
+### Configuration Files
+
+The project includes environment-specific configuration files:
+
+- **`configs/train_local.yaml`**: Optimized for local development
+  - Smaller batch sizes (uses `model.yaml` defaults)
+  - Lower `num_workers` (4)
+  - Suitable for GPUs with 3-8GB VRAM
+
+- **`configs/train_runpod.yaml`**: Optimized for cloud GPUs
+  - Larger batch sizes (model-specific, 48-256)
+  - Higher `num_workers` (12)
+  - Optimized for RTX 5090 (32GB VRAM) and similar GPUs
+
+Both configs share the same training strategy and hyperparameters, only batch sizes and data loading settings differ.

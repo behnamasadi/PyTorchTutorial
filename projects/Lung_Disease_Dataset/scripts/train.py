@@ -14,9 +14,19 @@ import argparse
 import sys
 import time
 import warnings
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Tuple, Optional
+import shutil
+
+# Optional kagglehub import
+try:
+    import kagglehub
+    KAGGLEHUB_AVAILABLE = True
+except ImportError:
+    KAGGLEHUB_AVAILABLE = False
+    kagglehub = None
 
 # Suppress pydantic warnings from wandb/mlflow dependencies
 warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
@@ -47,7 +57,7 @@ except ImportError:
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 SRC_DIR = PROJECT_ROOT / "src"
-DEFAULT_CONFIG = PROJECT_ROOT / "configs" / "train.yaml"
+DEFAULT_CONFIG = PROJECT_ROOT / "configs" / "train_runpod.yaml"
 
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
@@ -78,6 +88,123 @@ def resolve_path(path_str: str) -> Path:
     if not path.is_absolute():
         path = PROJECT_ROOT / path_str.lstrip("./")
     return path.resolve()
+
+
+def download_dataset_if_needed(train_path: Path, val_path: Path) -> None:
+    """
+    Download the dataset from Kaggle if it doesn't already exist.
+    Checks if train and val directories exist and have content before downloading.
+
+    Uses KAGGLE_USERNAME and KAGGLE_KEY environment variables for authentication.
+    """
+    # Check if data already exists
+    train_exists = train_path.exists() and any(train_path.iterdir())
+    val_exists = val_path.exists() and any(val_path.iterdir())
+
+    if train_exists and val_exists:
+        print(f"✅ Dataset already exists at:")
+        print(f"   Train: {train_path}")
+        print(f"   Val: {val_path}")
+        return
+
+    if not KAGGLEHUB_AVAILABLE:
+        raise ImportError(
+            "kagglehub is required for automatic dataset download. "
+            "Install it with: pip install kagglehub"
+        )
+
+    # Verify Kaggle credentials are available
+    # Works both locally (kaggle.json) and on RunPod (env vars)
+    kaggle_username = os.getenv("KAGGLE_USERNAME")
+    kaggle_key = os.getenv("KAGGLE_KEY")
+
+    if kaggle_username and kaggle_key:
+        print(
+            f"✅ Kaggle credentials found in environment (username: {kaggle_username[:3]}...)")
+        print("   Using KAGGLE_USERNAME and KAGGLE_KEY for authentication")
+    else:
+        print("ℹ️  KAGGLE_USERNAME/KAGGLE_KEY not in environment.")
+        print("   Attempting to use kaggle.json file or other authentication methods...")
+        print("   (This is normal for local development)")
+
+    print("Downloading dataset from Kaggle...")
+    try:
+        # Download the dataset (kagglehub handles caching automatically)
+        # kagglehub will use env vars if available, otherwise falls back to kaggle.json
+        dataset_path = kagglehub.dataset_download(
+            "khaleddev/lungs-disease-dataset-broken")
+        print(f"✅ Dataset downloaded to: {dataset_path}")
+
+        # The dataset might be in a zip file or already extracted
+        # Check if we need to extract or organize it
+        dataset_path = Path(dataset_path)
+
+        # Look for train/val/test directories in the downloaded dataset
+        # The structure might vary, so we'll search for common patterns
+        possible_train_dirs = list(dataset_path.rglob("train"))
+        possible_val_dirs = list(dataset_path.rglob("val"))
+        possible_test_dirs = list(dataset_path.rglob("test"))
+
+        # If train/val directories are found in the dataset, copy them
+        if possible_train_dirs and possible_val_dirs:
+            train_src = possible_train_dirs[0]
+            val_src = possible_val_dirs[0]
+
+            # Create parent directories if needed
+            train_path.parent.mkdir(parents=True, exist_ok=True)
+            val_path.parent.mkdir(parents=True, exist_ok=True)
+
+            # Copy train data
+            if not train_path.exists():
+                print(f"Copying train data from {train_src} to {train_path}")
+                shutil.copytree(train_src, train_path)
+            else:
+                print("Train directory already exists, skipping copy")
+
+            # Copy val data
+            if not val_path.exists():
+                print(
+                    f"Copying validation data from {val_src} to {val_path}")
+                shutil.copytree(val_src, val_path)
+            else:
+                print("Validation directory already exists, skipping copy")
+
+            # Handle test directory if it exists
+            if possible_test_dirs:
+                test_path = val_path.parent / "test"
+                test_src = possible_test_dirs[0]
+                if not test_path.exists():
+                    print(
+                        f"Copying test data from {test_src} to {test_path}")
+                    shutil.copytree(test_src, test_path)
+        else:
+            # If the dataset structure is different, check for class folders at root
+            # and organize them into train/val/test if needed
+            class_folders = [d for d in dataset_path.iterdir()
+                             if d.is_dir() and not d.name.startswith('.')]
+
+            if class_folders:
+                print(
+                    f"❌ Dataset structure differs from expected. Found {len(class_folders)} folders.")
+                print(
+                    f"   Please organize the data manually or update the download function.")
+                print(f"   Dataset location: {dataset_path}")
+            else:
+                print("❌ Could not find train/val directories in downloaded dataset.")
+                print(f"   Dataset location: {dataset_path}")
+                print(f"   Please check the dataset structure and organize manually.")
+
+        print("✅ Dataset preparation complete")
+
+    except Exception as e:
+        error_msg = (
+            f"Failed to download or organize dataset: {e}\n"
+            f"\nAuthentication options:\n"
+            f"  - RunPod/Docker: Set KAGGLE_USERNAME and KAGGLE_KEY environment variables\n"
+            f"  - Local: Use kagglehub.login() or create ~/.kaggle/kaggle.json\n"
+            f"  - Or ensure dataset is already downloaded to: {train_path.parent}"
+        )
+        raise RuntimeError(error_msg) from e
 
 
 def prepare_stage(name: str, stage_cfg: Dict, *, freeze: bool, epochs: int, lr: float) -> StageConfig:
@@ -117,7 +244,7 @@ def load_project_settings(config_path: Path) -> Dict:
     # Get model name first to access model-specific batch_size
     model_name = train_cfg.get("model", model_cfg.get("default_model"))
     if not model_name:
-        raise ValueError("No model specified in train.yaml or model.yaml")
+        raise ValueError("No model specified in train config or model.yaml")
 
     try:
         model_settings = model_cfg["models"][model_name]
@@ -125,12 +252,40 @@ def load_project_settings(config_path: Path) -> Dict:
         raise KeyError(
             f"Model '{model_name}' not found in model.yaml") from exc
 
-    # Use model-specific batch_size with fallback to data_overrides or dataloader_defaults
-    batch_size = (
-        model_settings.get("batch_size") or
-        data_overrides.get("batch_size") or
-        dataloader_defaults.get("batch_size", 32)
-    )
+    # Resolve batch_size with priority:
+    # 1. model_config section in train_cfg (new structure for environment-specific configs)
+    # 2. data_overrides.batch_size (explicit override in data section)
+    # 3. model_settings.batch_size (from model.yaml)
+    # 4. dataloader_defaults.batch_size (from data.yaml)
+    # 5. Default fallback: 32
+
+    batch_size = None
+
+    # Check for model_config section (new structure in train_runpod.yaml)
+    model_config = train_cfg.get("model_config", {})
+    if model_config and model_name in model_config:
+        batch_size = model_config[model_name].get("batch_size")
+
+    # If not found, check data_overrides
+    if batch_size is None:
+        batch_size = data_overrides.get("batch_size")
+
+    # If still None, check model.yaml defaults
+    if batch_size is None:
+        batch_size = model_settings.get("batch_size")
+
+    # Final fallback
+    if batch_size is None:
+        batch_size = dataloader_defaults.get("batch_size", 32)
+
+    # Handle string values (in case user wrote "${model_config.${model}.batch_size}" literally)
+    if isinstance(batch_size, str) and batch_size.startswith("${"):
+        # Try to resolve from model_config
+        if model_config and model_name in model_config:
+            batch_size = model_config[model_name].get("batch_size", 32)
+        else:
+            batch_size = 32
+
     val_batch = data_overrides.get("val_batch_size", batch_size)
 
     data_settings = {
@@ -569,12 +724,28 @@ def run_stage(
 
 
 def main(config_path: Path, device: str | None):
+    # Verify environment setup (works both locally and on RunPod/Docker)
+    home_dir = os.getenv("HOME", "~")
+    is_runpod = os.getenv(
+        "HOME") == "/workspace" or os.path.exists("/workspace")
+
+    if is_runpod:
+        print("🌐 Running in RunPod/Docker environment")
+        print(f"   HOME={home_dir}")
+    else:
+        print("💻 Running in local environment")
+        print(f"   HOME={home_dir}")
+
     settings = load_project_settings(config_path)
     set_seed(settings["seed"])
 
     device_obj = torch.device(device or (
         "cuda" if torch.cuda.is_available() else "cpu"))
     data_cfg = settings["data"]
+
+    # Download dataset if needed (uses KAGGLE_USERNAME and KAGGLE_KEY env vars)
+    download_dataset_if_needed(data_cfg["train_path"], data_cfg["val_path"])
+
     train_loader, val_loader = create_dataloaders(data_cfg)
 
     print("\n🔧 Training Configuration")
@@ -638,6 +809,19 @@ def main(config_path: Path, device: str | None):
         try:
             wandb_cfg = monitoring_cfg.get("wandb", {})
             if wandb_cfg.get("project"):
+                # Check if WANDB_API_KEY is set (wandb will use it automatically)
+                # Works both locally (wandb login) and on RunPod (env var)
+                wandb_api_key = os.getenv("WANDB_API_KEY")
+                if wandb_api_key:
+                    print(
+                        f"✅ W&B API key found in environment (will be used automatically)")
+                else:
+                    print("ℹ️  WANDB_API_KEY not in environment.")
+                    print(
+                        "   W&B will try to use cached credentials or prompt for login.")
+                    print(
+                        "   (This is normal for local development - run 'wandb login' once)")
+
                 wandb_run = wandb.init(
                     project=wandb_cfg.get("project"),
                     entity=wandb_cfg.get("entity"),
@@ -753,7 +937,7 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Two-stage medical fine-tuning")
     parser.add_argument("--config", type=str,
-                        default=str(DEFAULT_CONFIG), help="Path to train.yaml")
+                        default=str(DEFAULT_CONFIG), help="Path to training config (default: train_runpod.yaml)")
     parser.add_argument("--device", type=str, default=None,
                         help="Device id (e.g., cuda:0)")
     return parser.parse_args()

@@ -1,5 +1,6 @@
-# train.yaml - Training-specific configuration
-# Inherits/common data from data.yaml and model.yaml
+# train_local.yaml - Training configuration for local development
+# Uses smaller batch sizes suitable for local GPUs (e.g., 3-8GB VRAM)
+# Inherits from data.yaml and model.yaml
 
 # Model selection (can reference model.yaml or specify directly)
 model: tf_efficientnetv2_m  # Override default_model from model.yaml if needed
@@ -53,13 +54,16 @@ training:
     label_smoothing: 0.0
 
 # Data configuration for training
-# Reference data.yaml, but override training-specific settings
+# Uses model.yaml batch_size defaults (small values for local GPUs)
+# To override, uncomment and set batch_size below
 data:
   path: "./data/train"  # Training data path (from data.yaml)
+  # batch_size: null  # Omit to use model.yaml batch_size (small values for local)
+  # val_batch_size: null  # Omit to use batch_size
   shuffle: true  # Override default for training
-  num_workers: 8
+  num_workers: 4  # Lower for local (fewer CPU cores typically)
   pin_memory: true
-  prefetch_factor: 4
+  prefetch_factor: 2
   persistent_workers: true
   drop_last: true  # Drop last incomplete batch during training
   
@@ -90,8 +94,9 @@ monitoring:
     project: "Lungs Disease Dataset (4 types + normal)"
     entity: null
     name: null
-    tags: ["lungs-disease", "classification", "pytorch", "training"]
-    notes: "Lungs Disease Dataset (4 types + normal) classification - Training"
+    tags: ["lungs-disease", "classification", "pytorch", "training", "local"]
+    notes: "Lungs Disease Dataset (4 types + normal) classification - Training (Local)"
 
 # Reproducibility
 seed: 42
+
