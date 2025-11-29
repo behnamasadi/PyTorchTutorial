@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Only copy the Kaggle projects folder
 COPY projects/ projects/
 
-CMD ["bash"]
+ENTRYPOINT ["sleep", "infinity"]
