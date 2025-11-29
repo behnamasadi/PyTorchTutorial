@@ -8,9 +8,8 @@ This repository contains my snippets and sample codes for developing deep learni
 ![CI](https://github.com/behnamasadi/PyTorchTutorial/actions/workflows/ci.yml/badge.svg)
 ![GHCR](https://github.com/behnamasadi/PyTorchTutorial/actions/workflows/ghcr.yml/badge.svg)
 [![GHCR Package](https://img.shields.io/badge/GHCR-Package-blue?logo=github&logoColor=white)](https://github.com/behnamasadi/PyTorchTutorial/pkgs/container/kaggle-projects)
-[![Docker Image](https://img.shields.io/badge/docker-ghcr.io/behnamasadi/kaggle--projects-blue?logo=docker&logoColor=white)](https://github.com/behnamasadi/PyTorchTutorial/pkgs/container/kaggle-projects)
 ![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/behnamasadi/PyTorchTutorial)
-![GitHub Release](https://img.shields.io/github/v/release/behnamasadi/PyTorchTutorial)
+<!-- ![GitHub Release](https://img.shields.io/github/v/release/behnamasadi/PyTorchTutorial) -->
 ![GitHub Repo stars](https://img.shields.io/github/stars/behnamasadi/PyTorchTutorial)
 ![GitHub forks](https://img.shields.io/github/forks/behnamasadi/PyTorchTutorial)
 
