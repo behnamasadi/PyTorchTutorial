@@ -209,12 +209,15 @@ def download_dataset_if_needed(train_path: Path, val_path: Path) -> None:
 
 def prepare_stage(name: str, stage_cfg: Dict, *, freeze: bool, epochs: int, lr: float) -> StageConfig:
     cfg = stage_cfg or {}
+    # Ensure learning_rate is always a float (YAML may parse scientific notation as string)
+    learning_rate = cfg.get("learning_rate", lr)
+    learning_rate = float(learning_rate) if learning_rate is not None else lr
     return StageConfig(
         name=name,
         enabled=cfg.get("enabled", True),
         freeze_backbone=cfg.get("freeze_backbone", freeze),
         epochs=cfg.get("epochs", epochs),
-        learning_rate=cfg.get("learning_rate", lr),
+        learning_rate=learning_rate,
         lr_schedule=(cfg.get("lr_schedule") or "").lower(),
         lr_schedule_params=cfg.get("lr_schedule_params", {}),
     )

@@ -537,13 +537,14 @@ The project is fully configured to work in both local development and cloud depl
 Run the training in a Docker container with GPU support:
 
 ```bash
-docker run -it --gpus all \
+docker run -it --runtime=nvidia \
+  --entrypoint bash \
   -e KAGGLE_USERNAME=$KAGGLE_USERNAME \
   -e KAGGLE_KEY=$KAGGLE_KEY \
   -e WANDB_API_KEY=$WANDB_API_KEY \
   -e HOME=/workspace \
   -v $HOME:/workspace \
-  ghcr.io/behnamasadi/kaggle-projects:latest bash
+  ghcr.io/behnamasadi/kaggle-projects:latest
 ```
 
 Then inside the container:

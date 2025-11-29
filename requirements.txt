@@ -1,6 +1,4 @@
-torch
-torchvision
-torchaudio
+# torch, torchvision, torchaudio come from the base image (pytorch/pytorch:2.9.1-cuda13.0-cudnn9-runtime)
 timm
 opencv-python
 numpy

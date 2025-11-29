@@ -9,7 +9,7 @@ performance:
   channels_last: true
   compile_model: false
   benchmark_cudnn: true
-  gradient_accumulation: 1
+  gradient_accumulation: 4  # Accumulate gradients to maintain effective batch size
   max_grad_norm: 1.0
 
 optimizer:
@@ -47,29 +47,29 @@ training:
 
 model_config:
   convnextv2_tiny:
-    batch_size: 256
+    batch_size: 64
   convnextv2_small:
-    batch_size: 192
-  convnextv2_base:
-    batch_size: 128
-  convnext_tiny:
-    batch_size: 256
-  convnext_small:
-    batch_size: 192
-  convnext_base:
-    batch_size: 128
-  tf_efficientnetv2_s:
-    batch_size: 192
-  tf_efficientnetv2_m:
-    batch_size: 144
-  tf_efficientnetv2_l:
-    batch_size: 96
-  vit_small_patch16_224:
-    batch_size: 256
-  vit_base_patch16_224:
-    batch_size: 128
-  vit_large_patch16_224:
     batch_size: 48
+  convnextv2_base:
+    batch_size: 32
+  convnext_tiny:
+    batch_size: 64
+  convnext_small:
+    batch_size: 48
+  convnext_base:
+    batch_size: 32
+  tf_efficientnetv2_s:
+    batch_size: 32
+  tf_efficientnetv2_m:
+    batch_size: 16
+  tf_efficientnetv2_l:
+    batch_size: 8
+  vit_small_patch16_224:
+    batch_size: 64
+  vit_base_patch16_224:
+    batch_size: 32
+  vit_large_patch16_224:
+    batch_size: 16
 
 # Select your model here
 model: tf_efficientnetv2_m
