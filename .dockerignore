@@ -107,12 +107,13 @@ projects/**/KITI/**
 projects/**/KITTI/**
 projects/**/tgs_salt/**
 projects/**/tgs_salt*/
-projects/**/train*/
-projects/**/train*/**
-projects/**/val*/
-projects/**/val*/**
-projects/**/test*/
-projects/**/test*/**
+# Exclude data directories (train/, val/, test/) but NOT Python scripts (train.py, test.py)
+projects/**/train/
+projects/**/train/**
+projects/**/val/
+projects/**/val/**
+projects/**/test/
+projects/**/test/**
 
 # Ensure compiled checkpoints/models stay excluded even if nested
 projects/**/models/*.pth
