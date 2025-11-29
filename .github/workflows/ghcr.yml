@@ -1,4 +1,4 @@
-name: Docker Image CI for GHCR
+name: CI for GHCR
 
 on:
   workflow_dispatch:

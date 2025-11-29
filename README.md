@@ -7,6 +7,8 @@ This repository contains my snippets and sample codes for developing deep learni
 ![alt text](https://img.shields.io/badge/license-BSD-blue.svg)
 ![CI](https://github.com/behnamasadi/PyTorchTutorial/actions/workflows/ci.yml/badge.svg)
 ![GHCR](https://github.com/behnamasadi/PyTorchTutorial/actions/workflows/ghcr.yml/badge.svg)
+![Docker Pulls](https://img.shields.io/docker/pulls/ghcr.io/behnamasadi/kaggle-projects?label=docker%20pulls)
+![Docker Image Size](https://img.shields.io/docker/image-size/ghcr.io/behnamasadi/kaggle-projects/latest?label=image%20size)
 ![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/behnamasadi/PyTorchTutorial)
 ![GitHub Release](https://img.shields.io/github/v/release/behnamasadi/PyTorchTutorial)
 ![GitHub Repo stars](https://img.shields.io/github/stars/behnamasadi/PyTorchTutorial)
@@ -71,6 +73,35 @@ cd /home/$USER/workspace/
 git clone git@github.com:behnamasadi/PyTorchTutorial.git
 ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTutorial/src
 ```
+
+## Docker Image
+
+A pre-built Docker image containing the Kaggle projects is available on GitHub Container Registry (GHCR). This image is built from the project root directory using the workflow defined in [`.github/workflows/ghcr.yml`](.github/workflows/ghcr.yml).
+
+**Package:** [ghcr.io/behnamasadi/kaggle-projects](https://github.com/behnamasadi/PyTorchTutorial/pkgs/container/kaggle-projects)
+
+### Pull and Run the Image
+
+```bash
+# Pull the latest image
+docker pull ghcr.io/behnamasadi/kaggle-projects:latest
+
+# Run the container interactively
+docker run -it --gpus all ghcr.io/behnamasadi/kaggle-projects:latest
+
+# Or run with volume mounts for data/experiments
+docker run -it --gpus all \
+  -v /path/to/your/data:/workspace/data \
+  -v /path/to/your/outputs:/workspace/outputs \
+  ghcr.io/behnamasadi/kaggle-projects:latest
+```
+
+The image is based on `pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime` and includes:
+- All dependencies from `requirements.txt`
+- The complete `projects/` directory with Kaggle project code
+- CUDA support for GPU acceleration
+
+For more details on using this image with cloud platforms like RunPod, see [Running Your PyTorch Projects on RunPod Using a Single Docker Image and GHCR](infrastructure_and_best_practices/runpod-ghcr.ipynb).
 
 ## [**PyTorch Fundamentals**](#)
 
