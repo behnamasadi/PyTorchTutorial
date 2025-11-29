@@ -2,6 +2,20 @@
 
 This repository contains my snippets and sample codes for developing deep learning application with Pytorch.
 
+
+
+![alt text](https://img.shields.io/badge/license-BSD-blue.svg)
+![CI](https://github.com/behnamasadi/PyTorchTutorial/actions/workflows/ci.yml/badge.svg)
+![GHCR](https://github.com/behnamasadi/PyTorchTutorial/actions/workflows/ghcr.yml/badge.svg)
+![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/behnamasadi/PyTorchTutorial)
+![GitHub Release](https://img.shields.io/github/v/release/behnamasadi/PyTorchTutorial)
+![GitHub Repo stars](https://img.shields.io/github/stars/behnamasadi/PyTorchTutorial)
+![GitHub forks](https://img.shields.io/github/forks/behnamasadi/PyTorchTutorial)
+
+
+
+
+
 ## Installation
 
 1. Create environment:
