@@ -74,6 +74,9 @@ class StageConfig:
     learning_rate: float
     lr_schedule: str
     lr_schedule_params: Dict[str, float]
+    head_lr: float = None  # Optional: separate LR for head
+    backbone_lr: float = None  # Optional: separate LR for backbone
+    early_stop_patience: int = None  # Optional: early stopping patience
 
 
 def load_yaml(path: Path) -> Dict:
@@ -212,6 +215,19 @@ def prepare_stage(name: str, stage_cfg: Dict, *, freeze: bool, epochs: int, lr: 
     # Ensure learning_rate is always a float (YAML may parse scientific notation as string)
     learning_rate = cfg.get("learning_rate", lr)
     learning_rate = float(learning_rate) if learning_rate is not None else lr
+
+    # Handle separate learning rates for head and backbone
+    head_lr = cfg.get("head_lr")
+    if head_lr is not None:
+        head_lr = float(head_lr)
+
+    backbone_lr = cfg.get("backbone_lr")
+    if backbone_lr is not None:
+        backbone_lr = float(backbone_lr)
+
+    # Early stopping patience
+    early_stop_patience = cfg.get("early_stop_patience")
+
     return StageConfig(
         name=name,
         enabled=cfg.get("enabled", True),
@@ -220,14 +236,18 @@ def prepare_stage(name: str, stage_cfg: Dict, *, freeze: bool, epochs: int, lr: 
         learning_rate=learning_rate,
         lr_schedule=(cfg.get("lr_schedule") or "").lower(),
         lr_schedule_params=cfg.get("lr_schedule_params", {}),
+        head_lr=head_lr,
+        backbone_lr=backbone_lr,
+        early_stop_patience=early_stop_patience,
     )
 
 
-def load_project_settings(config_path: Path) -> Dict:
+def load_project_settings(config_path: Path, train_cfg_override: Dict | None = None) -> Dict:
     config_path = config_path.resolve()
     base_dir = config_path.parent
 
-    train_cfg = load_yaml(config_path)
+    train_cfg = train_cfg_override if train_cfg_override is not None else load_yaml(
+        config_path)
     if not train_cfg:
         raise ValueError(f"Config file {config_path} is empty or missing")
 
@@ -300,7 +320,8 @@ def load_project_settings(config_path: Path) -> Dict:
         "pin_memory": data_overrides.get("pin_memory", dataloader_defaults.get("pin_memory", True)),
         "drop_last": data_overrides.get("drop_last", dataloader_defaults.get("drop_last", False)),
         "shuffle": data_overrides.get("shuffle", True),
-        "image_size": data_overrides.get("img_size", dataset_defaults.get("image_size", 224)),
+        # Use model's input_size if img_size not explicitly set in data config
+        "image_size": data_overrides.get("img_size") or model_settings.get("input_size", dataset_defaults.get("image_size", 224)),
         "normalize_grayscale": dataset_defaults.get("normalize_grayscale", True),
         "mean": normalization_defaults.get("mean", [0.485, 0.456, 0.406]),
         "std": normalization_defaults.get("std", [0.229, 0.224, 0.225]),
@@ -432,6 +453,8 @@ def freeze_model(model: nn.Module, freeze_backbone: bool) -> None:
 def build_optimizer(model: nn.Module, stage: StageConfig):
     """
     Selects Adam for frozen-backbone training, AdamW for full fine-tuning.
+    For Stage 2, uses different learning rates for backbone and head to prevent
+    destroying pretrained features.
     Only parameters with requires_grad=True are optimized.
     """
     params = list(filter(lambda p: p.requires_grad, model.parameters()))
@@ -446,14 +469,72 @@ def build_optimizer(model: nn.Module, stage: StageConfig):
     if stage.freeze_backbone:
         return Adam(params, lr=stage.learning_rate)
 
-    # Stage 2: full fine-tuning → AdamW is correct (weight decay)
-    # Default weight_decay of 0.01 is standard for AdamW
+    # Stage 2: full fine-tuning → AdamW with separate LRs for backbone and head
+    # This prevents destroying pretrained features while allowing head to adapt faster
     weight_decay = getattr(stage, 'weight_decay', 0.01)
-    return AdamW(
-        params,
-        lr=stage.learning_rate,
-        weight_decay=weight_decay
-    )
+
+    # Get separate learning rates if specified, otherwise use defaults
+    # Default: same as stage LR
+    head_lr = getattr(stage, 'head_lr', stage.learning_rate)
+    # Default: 20% of head LR
+    backbone_lr = getattr(stage, 'backbone_lr', stage.learning_rate * 0.2)
+
+    # Separate backbone and head parameters
+    backbone_params = []
+    head_params = []
+
+    # Identify head parameters (usually the last layer/module)
+    if hasattr(model, 'head'):
+        head_module = model.head
+        head_param_ids = {id(p) for p in head_module.parameters()}
+
+        for p in params:
+            if id(p) in head_param_ids:
+                head_params.append(p)
+            else:
+                backbone_params.append(p)
+    else:
+        # If no explicit head, use last layer as head
+        # Get all named modules and find the classifier/head
+        all_modules = list(model.named_modules())
+        if len(all_modules) > 1:
+            # Assume last child module is the head
+            last_module_name, last_module = all_modules[-1]
+            head_param_ids = {id(p) for p in last_module.parameters()}
+
+            for p in params:
+                if id(p) in head_param_ids:
+                    head_params.append(p)
+                else:
+                    backbone_params.append(p)
+        else:
+            # Fallback: use all params with head_lr
+            head_params = params
+            backbone_params = []
+
+    # Create parameter groups with different learning rates
+    param_groups = []
+    if backbone_params:
+        param_groups.append({
+            'params': backbone_params,
+            'lr': backbone_lr,
+            'weight_decay': weight_decay
+        })
+    if head_params:
+        param_groups.append({
+            'params': head_params,
+            'lr': head_lr,
+            'weight_decay': weight_decay
+        })
+
+    print(f"  Optimizer: AdamW with separate LRs")
+    if backbone_params:
+        print(
+            f"    Backbone LR: {backbone_lr:.2e} ({len(backbone_params)} params)")
+    if head_params:
+        print(f"    Head LR: {head_lr:.2e} ({len(head_params)} params)")
+
+    return AdamW(param_groups)
 
 
 # ---------------------------------------------------------------
@@ -537,21 +618,7 @@ def train_one_epoch(model, loader, device, criterion, optimizer):
         optimizer.zero_grad()
         outputs = model(images)
 
-        # Debug first batch
-        if batch_idx == 0:
-            print(f"  Debug batch 0:")
-            print(f"    Outputs requires_grad: {outputs.requires_grad}")
-            print(f"    Outputs grad_fn: {outputs.grad_fn}")
-            # Check if any head parameters require grad
-            head_trainable = any(
-                p.requires_grad for p in model.head.parameters())
-            print(f"    Head has trainable params: {head_trainable}")
-
         loss = criterion(outputs, targets)
-
-        if batch_idx == 0:
-            print(f"    Loss requires_grad: {loss.requires_grad}")
-            print(f"    Loss grad_fn: {loss.grad_fn}")
 
         if not loss.requires_grad:
             raise RuntimeError(
@@ -609,24 +676,15 @@ def run_stage(
     status = "Freezing" if stage.freeze_backbone else "Unfreezing"
     print(f"\n➡️  {stage.name}: {status} backbone")
 
-    # Debug: Check model structure before freezing
-    print(f"  Model has 'head' attribute: {hasattr(model, 'head')}")
-    if hasattr(model, 'head'):
-        print(f"  Head type: {type(model.head)}")
-        head_params = sum(p.numel() for p in model.head.parameters())
-        print(f"  Head parameters: {head_params:,}")
-
     freeze_model(model, stage.freeze_backbone)
 
-    # Debug: Check trainable parameters after freezing
+    # Check trainable parameters after freezing
     trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
 
-    # Debug: Test forward pass to verify gradients flow
+    # Test forward pass to verify gradients flow (silent check)
     model.train()
     test_input = torch.randn(1, 3, 224, 224).to(device)
     test_output = model(test_input)
-    print(f"  Test forward output requires_grad: {test_output.requires_grad}")
-    print(f"  Test forward output grad_fn: {test_output.grad_fn}")
     if not test_output.requires_grad:
         raise RuntimeError(
             "Model outputs do not require gradients even though head parameters require grad. "
@@ -638,6 +696,18 @@ def run_stage(
 
     optimizer = build_optimizer(model, stage)
     scheduler = build_scheduler(optimizer, stage, stage.epochs)
+
+    # Early stopping configuration
+    early_stop_patience = getattr(stage, 'early_stop_patience', None)
+    if early_stop_patience is None and not stage.freeze_backbone:
+        # Default early stopping for Stage 2: stop if no improvement for 5 epochs
+        early_stop_patience = 5
+    elif stage.freeze_backbone:
+        early_stop_patience = None  # No early stopping for Stage 1
+
+    best_val_loss = float('inf')
+    epochs_without_improvement = 0
+    best_val_acc_for_early_stop = best_acc
 
     current_epoch = start_epoch
     for epoch in range(stage.epochs):
@@ -653,6 +723,30 @@ def run_stage(
             scheduler.step(val_loss)
         elif scheduler:
             scheduler.step()
+
+        # Early stopping check (only for Stage 2)
+        should_stop_early = False
+        if early_stop_patience is not None and not stage.freeze_backbone:
+            # Check if validation loss improved
+            if val_loss < best_val_loss:
+                best_val_loss = val_loss
+                epochs_without_improvement = 0
+            else:
+                epochs_without_improvement += 1
+
+            # Also check validation accuracy
+            if val_acc > best_val_acc_for_early_stop:
+                best_val_acc_for_early_stop = val_acc
+            elif val_acc <= best_val_acc_for_early_stop:
+                # If accuracy didn't improve, count towards early stopping
+                pass
+
+            if epochs_without_improvement >= early_stop_patience:
+                should_stop_early = True
+                print(
+                    f"\n⏹️  Early stopping triggered: No improvement in val loss for {early_stop_patience} epochs")
+                print(
+                    f"   Best val loss: {best_val_loss:.4f}, Best val acc: {best_val_acc_for_early_stop*100:.2f}%")
 
         print(
             f"{stage.name} | Epoch {epoch+1}/{stage.epochs} | "
@@ -723,10 +817,25 @@ def run_stage(
                     print(f"⚠️  MLflow best checkpoint logging failed: {e}")
                 mlflow.log_artifact(str(ckpt_path), "checkpoints")
 
+        # Early stopping: break if triggered
+        if should_stop_early:
+            print(f"\n⏹️  Stopping training early due to no improvement")
+            break
+
     return current_epoch, best_acc
 
 
-def main(config_path: Path, device: str | None):
+def get_all_models(config_path: Path) -> list[str]:
+    """Get list of all available models from model.yaml"""
+    base_dir = config_path.parent
+    model_cfg = load_yaml(base_dir / "model.yaml")
+    if not model_cfg or "models" not in model_cfg:
+        raise ValueError("No models found in model.yaml")
+    return list(model_cfg["models"].keys())
+
+
+def train_single_model(config_path: Path, device: str | None, model_name: str | None = None):
+    """Train a single model. If model_name is None, uses the model from config."""
     # Verify environment setup (works both locally and on RunPod/Docker)
     home_dir = os.getenv("HOME", "~")
     is_runpod = os.getenv(
@@ -739,7 +848,12 @@ def main(config_path: Path, device: str | None):
         print("💻 Running in local environment")
         print(f"   HOME={home_dir}")
 
-    settings = load_project_settings(config_path)
+    # Override model if specified
+    train_cfg = load_yaml(config_path)
+    if model_name:
+        train_cfg["model"] = model_name
+
+    settings = load_project_settings(config_path, train_cfg_override=train_cfg)
     set_seed(settings["seed"])
 
     device_obj = torch.device(device or (
@@ -785,7 +899,15 @@ def main(config_path: Path, device: str | None):
         for name, module in model.named_children():
             print(f"    {name}: {type(module)}")
 
-    criterion = nn.CrossEntropyLoss()
+    # Build loss function with label smoothing if specified
+    loss_cfg = settings.get("loss", {})
+    label_smoothing = loss_cfg.get("label_smoothing", 0.0)
+    criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing)
+    if label_smoothing > 0:
+        print(
+            f"  Loss: CrossEntropyLoss with label_smoothing={label_smoothing}")
+    else:
+        print(f"  Loss: CrossEntropyLoss")
     ckpt_path = settings["output_dir"] / "best_model.pth"
     last_model_path = settings["output_dir"] / "last_model.pth"
 
@@ -812,12 +934,15 @@ def main(config_path: Path, device: str | None):
         try:
             wandb_cfg = monitoring_cfg.get("wandb", {})
             if wandb_cfg.get("project"):
-                # Automatically login using WANDB_API_KEY if available
+                # Automatically login using WANDB_API_KEY if available (only if not already logged in)
                 wandb_api_key = os.getenv("WANDB_API_KEY")
                 if wandb_api_key:
-                    # Automatically login with the API key from environment
-                    wandb.login(key=wandb_api_key, relogin=True)
-                    print(f"✅ W&B automatically logged in using WANDB_API_KEY")
+                    try:
+                        wandb.login(key=wandb_api_key, relogin=True)
+                        print(f"✅ W&B automatically logged in using WANDB_API_KEY")
+                    except Exception:
+                        # Already logged in, continue
+                        pass
                 else:
                     print("ℹ️  WANDB_API_KEY not in environment.")
                     print(
@@ -825,12 +950,21 @@ def main(config_path: Path, device: str | None):
                     print(
                         "   (Set WANDB_API_KEY environment variable for automatic login)")
 
+                # Create unique run name with model name
+                run_name = wandb_cfg.get("name")
+                if not run_name:
+                    run_name = f"{settings['model_name']}-training"
+
+                # Add model name to tags if not already present
+                tags = wandb_cfg.get("tags", [])
+                if settings['model_name'] not in tags:
+                    tags = tags + [settings['model_name']]
+
                 wandb_run = wandb.init(
                     project=wandb_cfg.get("project"),
                     entity=wandb_cfg.get("entity"),
-                    name=wandb_cfg.get(
-                        "name") or f"{settings['model_name']}-training",
-                    tags=wandb_cfg.get("tags", []),
+                    name=run_name,
+                    tags=tags,
                     notes=wandb_cfg.get("notes", ""),
                     config={
                         "model": settings["model_name"],
@@ -934,6 +1068,70 @@ def main(config_path: Path, device: str | None):
     print(f"Best validation accuracy: {best_accuracy*100:.2f}%")
     print(f"Best checkpoint: {ckpt_path}")
     print(f"Last model: {last_model_path}")
+
+    return best_accuracy
+
+
+def main(config_path: Path, device: str | None):
+    """Main function that trains all models or a single model based on config."""
+    # Check if we should train all models
+    train_cfg = load_yaml(config_path)
+    train_all_models = train_cfg.get("train_all_models", False)
+
+    # Login to wandb once if API key is available (for all models training)
+    if WANDB_AVAILABLE and train_all_models:
+        wandb_api_key = os.getenv("WANDB_API_KEY")
+        if wandb_api_key:
+            try:
+                wandb.login(key=wandb_api_key, relogin=True)
+                print(
+                    f"✅ W&B automatically logged in using WANDB_API_KEY (for all models)")
+            except Exception as e:
+                print(f"⚠️  W&B login failed: {e}")
+
+    if train_all_models:
+        # Train all models from model.yaml
+        all_models = get_all_models(config_path)
+        print(
+            f"\n🚀 Training all {len(all_models)} models: {', '.join(all_models)}")
+        print("=" * 80)
+
+        results = {}
+        for idx, model_name in enumerate(all_models, 1):
+            print(f"\n{'=' * 80}")
+            print(f"📦 Model {idx}/{len(all_models)}: {model_name}")
+            print(f"{'=' * 80}")
+
+            try:
+                best_acc = train_single_model(config_path, device, model_name)
+                results[model_name] = best_acc
+                print(
+                    f"\n✅ {model_name} completed: {best_acc*100:.2f}% accuracy")
+            except Exception as e:
+                print(f"\n❌ {model_name} failed: {e}")
+                results[model_name] = None
+                import traceback
+                traceback.print_exc()
+
+        # Print summary
+        print(f"\n{'=' * 80}")
+        print("📊 Training Summary")
+        print(f"{'=' * 80}")
+        for model_name, acc in results.items():
+            if acc is not None:
+                print(f"  {model_name:30s}: {acc*100:6.2f}%")
+            else:
+                print(f"  {model_name:30s}: FAILED")
+
+        if results:
+            successful = {k: v for k, v in results.items() if v is not None}
+            if successful:
+                best_model = max(successful.items(), key=lambda x: x[1])
+                print(
+                    f"\n🏆 Best model: {best_model[0]} ({best_model[1]*100:.2f}%)")
+    else:
+        # Train single model (original behavior)
+        train_single_model(config_path, device, None)
 
 
 def parse_args():

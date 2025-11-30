@@ -4,6 +4,10 @@
 
 seed: 42
 
+# Set to true to train all models from model.yaml sequentially
+# Set to false (or omit) to train only the model specified in the "model" field below
+train_all_models: true
+
 performance:
   mixed_precision: true
   channels_last: true
@@ -30,14 +34,17 @@ training:
   stage2:
     enabled: true
     freeze_backbone: false
-    epochs: 30  # Reduced from 45 - stop earlier to prevent overfitting (you're already at 90%+)
-    learning_rate: 3e-5
+    epochs: 15  # Reduced to prevent overfitting - model peaks around epoch 7-13
+    learning_rate: 3e-5  # Base LR (used for head if head_lr not specified)
+    head_lr: 3e-5  # Head learning rate
+    backbone_lr: 5e-6  # Backbone LR (6x smaller to preserve pretrained features)
+    early_stop_patience: 5  # Stop if no improvement in val loss for 5 epochs
     lr_schedule: "cosine"
     lr_schedule_params:
-      T_max: 30
+      T_max: 15
       eta_min: 1e-7
 
-  total_epochs: 35  # Stage1 (5) + Stage2 (30) = 35 total
+  total_epochs: 20  # Stage1 (5) + Stage2 (15) = 20 total
   save_every: 5
   output_dir: "./checkpoints"
 
