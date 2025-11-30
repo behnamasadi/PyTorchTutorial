@@ -753,6 +753,636 @@ python evaluate.py --model tf_efficientnetv2_s --medical-validation
 - Use appropriate image sizes and batch sizes for each model
 - Show a summary comparison when processing multiple models
 
+### Evaluation Log Interpretation
+
+This section provides a comprehensive guide to interpreting your evaluation logs and understanding what the results mean, why sensitivity warnings appear, and what conclusions you can draw.
+
+#### 1. What the Evaluation Log Shows
+
+Your evaluation script performs the following for each model:
+
+1. Load the **best checkpoint** based on validation accuracy
+2. Resize images according to the model's expected input size
+3. Run inference on all **1954 test images**
+4. Compute:
+   - Overall test accuracy
+   - Per-class sensitivity (recall)
+   - Detailed confusion matrix
+   - Classification report
+   - JSON metrics
+   - Visual plots (confusion matrix)
+5. Trigger a warning if **sensitivity < 0.80** for any class
+
+#### 2. Core Observation from the Log
+
+Across ALL models (EffNet, ConvNeXt, RegNet), the evaluation shows:
+
+**A. Test accuracy is excellent**
+
+Top results:
+
+| Model            | Test Accuracy |
+| ---------------- | ------------- |
+| EfficientNetV2-M | 89.20%        |
+| EfficientNetV2-L | 88.69%        |
+| ConvNeXtV2-Base  | 86.75%        |
+| ConvNeXtV2-Tiny  | 85.36%        |
+
+These results are fully consistent with training and test logs.
+
+**B. Same two classes always show low sensitivity**
+
+In every model:
+- **class_0 sensitivity = 0.61 → 0.77**
+- **class_4 sensitivity = 0.49 → 0.78**
+
+This is exactly what triggered the warnings:
+
+```
+⚠️ WARNING: Low sensitivity for class_0 …
+⚠️ WARNING: Low sensitivity for class_4 …
+```
+
+These two classes consistently underperform across all architectures.
+
+#### 3. Why the Warnings Appear (Real Reason)
+
+Your evaluation script flags sensitivity < 0.80 because:
+
+$$\text{sensitivity} = \frac{TP}{TP + FN}$$
+
+So low sensitivity = many **false negatives**, which is dangerous for clinical use.
+
+**Why classes 0 and 4?**
+
+Because (as you already noticed in training):
+- They are the two pneumonia subclasses
+- Pneumonia types **look extremely similar** on chest X-rays
+- The dataset has **class imbalance** (viral pneumonia often underrepresented)
+- Models confuse:
+  - Viral ↔ Bacterial pneumonia
+  - Viral ↔ Normal
+  - Bacterial ↔ TB
+
+This is NOT a model bug.
+
+This is a **medical and dataset challenge**.
+
+#### 4. Why Evaluation Accuracy Is Lower Than Validation Accuracy
+
+Example:
+- **ConvNeXtV2-Base**
+  - Validation accuracy: 89.27%
+  - Evaluation accuracy: 86.75%
+
+This is completely normal.
+
+**Why?**
+
+**Validation data:**
+- Comes from the same source as training
+- Same distribution
+- Same augmentation style
+- Same patient demographic
+
+**Test data:**
+- Completely separate
+- Slightly different distribution
+- No augmentation
+- Often has noisier labels and edge cases
+
+This is the same reason Kaggle competitions show a validation–test gap.
+
+Your models generalize well, but **real-world evaluation is always harsher**.
+
+#### 5. Why EfficientNetV2-M Is the Best Model
+
+Your evaluation summary ranks it #1:
+
+> 🏆 Best Model: tf_efficientnetv2_m (89.20%)
+
+And looking at sensitivity:
+- Best sensitivity on pneumonia classes
+- Best balance of precision/recall
+- Best confusion matrix symmetry
+- Smallest drop from validation to test
+
+This matches EfficientNet's known strengths:
+- Better inductive bias
+- More stable gradients
+- Better fine-tuning transfer
+- Multi-scale features, which help with X-ray variability
+
+ConvNeXt models are excellent, but more brittle when dataset is small.
+
+#### 6. What We Can Fully Conclude From This Evaluation
+
+Here is the **clear, correct, high-level interpretation** of the complete evaluation:
+
+**1. All models perform well, between 78–89% accuracy.**
+- No model collapsed or overfit badly
+
+**2. EfficientNetV2-M and L consistently dominate ConvNeXt and RegNet.**
+- Better generalization
+
+**3. Two classes remain clinically hard for every model.**
+- class_0 (bacterial pneumonia)
+- class_4 (viral pneumonia)
+
+Because:
+- High texture similarity
+- Mild symptoms often appear identical in X-ray
+- Dataset is noisy and imbalanced
+
+**4. Sensitivity warnings are expected and correct.**
+- Your evaluation script is working exactly as intended
+
+**5. ConvNeXtV2-Base loses more accuracy in evaluation because it overfits more.**
+- It had the highest validation accuracy but loses almost 2.5% on the test set
+
+**6. RegNetY models are clearly not suitable for this dataset.**
+- Consistent sensitivity collapse on pneumonia classes
+
+**7. Evaluation shows the true generalization ability, not training optimism.**
+- This is the real-world performance
+
+#### 7. What You Should Do Next (Recommended Plan)
+
+If your goal is higher sensitivity (recall) for pneumonia subclasses:
+
+**A. Use model ensembling**
+- Combine EffNetV2-M + V2-L + ConvNeXtV2-Base
+
+**B. Use recall-oriented training**
+- Focal loss
+- Label smoothing
+- Class-balanced loss
+- Weighted cross-entropy
+
+**C. Increase data variance**
+- CLAHE
+- Histogram equalization
+- Stronger augmentation
+- Mixup or CutMix
+
+**D. Improve pneumonia class annotations**
+- This is the biggest bottleneck in many public X-ray datasets
+
+#### 8. Final Summary in One Sentence
+
+Your evaluation log shows that all models generalize well, EfficientNetV2-M performs best, and—consistently across all architectures—bacterial and viral pneumonia remain the hardest classes, causing lower sensitivity and triggering the warnings.
+
+### Training Log Interpretation
+
+This section provides a comprehensive guide to interpreting your training logs and understanding model performance across different architectures.
+
+#### 1. Overall Conclusion
+
+Across 7 models, **ConvNeXtV2 and EfficientNetV2 dominate**, with the absolute best validation accuracy achieved by **convnextv2_base (89.27%)**, but the **best test accuracy comes from EfficientNetV2-M (89.20%)**.
+
+**Key Insight:**
+- **EfficientNetV2-M generalizes better to unseen data than ConvNeXtV2-Base**, even though ConvNeXtV2-Base wins on validation.
+- The differences are small but consistent: EfficientNetV2 models produce **more stable test performance**.
+
+#### 2. Validation vs Test (Generalization Behaviour)
+
+**Validation Leader:**
+| Model               | Val Acc    |
+| ------------------- | ---------- |
+| **ConvNeXtV2-Base** | **89.27%** |
+| ConvNeXtV2-Tiny     | 87.80%     |
+| EffNetV2-L          | 86.92%     |
+| EffNetV2-M          | 86.38%     |
+
+**Test Leader:**
+| Model           | Test Acc   |
+| --------------- | ---------- |
+| **EffNetV2-M**  | **89.20%** |
+| EffNetV2-L      | 88.69%     |
+| ConvNeXtV2-Tiny | 85.36%     |
+| ConvNeXtV2-Base | 86.75%     |
+
+**Key Insight:**
+- ConvNeXtV2-Base has **excellent validation accuracy**, but **noticeable drop on test** (89.27% → 86.75%).
+- EffNetV2-M has slightly lower validation accuracy, but **best test performance**.
+- ➡️ This means **ConvNeXtV2-Base is slightly overfitting your validation set**, while **EffNetV2-M is more robust**.
+
+#### 3. Architecture Ranking and Behavior Summary
+
+**1️⃣ EfficientNetV2-M — Best real-world performance**
+- Very stable training curves
+- Extremely strong on COVID, Tuberculosis, Normal
+- Does not collapse on Bacterial or Viral Pneumonia
+- Test accuracy peaks at **89.20%**
+- Balanced bias/variance behaviour
+
+**2️⃣ EfficientNetV2-L — Second best**
+- Higher capacity model
+- Slightly better than ConvNeXtV2-Base on test
+- Also very stable
+- Nearly identical per-class behaviour to EfficientNet-M
+
+**3️⃣ ConvNeXtV2-Base — Best validation, but worse test**
+- Brilliant backbone, strong feature extraction
+- However: small train/val gap + drop on test
+- Mild overfitting to validation distribution
+- Very high Normal & Tuberculosis, but weaker on Viral Pneumonia
+
+**4️⃣ ConvNeXtV2-Tiny**
+- Stronger than RegNet, weaker than EfficientNetV2-M/L
+- Noticeable drop on test (from ~88 val → 85 test)
+
+**5️⃣–7️⃣ RegNet models**
+- Consistently weaker
+- Low performance on Viral & Bacterial Pneumonia
+- Smaller representational power
+- Expected to underperform compared to modern transformers / hybrid-CNNs
+
+#### 4. What Your Training Curves Say
+
+**A. Stage 1: Freezing the backbone**
+
+All models show:
+- Rapid improvement in the head
+- **No overfitting**
+- Validation improving monotonically
+
+This means:
+- → Your head architecture is perfectly tuned
+- → Image size, batch size, and augmentation are correct
+- → Learning rate 1e-4 for frozen stages is appropriate
+
+**B. Stage 2: Unfreezing the backbone**
+
+Across all models:
+- Training accuracy climbs to ~90–94%
+- Validation improves early, then plateaus
+- Cosine LR decreases too quickly but still works
+- No divergence or instability
+
+This is ideal behaviour:
+- → Backbone low learning rate (5e-6) is correctly chosen
+- → Your head LR (3e-5) is slightly higher, good
+- → No sign of catastrophic forgetting
+
+But some hints of:
+- → Mild overfitting starting around epoch 8–12
+
+You prevent this thanks to early stop and small LR.
+
+#### 5. Per-Class Behaviour (From Test Logs)
+
+Across all models, patterns repeat:
+- **Corona Virus Disease**: easiest class (~95–97% recall)
+- **Tuberculosis**: also very easy (~95–99% recall)
+- **Normal**: almost always >95% recall
+- **Bacterial Pneumonia**: hardest (63–77% recall)
+- **Viral Pneumonia**: second hardest (60–79% recall)
+
+This suggests:
+- → Dataset difficulty is asymmetric
+- → Classes with overlapping radiological appearance (bacterial/viral pneumonia) dominate errors
+- → Better augmentations or class-balanced sampling may help
+
+#### 6. Batch Size Effects
+
+You used:
+- Tiny batch sizes for large models (bs=4–8)
+- Larger batch sizes for tiny models (bs=16–64)
+
+Large models (EffNetV2-L, M) with small batch sizes:
+- Still stable
+- Benefit from high resolution
+
+ConvNeXtV2:
+- Performance slightly improves with larger batch sizes
+- But doesn't generalize as well as EffNetV2-M/L
+
+**Conclusion:**
+- → Small batch sizes are **not hurting** EfficientNet models
+- → ConvNeXtV2 might improve more with larger batch + gradient accumulation
+- → This can be your next optimization
+
+#### 7. Why EffNetV2-M Generalizes the Best
+
+EfficientNetV2 benefits from:
+- **Strong regularization** (stochastic depth, squeeze-excitation, fused MBConv)
+- **Better inductive biases** than pure ConvNeXt
+- Excellent scaling for medium resolution (320x320)
+
+ConvNeXt is more modern, but:
+- Transformer-like convs
+- Larger models may memorize dataset structure
+- Small medical datasets → EffNet family often wins
+
+### Test Results Interpretation
+
+This section provides a comprehensive analysis of test results across all models, revealing which models truly generalize best to unseen data.
+
+#### 1. Final Ranking (Test Accuracy Only)
+
+From comprehensive test evaluation:
+
+| Rank  | Model                   | **Test Accuracy** |
+| ----- | ----------------------- | ----------------- |
+| **1** | **tf_efficientnetv2_m** | **89.20%**        |
+| **2** | tf_efficientnetv2_l     | 88.69%            |
+| **3** | convnextv2_base         | 86.75%            |
+| **4** | convnextv2_tiny         | 85.36%            |
+| **5** | tf_efficientnetv2_s     | 85.11%            |
+| **6** | regnety_006             | 81.12%            |
+| **7** | regnety_004             | 78.51%            |
+
+**Verdict:**
+
+**EfficientNetV2-M is your best model for real-world generalization**
+
+It outperforms ConvNeXtV2-Base and even its bigger sibling EfficientNetV2-L.
+
+This confirms what we suspected from training:
+- ConvNeXtV2-Base overfits slightly to validation
+- EfficientNetV2 models (especially M and L) generalize better
+
+#### 2. Why EfficientNetV2-M Wins
+
+Looking at its classification performance:
+
+**EffNetV2-M per-class recall (from test logs):**
+- **Corona Virus Disease:** 96.55%
+- **Normal:** 95.15%
+- **Tuberculosis:** 97.79%
+- **Viral Pneumonia:** 78.12%
+- **Bacterial Pneumonia:** 76.71%
+
+This is extremely balanced:
+- No collapse in pneumonia classes
+- Excellent performance on all major disease types
+
+**Key strength:**
+
+EffNetV2-M makes **fewer extreme overconfident mistakes** compared to ConvNeXt.
+
+This is critical for medical imaging applications.
+
+#### 3. Why ConvNeXtV2-Base Drops on Test
+
+ConvNeXtV2-Base test accuracy: **86.75%**  
+Validation accuracy: **89.27%**
+
+**This is a strong sign of mild overfitting.**
+
+Look at ConvNeXt's weaknesses:
+- **Viral Pneumonia recall:** 71.88%
+- **Bacterial Pneumonia recall:** 77.26%
+- **Corona Virus recall:** 92.86% (lower than EffNetV2-M)
+
+ConvNeXtV2-Base is **excellent on Normal and Tuberculosis**, but struggles on the subtle pneumonia classes, which are the hardest.
+
+EffNetV2-M handles these better → better test generalization.
+
+#### 4. Architectural Behavior Observed in Test Logs
+
+**EfficientNetV2 Family:**
+- Very consistent results across M and L
+- Extremely high precision/recall on "Normal", "COVID", "TB"
+- More stable across distribution shifts
+- Better inductive biases for medical texture classification
+- Good with small batch sizes (8)
+
+**ConvNeXtV2 Family:**
+- Strong on training/validation
+- Slight drop in unseen data
+- Handles sharp edges & textures well but slightly weaker for subtle pneumonia differences
+- Normal class sometimes over-predicted
+
+**RegNet models:**
+- Struggle heavily with Viral/Bacterial pneumonia
+- Expected due to lower capacity
+- Not ideal for this problem
+
+#### 5. Deeper Interpretation: Class Difficulty
+
+Across **all 7 models**, the same pattern repeats:
+
+**Easiest classes:**
+1. **Tuberculosis** (up to 99%)
+2. **Corona Virus Disease** (~95–97%)
+3. **Normal** (~94–97%)
+
+**Hardest classes:**
+- **Bacterial Pneumonia** (most models: 62–77%)
+- **Viral Pneumonia** (most models: 70–78%)
+
+This reveals:
+
+**→ The dataset has overlapping visual features between:**
+- Bacterial vs viral pneumonia
+- Pneumonia vs normal (mild cases)
+
+Your dataset is **not completely separable** in these classes.
+
+This is the biological reality of chest X-ray interpretation.
+
+EffNetV2 models handle these subtleties better.
+
+#### 6. What You Can Learn From All Logs Together
+
+**1. EfficientNetV2-M is your best model.**
+- Highest test accuracy + most stable behaviour
+
+**2. ConvNeXtV2-Base slightly overfits.**
+- Even though it wins on validation
+
+**3. Bacterial/Viral pneumonia are the bottleneck.**
+- Nearly all misclassification comes from confusion between these two
+
+**4. Your augmentation pipeline is good.**
+- None of the models show chaotic behavior
+
+**5. Training pipeline is stable**
+- No exploding gradients
+- Cosine LR schedule works
+- Two-stage training works
+- LR ratios between head/backbone are correct
+
+**6. Dataset test distribution differs slightly from validation**
+- This is expected for medical datasets
+
+#### 7. What You Should Do Next
+
+These are the **highest-impact improvements** toward breaking **90–91%+** test accuracy.
+
+**A. Use an Ensemble of:**
+1. EfficientNetV2-M
+2. ConvNeXtV2-Base
+
+Soft-voting or average softmax.
+
+**Expected improvement: +1–2% test accuracy.**
+
+**B. Add class-balanced sampling**
+- Especially for pneumonia classes
+
+**C. Use Mixup (0.1) + Cutmix (0.2)**
+- EffNet models respond very well to these
+
+**D. Train longer with cosine schedule**
+- Increase T_max to **30 or 45**
+- Your cosine schedule decays too fast
+
+**E. Try image size 384 for ConvNeXtV2-Base**
+- The model will improve likely **+0.5–1.0%** on pneumonia classes
+
+#### 8. Final Summary (Short & Clear)
+
+- **Best real-world model:** EfficientNetV2-M — 89.20% (Test)
+- **Best validation model:** ConvNeXtV2-Base — 89.27% (Val)
+- **Most balanced class performance:** EfficientNetV2-M
+- **Weakest classes across all models:** Bacterial & Viral Pneumonia
+- **Strongest classes across all models:** TB, COVID, Normal
+- **Pipeline is stable → improvements now rely on augmentations + ensembles + LR tuning**
+
+#### 9. Why Test Results Differ from Training/Validation
+
+**Yes — it is absolutely normal that test results differ from training/validation results**, and it happens even in perfectly healthy ML pipelines.
+
+Your logs show a *typical* and *expected* pattern for real-world datasets, especially **medical imaging**.
+
+**1. It is normal — and expected — to see differences between val and test**
+
+You observed things like:
+- **ConvNeXtV2-Base:** Val: 89.27% → Test: 86.75%
+- **EfficientNetV2-M:** Val: 86.38% → Test: 89.20%
+
+This happens in every serious project.
+
+The test set represents a **different distribution** from training/validation, so models shift slightly.
+
+**2. The test distribution *is* slightly different (confirmed by your logs)**
+
+Your test log shows class counts:
+```
+True label distribution: [365, 406, 392, 407, 384]  ← Test data
+```
+
+Your train/val split is **not identical**:
+- The test set has a slightly different ratio of Normal / TB / Pneumonia
+- The test set is 1954 images — larger and more diverse
+- The pneumonia classes were more balanced in val, but more varied in test
+
+This small difference is enough to cause:
+- Some models to improve (EffNetV2-M generalizes better)
+- Some models to drop (ConvNeXtV2-Base slightly overfits the val distribution)
+
+This behaviour is perfectly normal.
+
+**3. The validation set is *not the same distribution* as the test set**
+
+This happens because:
+
+**A. Your validation set comes from the same split as training**
+
+Even if random, the images in val and train share:
+- Same hospitals
+- Same devices
+- Same patient demographics
+- Identical augmentations
+- Similar conditions
+
+This makes validation slightly "optimistic."
+
+**B. The test set is more independent**
+
+Your test set may include:
+- Different imaging conditions
+- More diverse pneumonia cases
+- Different brightness/contrast patterns
+- Slightly different disease severity distribution
+- Different class balance
+
+This makes the test set "more realistic."
+
+So, the test performance is **usually lower** or **shifts slightly**, depending on the model.
+
+EfficientNetV2-M *benefits* from this.
+
+ConvNeXtV2-Base *suffers* from this.
+
+**4. Some architectures generalize better than others**
+
+EfficientNetV2 models are designed with:
+- Heavy regularization
+- Squeeze-and-excitation
+- Better inductive biases for texture
+- Better resistance to overfitting
+- Better performance with small batch sizes
+
+ConvNeXtV2 models:
+- Are more modern and very strong
+- But behave slightly more like "transformer-like conv backbones"
+- Which can overfit subtle frequency patterns
+
+This explains why:
+- **Val winner** → ConvNeXtV2-Base
+- **Test winner** → EfficientNetV2-M
+
+Again: totally normal.
+
+**5. Small differences in image size also cause shifts**
+
+Your models use different input sizes:
+- 384×384 (EffNetV2-L)
+- 320×320 (EffNetV2-M)
+- 288×288 (EffNetV2-S)
+- 224×224 (ConvNeXt)
+
+The test set is **resized** accordingly, but:
+- Details are lost differently
+- Pneumonia textures become more or less visible
+- Noise is treated differently
+
+This changes each model's accuracy in predictable ways.
+
+EffNetV2-M at 320×320 happens to hit the sweet spot.
+
+**6. Pneumonia classes are biologically ambiguous**
+
+Your hardest classes are always the same:
+- Bacterial Pneumonia
+- Viral Pneumonia
+
+Across all models, these two are systematically ~10–20% worse than:
+- Normal
+- COVID
+- TB
+
+This is not a mistake — their radiological patterns overlap in real medicine.
+
+So even a perfect model will score differently depending on:
+- The mix of pneumonia cases in test
+- The specific severe or mild cases in test
+- Contrast characteristics of the scan
+
+If test has more "borderline pneumonia," accuracy changes.
+
+**7. Summary — the difference is normal and expected**
+
+**Why the test differs from train/val:**
+
+1. **Different data distribution** — more realistic and broader variation
+2. **Class ratios differ** — slightly more of the harder classes
+3. **Pneumonia is inherently ambiguous** — classification difficulty changes with sample composition
+4. **Architectures generalize differently** — EfficientNetV2 is better at generalizing
+5. **Validation is "optimistic"** — same split as training
+6. **Test is "neutral"** — independent, more variable sample
+
+**What it means:**
+
+- Your pipeline is correct
+- Your models behaved exactly as expected
+- The differences are not a problem — they are useful
+- EfficientNetV2-M is the most robust architecture in your experiment
+
 ### Running Training
 
 #### Local Development
@@ -930,6 +1560,26 @@ The project is fully configured to work in both local development and cloud depl
 
 ### Docker Setup
 
+#### Volume Mount Strategy
+
+The Docker image contains the `projects/` directory at `/workspace/projects`. To preserve access to both the image's projects and your host files, mount your home directory to `/workspace/host` instead of `/workspace`.
+
+**Directory Structure Inside Container:**
+- `/workspace/projects` → Projects from Dockerfile image (always available)
+- `/workspace/host` → Your host home directory (mounted from `$HOME`)
+
+#### Running the Container
+
+**Option 1: Using the Run Script (Recommended)**
+
+From the repository root:
+
+```bash
+./run_container.sh
+```
+
+**Option 2: Manual Docker Run**
+
 Run the training in a Docker container with GPU support:
 
 ```bash
@@ -939,14 +1589,62 @@ docker run -it --runtime=nvidia \
   -e KAGGLE_KEY=$KAGGLE_KEY \
   -e WANDB_API_KEY=$WANDB_API_KEY \
   -e HOME=/workspace \
-  -v $HOME:/workspace \
+  -v $HOME:/workspace/host \
   ghcr.io/behnamasadi/kaggle-projects:latest
 ```
 
-Then inside the container:
+**Alternative: Using --gpus all**
+
+If your system supports it:
 
 ```bash
+docker run -it --gpus all \
+  --entrypoint bash \
+  -e KAGGLE_USERNAME=$KAGGLE_USERNAME \
+  -e KAGGLE_KEY=$KAGGLE_KEY \
+  -e WANDB_API_KEY=$WANDB_API_KEY \
+  -e HOME=/workspace \
+  -v $HOME:/workspace/host \
+  ghcr.io/behnamasadi/kaggle-projects:latest
+```
+
+#### Running Training Inside Container
+
+Once inside the container, navigate to the project and run training:
+
+```bash
+# Access the project from the Docker image
+cd /workspace/projects/Lung_Disease_Dataset
+
+# Run training
 python scripts/train.py --config configs/train_runpod.yaml
+```
+
+**Note:** The project is already available at `/workspace/projects/Lung_Disease_Dataset` from the Docker image. You don't need to copy it from your host.
+
+#### Accessing Host Files
+
+If you need to access files from your host machine:
+
+```bash
+# Your host files are available at /workspace/host
+ls /workspace/host
+
+# Copy files from host to project
+cp /workspace/host/my_data.csv /workspace/projects/Lung_Disease_Dataset/data/
+```
+
+#### Verifying Docker Image Contents
+
+After building your Docker image, you can verify the projects directory size inside the container:
+
+```bash
+# Run container without mounts to see image contents
+docker run -it --entrypoint bash ghcr.io/behnamasadi/kaggle-projects:latest
+
+# Inside the container, check the size of the projects directory
+cd /workspace/projects
+du -sh .  # Human-readable size of the current directory
 ```
 
 ### Environment Variables

@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y \
     git wget unzip ffmpeg libgl1 libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
+# Set working directory to /workspace
 WORKDIR /workspace
 
 # Reinstall PyTorch from pip to get broader CUDA kernel support
@@ -18,6 +19,9 @@ RUN pip uninstall -y torch torchvision torchaudio 2>/dev/null || true && \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy projects to /workspace/projects (from Dockerfile image)
+# When running with -v $HOME:/workspace/host, this directory remains visible
+# and your host home directory is accessible at /workspace/host
 COPY projects/ projects/
 
 ENTRYPOINT ["sleep", "infinity"]
