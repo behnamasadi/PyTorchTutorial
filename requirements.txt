@@ -12,3 +12,5 @@ tensorboard
 wandb
 kagglehub
 optree>=0.13.0
+monai[all]
+pydantic>=2.0,<2.12

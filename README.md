@@ -73,34 +73,6 @@ git clone git@github.com:behnamasadi/PyTorchTutorial.git
 ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTutorial/src
 ```
 
-## Docker Image
-
-A pre-built Docker image containing the Kaggle projects is available on GitHub Container Registry (GHCR). This image is built from the project root directory using the workflow defined in [`.github/workflows/ghcr.yml`](.github/workflows/ghcr.yml).
-
-**Package:** [ghcr.io/behnamasadi/kaggle-projects](https://github.com/behnamasadi/PyTorchTutorial/pkgs/container/kaggle-projects)
-
-### Pull and Run the Image
-
-```bash
-# Pull the latest image
-docker pull ghcr.io/behnamasadi/kaggle-projects:latest
-
-# Run the container interactively
-docker run -it --gpus all ghcr.io/behnamasadi/kaggle-projects:latest
-
-# Or run with volume mounts for data/experiments
-docker run -it --gpus all \
-  -v /path/to/your/data:/workspace/data \
-  -v /path/to/your/outputs:/workspace/outputs \
-  ghcr.io/behnamasadi/kaggle-projects:latest
-```
-
-The image is based on `pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime` and includes:
-- All dependencies from `requirements.txt`
-- The complete `projects/` directory with Kaggle project code
-- CUDA support for GPU acceleration
-
-For more details on using this image with cloud platforms like RunPod, see [Running Your PyTorch Projects on RunPod Using a Single Docker Image and GHCR](infrastructure_and_best_practices/runpod-ghcr.ipynb).
 
 ## [**PyTorch Fundamentals**](#)
 
@@ -181,10 +153,8 @@ For more details on using this image with cloud platforms like RunPod, see [Runn
 - [Semantic, Instance, and Panoptic Segmentation](segmentation/index.ipynb)
     -[Panoptic Architectures](segmentation/index.ipynb)
 - [U-Net](segmentation/unet.ipynb)
-- [nnU-Net](segmentation/nnunet.ipynb)  
 - [DeepLab](segmentation/deeplab.ipynb)
-- [MONAI](segmentation/monai.ipynb)  
-- [SAM 2](segmentation/SAM2.ipynb)
+- [SAM 3](segmentation/SAM3.ipynb)
 - [Saliency Detection](segmentation/saliency_detection.ipynb)
 
 ---
@@ -198,6 +168,13 @@ For more details on using this image with cloud platforms like RunPod, see [Runn
 - [RetinaNet](object_detection/retinanet.ipynb)
 - [DETR](object_detection/detr.ipynb)
 - [Mask R-CNN - Instance segmentation + detection](object_detection/mask_rcnn.ipynb)
+
+---
+
+## [**Medical Imaging**](#)
+
+- [MONAI (Medical Open Network for AI)](medical_imaging/monai.ipynb)
+- [nnU-Net (Biomedical Image Segmentation)](medical_imaging/nnunet.ipynb)
 
 ---
 
