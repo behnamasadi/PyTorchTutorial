@@ -908,8 +908,12 @@ def train_single_model(config_path: Path, device: str | None, model_name: str | 
             f"  Loss: CrossEntropyLoss with label_smoothing={label_smoothing}")
     else:
         print(f"  Loss: CrossEntropyLoss")
-    ckpt_path = settings["output_dir"] / "best_model.pth"
-    last_model_path = settings["output_dir"] / "last_model.pth"
+    # Use model-specific checkpoint names
+    model_name = settings["model_name"]
+    ckpt_path = settings["output_dir"] / \
+        f"{model_name}-training_best_model.pth"
+    last_model_path = settings["output_dir"] / \
+        f"{model_name}-training_last_model.pth"
 
     # Initialize logging
     monitoring_cfg = settings.get("monitoring", {})

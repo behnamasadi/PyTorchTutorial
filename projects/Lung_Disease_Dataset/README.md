@@ -79,50 +79,153 @@ The script automatically detects which method to use and provides clear status m
 | **RegNetY-4GF** | CNN | ImageNet weights | Final classifier only | Transfer Learning | AdamW |
 | **RegNetY-8GF** | CNN | ImageNet weights | Final classifier only | Transfer Learning | AdamW |
 
-### **Medical Fine-Tuning Strategy**
+### **Medical Fine-Tuning Strategy - Detailed Training Logic**
 
-Since medical images (chest X-rays) are fundamentally different from ImageNet natural images, this project uses a **two-stage medical fine-tuning policy** - the most standard approach in medical imaging:
+Since medical images (chest X-rays) are fundamentally different from ImageNet natural images, this project uses a **two-stage medical fine-tuning policy** - the most standard approach in medical imaging.
+
+#### **Training Flow Overview**
+
+The training process follows this sequence:
+
+```
+1. Load pre-trained model (ImageNet weights)
+2. Replace classifier head with custom head for 5 classes
+3. Stage 1: Freeze backbone, train only head
+4. Stage 2: Unfreeze backbone, train entire model with differential learning rates
+5. Save best checkpoint based on validation accuracy
+```
 
 #### **Stage 1 - Freeze Backbone, Train Classifier Only**
 
-```python
-# Freeze the entire backbone
-freeze(backbone)
-
-# Train only the classifier head
-train(classifier_head)
-
-# Training parameters:
-# - Epochs: 3-10
-# - Learning rate: 1e-3 or 1e-4
+**Configuration (from `train_runpod.yaml`):**
+```yaml
+stage1:
+  enabled: true
+  freeze_backbone: true
+  epochs: 5
+  learning_rate: 1e-4
 ```
+
+**What Happens:**
+1. **Parameter Freezing**: All backbone parameters are frozen (`requires_grad=False`)
+   - Only the classifier head remains trainable
+   - Typically ~1-5% of total parameters are trainable
+   
+2. **Optimizer**: Uses **Adam** optimizer
+   - Simple optimizer sufficient for small number of parameters
+   - Single learning rate: `1e-4` (0.0001)
+   - No learning rate scheduling (constant LR)
+
+3. **Training Process**:
+   - Runs for 5 epochs (configurable)
+   - Only head parameters are updated
+   - Backbone features remain frozen (preserves ImageNet knowledge)
 
 **Purpose:** 
 - Initialize the classifier with task-specific features
 - Prevent early overfitting to medical domain specifics
 - Stabilize training before fine-tuning the backbone
+- Quick warm-up phase (typically 5-10 epochs)
 
-#### **Stage 2 - Unfreeze Backbone, End-to-End Training**
-
-```python
-# Unfreeze the entire model
-unfreeze(backbone)
-
-# Train entire model end-to-end
-train(entire_model)
-
-# Training parameters:
-# - Epochs: 10-50
-# - Learning rate: 1e-5 or 3e-5 (much lower!)
-# - Learning rate schedule: Cosine annealing or ReduceLROnPlateau
+**Example Output:**
 ```
+➡️  Stage 1: Freezing backbone
+  Trainable parameters: 165,120 / 28,000,000 (0.59%)
+  Optimizer: Adam with lr=1.00e-04
+Stage 1 | Epoch 1/5 | Train Loss 1.2345 Acc 45.23% | Val Loss 0.9876 Acc 52.34% | LR 1.00e-04
+...
+```
+
+#### **Stage 2 - Unfreeze Backbone, End-to-End Training with Differential Learning Rates**
+
+**Configuration (from `train_runpod.yaml`):**
+```yaml
+stage2:
+  enabled: true
+  freeze_backbone: false
+  epochs: 15
+  learning_rate: 3e-5  # Base LR (used for head if head_lr not specified)
+  head_lr: 3e-5        # Head learning rate
+  backbone_lr: 5e-6    # Backbone LR (6x smaller to preserve pretrained features)
+  early_stop_patience: 5
+  lr_schedule: "cosine"
+  lr_schedule_params:
+    T_max: 15
+    eta_min: 1e-7
+```
+
+**What Happens:**
+1. **Parameter Unfreezing**: All parameters become trainable
+   - Backbone: ~95-99% of parameters
+   - Head: ~1-5% of parameters
+   - All parameters now participate in gradient updates
+
+2. **Optimizer**: Uses **AdamW** optimizer with **differential learning rates**
+   - **Backbone LR**: `5e-6` (0.000005) - Very small to preserve ImageNet features
+   - **Head LR**: `3e-5` (0.00003) - 6x larger than backbone
+   - **Weight Decay**: 0.01 (regularization)
+   
+   **Why Differential Learning Rates?**
+   - Pre-trained backbone features are valuable and should change slowly
+   - Head needs to adapt faster to the new task
+   - Prevents "catastrophic forgetting" of ImageNet knowledge
+   - Standard practice in transfer learning
+
+3. **Learning Rate Scheduling**: **Cosine Annealing**
+   - Starts at configured LR (3e-5 for head, 5e-6 for backbone)
+   - Gradually decreases following cosine curve
+   - Reaches minimum LR (`eta_min=1e-7`) at the end
+   - Formula: `lr(t) = eta_min + (lr_initial - eta_min) * (1 + cos(π * t / T_max)) / 2`
+   - `T_max=15` (number of epochs)
+
+4. **Early Stopping**: Monitors validation loss
+   - Stops if no improvement for 5 consecutive epochs
+   - Prevents overfitting
+   - Only active in Stage 2 (not Stage 1)
+
+5. **Checkpoint Saving**: 
+   - Saves checkpoint whenever validation accuracy improves
+   - Checkpoint format: `{model_name}-training_best_model.pth`
+   - Contains: `state_dict`, `epoch`, `val_accuracy`, `stage`
 
 **Purpose:**
 - Adapt pre-trained ImageNet features to medical domain
 - Fine-tune low-level features (edges, textures) for medical patterns
 - Achieve better domain-specific feature representation
+- Balance between adaptation and preservation of pre-trained knowledge
 
-**Why Two-Stage Training?**
+**Example Output:**
+```
+➡️  Stage 2: Unfreezing backbone
+  Trainable parameters: 28,000,000 / 28,000,000 (100.00%)
+  Optimizer: AdamW with separate LRs
+    Backbone LR: 5.00e-06 (27,835,000 params)
+    Head LR: 3.00e-05 (165,120 params)
+Stage 2 | Epoch 1/15 | Train Loss 0.8234 Acc 72.45% | Val Loss 0.7123 Acc 78.90% | LR 3.00e-05
+💾 Saved new best checkpoint (Val Acc 78.90%)
+...
+⏹️  Early stopping triggered: No improvement in val loss for 5 epochs
+   Best val loss: 0.6543, Best val acc: 84.47%
+```
+
+#### **Complete Training Configuration**
+
+**Default Settings (from `train_runpod.yaml`):**
+
+| Setting | Stage 1 | Stage 2 |
+|---------|---------|---------|
+| **Epochs** | 5 | 15 |
+| **Backbone** | Frozen | Unfrozen |
+| **Optimizer** | Adam | AdamW |
+| **Learning Rate** | 1e-4 (single) | Head: 3e-5, Backbone: 5e-6 |
+| **LR Schedule** | None (constant) | Cosine Annealing |
+| **Weight Decay** | 0 | 0.01 |
+| **Early Stopping** | Disabled | Enabled (patience=5) |
+| **Loss Function** | CrossEntropyLoss with label_smoothing=0.1 | Same |
+
+**Total Training Time**: ~20 epochs (5 + 15), but may stop earlier due to early stopping
+
+#### **Why Two-Stage Training?**
 
 Medical images (X-rays, CT scans, MRIs) have fundamentally different characteristics than natural images:
 - **Different textures**: Medical images have distinct patterns (bone structures, soft tissues, anomalies)
@@ -130,10 +233,207 @@ Medical images (X-rays, CT scans, MRIs) have fundamentally different characteris
 - **Different scales**: Medical anomalies can be subtle and require fine-grained feature learning
 - **Domain gap**: Large gap between natural and medical images requires gradual adaptation
 
+**Benefits of Two-Stage Approach:**
+1. **Stability**: Stage 1 stabilizes the classifier before fine-tuning
+2. **Preservation**: Differential LRs in Stage 2 preserve valuable ImageNet features
+3. **Efficiency**: Faster convergence than training from scratch
+4. **Robustness**: Less prone to overfitting on small medical datasets
+
 This two-stage approach is the **universal "medical fine-tuning" recipe** used in:
 - Medical imaging research papers
 - Clinical deployment pipelines
 - FDA-approved medical AI systems
+
+#### **Learning Rate Strategy Details**
+
+**Stage 1 - Single Learning Rate:**
+- All trainable parameters (head only) use the same LR: `1e-4`
+- Simple and effective for small parameter set
+- No scheduling needed (short training phase)
+
+**Stage 2 - Differential Learning Rates:**
+- **Backbone LR** (`5e-6`): 6x smaller than head LR
+  - Protects pre-trained ImageNet features
+  - Allows gradual adaptation to medical domain
+  - Prevents catastrophic forgetting
+  
+- **Head LR** (`3e-5`): 6x larger than backbone LR
+  - Allows faster adaptation to new task
+  - Head is randomly initialized, needs more learning
+  - Can change more aggressively
+
+**Ratio**: Head LR / Backbone LR = 6:1 (configurable)
+
+**Cosine Annealing Schedule:**
+- Starts at initial LR values
+- Smoothly decreases following cosine curve
+- Reaches `eta_min=1e-7` at epoch 15
+- Provides smooth convergence without sudden drops
+
+#### **Checkpoint Management**
+
+**Checkpoint Naming:**
+- Best model: `{model_name}-training_best_model.pth`
+- Last model: `{model_name}-training_last_model.pth`
+- Example: `tf_efficientnetv2_s-training_best_model.pth`
+
+**Checkpoint Contents:**
+```python
+{
+    'stage': 'Stage 2',
+    'epoch': 12,
+    'val_accuracy': 0.8447,
+    'state_dict': {...}  # Model weights
+}
+```
+
+**Saving Strategy:**
+- Best checkpoint: Saved whenever validation accuracy improves
+- Last checkpoint: Saved at the end of training (final epoch)
+- Both uploaded to wandb as artifacts with model-specific names
+
+#### **Loss Function & Regularization**
+
+**CrossEntropyLoss with Label Smoothing:**
+```yaml
+loss:
+  name: "CrossEntropyLoss"
+  label_smoothing: 0.1
+```
+
+**Label Smoothing (0.1):**
+- Prevents overconfident predictions
+- Improves generalization on medical datasets
+- Reduces overfitting to training data
+- Standard practice for medical AI (especially with limited data)
+
+**How it works:**
+- Instead of hard labels [0, 0, 1, 0, 0], uses soft labels [0.025, 0.025, 0.9, 0.025, 0.025]
+- Smoothing factor: 0.1 (10% of probability mass redistributed)
+- Formula: `soft_label = (1 - smoothing) * hard_label + smoothing / num_classes`
+
+#### **Training Loop Details**
+
+**Per Epoch:**
+1. **Training Phase:**
+   - Model set to `train()` mode
+   - Iterate through training batches
+   - Forward pass → Compute loss → Backward pass → Optimizer step
+   - Track training loss and accuracy
+
+2. **Validation Phase:**
+   - Model set to `eval()` mode
+   - Iterate through validation batches (no gradients)
+   - Compute validation loss and accuracy
+   - Used for:
+     - Early stopping decisions
+     - Best checkpoint selection
+     - Learning rate scheduling (if using ReduceLROnPlateau)
+
+3. **Learning Rate Update:**
+   - **Cosine Annealing**: Updated every epoch based on cosine schedule
+   - **ReduceLROnPlateau**: Updated only when validation loss plateaus
+   - Current LR logged to TensorBoard, wandb, and MLflow
+
+4. **Checkpoint Management:**
+   - If validation accuracy improved → Save best checkpoint
+   - Checkpoint includes: model state, epoch, validation accuracy, stage name
+   - Upload to wandb as artifact (with model-specific naming)
+
+5. **Early Stopping Check (Stage 2 only):**
+   - Monitor validation loss
+   - If no improvement for `patience` epochs → Stop training
+   - Prevents overfitting and saves compute time
+
+6. **Logging:**
+   - Metrics logged to TensorBoard, wandb, and MLflow
+   - Separate metrics for Stage 1 and Stage 2
+   - Includes: train_loss, train_acc, val_loss, val_acc, learning_rate
+
+#### **Training Configuration Summary**
+
+**Complete Training Pipeline:**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ 1. Load Pre-trained Model (ImageNet weights)                │
+│    - Replace classifier head for 5 classes                   │
+│    - Custom head: AdaptiveAvgPool2d → LayerNorm →           │
+│                   Dropout(0.3) → Linear(128) →              │
+│                   ReLU → Dropout(0.25) → Linear(5)          │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│ 2. Stage 1: Freeze Backbone (5 epochs)                      │
+│    - Freeze: All backbone parameters                        │
+│    - Train: Only classifier head                            │
+│    - Optimizer: Adam (lr=1e-4)                             │
+│    - LR Schedule: None (constant)                          │
+│    - Early Stopping: Disabled                               │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│ 3. Stage 2: Unfreeze Backbone (15 epochs, early stop)       │
+│    - Freeze: None (all parameters trainable)                │
+│    - Optimizer: AdamW with differential LRs                 │
+│      • Backbone LR: 5e-6 (preserve ImageNet features)       │
+│      • Head LR: 3e-5 (faster adaptation)                   │
+│    - LR Schedule: Cosine Annealing                          │
+│      • T_max: 15 epochs                                     │
+│      • eta_min: 1e-7                                        │
+│    - Early Stopping: Enabled (patience=5)                   │
+│    - Weight Decay: 0.01 (regularization)                   │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│ 4. Save Checkpoints                                          │
+│    - Best: {model}-training_best_model.pth                  │
+│    - Last: {model}-training_last_model.pth                  │
+│    - Upload to wandb with model-specific names              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### **Key Training Parameters**
+
+| Parameter | Stage 1 | Stage 2 | Purpose |
+|-----------|---------|---------|---------|
+| **Epochs** | 5 | 15 | Training duration |
+| **Trainable Params** | ~0.6% | 100% | Which parameters update |
+| **Optimizer** | Adam | AdamW | Optimization algorithm |
+| **Backbone LR** | N/A (frozen) | 5e-6 | Preserve ImageNet features |
+| **Head LR** | 1e-4 | 3e-5 | Adapt to new task |
+| **LR Ratio** | N/A | 6:1 (head:backbone) | Differential learning |
+| **LR Schedule** | None | Cosine | Smooth convergence |
+| **Weight Decay** | 0 | 0.01 | Regularization |
+| **Early Stopping** | No | Yes (patience=5) | Prevent overfitting |
+| **Label Smoothing** | 0.1 | 0.1 | Improve generalization |
+
+#### **Why This Configuration Works**
+
+1. **Stage 1 (Freeze + Low LR)**: 
+   - Stabilizes classifier without disrupting backbone
+   - Quick warm-up (5 epochs)
+   - Prevents early overfitting
+
+2. **Stage 2 (Differential LRs)**:
+   - Backbone changes slowly (5e-6) → Preserves ImageNet knowledge
+   - Head changes faster (3e-5) → Adapts to medical task
+   - 6:1 ratio is optimal for medical transfer learning
+
+3. **Cosine Annealing**:
+   - Smooth LR decay prevents sudden drops
+   - Helps model converge to better local minima
+   - Standard for fine-tuning scenarios
+
+4. **Early Stopping**:
+   - Prevents overfitting on small medical datasets
+   - Saves compute time
+   - Model typically peaks around epoch 7-13
+
+5. **Label Smoothing**:
+   - Critical for medical datasets (often limited data)
+   - Reduces overconfidence
+   - Improves calibration of predictions
 
 ### **Grayscale Image Handling**
 
@@ -360,6 +660,99 @@ This makes `lung_disease_dataset` importable from anywhere, and any changes to s
 
 ## Training & Monitoring
 
+### Quick Start - Running Scripts
+
+All scripts can be run with default parameters. Navigate to the `scripts/` directory first:
+
+```bash
+cd scripts
+```
+
+#### Training
+
+Train a model with default settings (uses `train_runpod.yaml` config):
+
+```bash
+python train.py
+```
+
+Train a specific model:
+
+```bash
+python train.py --config ../configs/train_runpod.yaml
+```
+
+Train with custom device:
+
+```bash
+python train.py --device cuda:0
+```
+
+#### Testing
+
+**Process all available trained models** (automatically detects and processes all trained checkpoints):
+
+```bash
+python test.py
+```
+
+Test a specific model:
+
+```bash
+python test.py --model convnextv2_base
+```
+
+Test with custom config:
+
+```bash
+python test.py --config ../configs/eval.yaml --model tf_efficientnetv2_m
+```
+
+#### Comprehensive Evaluation
+
+**Process all available trained models** (automatically detects and processes all trained checkpoints):
+
+```bash
+python evaluate.py
+```
+
+This will:
+- Scan the checkpoints directory for all trained models
+- Process each model sequentially
+- Generate a summary comparison at the end showing which model performed best
+
+Evaluate a specific model:
+
+```bash
+python evaluate.py --model convnextv2_base
+```
+
+Generate detailed analysis with visualizations:
+
+```bash
+python evaluate.py --model tf_efficientnetv2_s --detailed
+```
+
+Compare multiple models (when processing all models, comparison is automatic):
+
+```bash
+python evaluate.py --model tf_efficientnetv2_s --compare
+```
+
+Run medical AI validation checks:
+
+```bash
+python evaluate.py --model tf_efficientnetv2_s --medical-validation
+```
+
+**Note:** All scripts automatically:
+- **Process all available models** when `--model` is not specified (scans for `{model}-training_best_model.pth` files)
+- Find checkpoints with model-specific naming (`{model}-training_best_model.pth`)
+- Extract model names from checkpoint filenames for accurate wandb reporting
+- Load model configurations from `configs/model.yaml`
+- Use appropriate image sizes and batch sizes for each model
+- Show a summary comparison when processing multiple models
+
 ### Running Training
 
 #### Local Development
@@ -367,8 +760,8 @@ This makes `lung_disease_dataset` importable from anywhere, and any changes to s
 For local development with smaller GPUs (e.g., 3-8GB VRAM):
 
 ```bash
-cd /path/to/Lung_Disease_Dataset
-python scripts/train.py --config configs/train_local.yaml
+cd scripts
+python train.py --config ../configs/train_local.yaml
 ```
 
 **Features:**
@@ -382,7 +775,8 @@ python scripts/train.py --config configs/train_local.yaml
 For cloud GPUs with more VRAM (e.g., RTX 5090 with 32GB):
 
 ```bash
-python scripts/train.py --config configs/train_runpod.yaml
+cd scripts
+python train.py --config ../configs/train_runpod.yaml
 ```
 
 **Features:**
@@ -395,7 +789,8 @@ python scripts/train.py --config configs/train_runpod.yaml
 If no config is specified, the script uses `train_runpod.yaml` by default:
 
 ```bash
-python scripts/train.py  # Uses train_runpod.yaml
+cd scripts
+python train.py  # Uses train_runpod.yaml
 ```
 
 #### Custom Configuration
@@ -403,7 +798,8 @@ python scripts/train.py  # Uses train_runpod.yaml
 Specify a custom config file:
 
 ```bash
-python scripts/train.py --config configs/train_local.yaml --device cuda:0
+cd scripts
+python train.py --config ../configs/train_local.yaml --device cuda:0
 ```
 
 ### Environment-Specific Batch Sizes
@@ -600,3 +996,59 @@ The project includes environment-specific configuration files:
   - Optimized for RTX 5090 (32GB VRAM) and similar GPUs
 
 Both configs share the same training strategy and hyperparameters, only batch sizes and data loading settings differ.
+
+### Script Defaults Summary
+
+| Script | Default Config | Default Model | Can Run Without Args? |
+|--------|---------------|---------------|----------------------|
+| `train.py` | `configs/train_runpod.yaml` | From config file | ✅ Yes |
+| `test.py` | `configs/eval.yaml` | All available models (if `--model` not specified) | ✅ Yes |
+| `evaluate.py` | `configs/eval.yaml` | All available models (if `--model` not specified) | ✅ Yes |
+
+**Examples:**
+```bash
+cd scripts
+
+# All work with defaults
+python train.py
+# Process all available trained models
+python test.py
+python evaluate.py
+
+# Or specify a specific model
+python test.py --model convnextv2_base
+python evaluate.py --model tf_efficientnetv2_m --detailed
+
+# Or specify model/config
+python test.py --model convnextv2_base
+python evaluate.py --model tf_efficientnetv2_m --detailed
+```
+
+### Available Models
+
+The following models are available for training and evaluation:
+
+- `convnextv2_tiny` - ConvNeXtV2-Tiny (224x224 input)
+- `convnextv2_base` - ConvNeXtV2-Base (224x224 input)
+- `tf_efficientnetv2_s` - EfficientNetV2-Small (288x288 input)
+- `tf_efficientnetv2_m` - EfficientNetV2-Medium (320x320 input)
+- `tf_efficientnetv2_l` - EfficientNetV2-Large (384x384 input)
+- `regnety_004` - RegNetY-4GF (224x224 input)
+- `regnety_006` - RegNetY-8GF (224x224 input)
+
+### Model Checkpoints
+
+Trained models are saved with model-specific naming:
+- Best model: `{model_name}-training_best_model.pth`
+- Last model: `{model_name}-training_last_model.pth`
+
+Example: `tf_efficientnetv2_s-training_best_model.pth`, `convnextv2_base-training_best_model.pth`
+
+Checkpoints are stored in the `checkpoints/` directory. Both `test.py` and `evaluate.py` automatically find checkpoints using this naming convention.
+
+**Processing Multiple Models:** When you run `test.py` or `evaluate.py` without the `--model` argument, the scripts will:
+1. Automatically scan the checkpoints directory for all trained models
+2. Process each model sequentially
+3. For `evaluate.py`, display a summary comparison at the end showing which model performed best
+
+This makes it easy to evaluate all your trained models at once and compare their performance.

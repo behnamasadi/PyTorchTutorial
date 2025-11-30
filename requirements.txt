@@ -11,3 +11,4 @@ tqdm
 tensorboard
 wandb
 kagglehub
+optree>=0.13.0
