@@ -132,6 +132,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Padding, Stride, Dilation](conv/cross_correlation_convolution.ipynb#4.Shape-of-the-Convolution-Output)
 - [Pooling (Max, Average, Adaptive), Order of Relu and  Max Pooling](pooling/index.ipynb)
 - [Feature Map](conv/cross_correlation_convolution.ipynb#8.-Feature-Map)
+- [Convolution is translation-Equivariant, not Translation-Invariant](conv/cross_correlation_convolution.ipynb#11.-Convolution-is-translation-Equivariant,-not-Translation-Invariant)
 
 ---
 
@@ -144,8 +145,9 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [RegNet](cnn_architectures/regnet.ipynb)
 - [EfficientNet](cnn_architectures/efficientnet.ipynb)
 - [MobileNet](cnn_architectures/mobilenet.ipynb)
-- [ConvNeXt](cnn_architectures/)
-
+- [ConvNeXt](cnn_architectures/convnext.ipynb)
+- [DenseNet](cnn_architectures/densenet.ipynb)
+- [Inception](cnn_architectures/inception.ipynb)
 ---
 
 #### [**Image Segmentation**](#)
@@ -226,6 +228,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Double Descent](bias_variance_tradeoff_double_descent/index.ipynb)
 - [Receptive Field](receptive_field/index.ipynb)
 - [Universal Approximation Theorem](universal_approximation_theorem/index.ipynb)
+- [Degrading Problem in Deep Learning](degrading/index.ipynb)
 
 ---
 
