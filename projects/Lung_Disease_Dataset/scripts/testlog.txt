@@ -1,0 +1,660 @@
+🫁 Processing 7 trained model(s): tf_efficientnetv2_l, tf_efficientnetv2_m, convnextv2_base, convnextv2_tiny, regnety_004, tf_efficientnetv2_s, regnety_006
+
+
+============================================================
+Processing: tf_efficientnetv2_l
+============================================================
+
+🫁 **Lung Disease Dataset Model Evaluation**
+==================================================
+📋 Model: tf_efficientnetv2_l
+📋 Classes: 5
+🖼️  Using model-specific image size: 384x384
+🔍 Dataset path: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/data/test
+🔍 Image size: 384
+🔍 Batch size: 4
+🔍 Num workers: 4
+🔍 Looking for tf_efficientnetv2_l checkpoint in: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_l_outputs
+🔍 Checkpoint paths to try: ['/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_l_outputs/tf_efficientnetv2_l-training_best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_l-training_best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_l_outputs/tf_efficientnetv2_l-training_last_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_l-training_last_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_l_outputs/best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_l_outputs/checkpoint_latest.pth']
+🔍 Checking: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_l_outputs/tf_efficientnetv2_l-training_best_model.pth - Exists: False
+🔍 Checking: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_l-training_best_model.pth - Exists: True
+📂 Loading checkpoint: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_l-training_best_model.pth
+📊 Checkpoint validation accuracy: 86.92%
+🖥️  Using device: cuda
+📊 Using pre-computed normalization: mean=[0.49495694041252136, 0.49495694041252136, 0.49495694041252136], std=[0.24466454982757568, 0.24466454982757568, 0.24466454982757568]
+📊 Test set size: 1954 samples
+📋 Class names: ['Bacterial Pneumonia', 'Corona Virus Disease', 'Normal', 'Tuberculosis', 'Viral Pneumonia']
+🧪 Running inference on test set...
+🔍 Model device: cuda:0
+🔍 Data device: cuda
+🔍 First batch - Data shape: torch.Size([4, 3, 384, 384])
+🔍 First batch - Data range: [-2.0230, 2.0642]
+🔍 First batch - Data mean: 0.3007
+🔍 First batch - Data std: 1.0010
+🔍 First batch - Target distribution: tensor([4], device='cuda:0')
+Processed batch 0/489
+Processed batch 10/489
+Processed batch 20/489
+Processed batch 30/489
+Processed batch 40/489
+Processed batch 50/489
+Processed batch 60/489
+Processed batch 70/489
+Processed batch 80/489
+Processed batch 90/489
+Processed batch 100/489
+Processed batch 110/489
+Processed batch 120/489
+Processed batch 130/489
+Processed batch 140/489
+Processed batch 150/489
+Processed batch 160/489
+Processed batch 170/489
+Processed batch 180/489
+Processed batch 190/489
+Processed batch 200/489
+Processed batch 210/489
+Processed batch 220/489
+Processed batch 230/489
+Processed batch 240/489
+Processed batch 250/489
+Processed batch 260/489
+Processed batch 270/489
+Processed batch 280/489
+Processed batch 290/489
+Processed batch 300/489
+Processed batch 310/489
+Processed batch 320/489
+Processed batch 330/489
+Processed batch 340/489
+Processed batch 350/489
+Processed batch 360/489
+Processed batch 370/489
+Processed batch 380/489
+Processed batch 390/489
+Processed batch 400/489
+Processed batch 410/489
+Processed batch 420/489
+Processed batch 430/489
+Processed batch 440/489
+Processed batch 450/489
+Processed batch 460/489
+Processed batch 470/489
+Processed batch 480/489
+🔍 Prediction distribution: [365 383 392 413 401]
+🔍 True label distribution: [365 406 392 407 384]
+
+📊 **Test Set Accuracy: 0.8869 (88.69%)**
+
+📋 **Classification Report:**
+                      precision    recall  f1-score   support
+
+ Bacterial Pneumonia     0.7699    0.7699    0.7699       365
+Corona Virus Disease     0.9791    0.9236    0.9506       406
+              Normal     0.9464    0.9464    0.9464       392
+        Tuberculosis     0.9782    0.9926    0.9854       407
+     Viral Pneumonia     0.7531    0.7865    0.7694       384
+
+            accuracy                         0.8869      1954
+           macro avg     0.8853    0.8838    0.8843      1954
+        weighted avg     0.8889    0.8869    0.8876      1954
+
+💾 Confusion matrix saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_l_outputs/confusion_matrix.png
+
+🔍 **Per-Class Analysis:**
+  Bacterial Pneumonia: 0.7699 (76.99%) - 365 samples
+  Corona Virus Disease: 0.9236 (92.36%) - 406 samples
+  Normal: 0.9464 (94.64%) - 392 samples
+  Tuberculosis: 0.9926 (99.26%) - 407 samples
+  Viral Pneumonia: 0.7865 (78.65%) - 384 samples
+📄 Detailed report saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_l_outputs/evaluation_report.txt
+📊 Logging test results...
+
+✅ **Evaluation Complete!**
+🎯 Final Test Accuracy: 0.8869 (88.69%)
+📊 MLflow experiment: lung-disease-dataset-test-tf_efficientnetv2_l
+🔮 Wandb project: lung-disease-dataset-test
+
+============================================================
+Processing: tf_efficientnetv2_m
+============================================================
+
+🫁 **Lung Disease Dataset Model Evaluation**
+==================================================
+📋 Model: tf_efficientnetv2_m
+📋 Classes: 5
+🖼️  Using model-specific image size: 320x320
+🔍 Dataset path: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/data/test
+🔍 Image size: 320
+🔍 Batch size: 8
+🔍 Num workers: 4
+🔍 Looking for tf_efficientnetv2_m checkpoint in: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_m_outputs
+🔍 Checkpoint paths to try: ['/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_m_outputs/tf_efficientnetv2_m-training_best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_m-training_best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_m_outputs/tf_efficientnetv2_m-training_last_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_m-training_last_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_m_outputs/best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_m_outputs/checkpoint_latest.pth']
+🔍 Checking: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_m_outputs/tf_efficientnetv2_m-training_best_model.pth - Exists: False
+🔍 Checking: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_m-training_best_model.pth - Exists: True
+📂 Loading checkpoint: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_m-training_best_model.pth
+📊 Checkpoint validation accuracy: 86.38%
+🖥️  Using device: cuda
+📊 Using pre-computed normalization: mean=[0.49495694041252136, 0.49495694041252136, 0.49495694041252136], std=[0.24466454982757568, 0.24466454982757568, 0.24466454982757568]
+📊 Test set size: 1954 samples
+📋 Class names: ['Bacterial Pneumonia', 'Corona Virus Disease', 'Normal', 'Tuberculosis', 'Viral Pneumonia']
+🧪 Running inference on test set...
+🔍 Model device: cuda:0
+🔍 Data device: cuda
+🔍 First batch - Data shape: torch.Size([8, 3, 320, 320])
+🔍 First batch - Data range: [-2.0230, 2.0642]
+🔍 First batch - Data mean: 0.2034
+🔍 First batch - Data std: 1.0213
+🔍 First batch - Target distribution: tensor([8], device='cuda:0')
+Processed batch 0/245
+Processed batch 10/245
+Processed batch 20/245
+Processed batch 30/245
+Processed batch 40/245
+Processed batch 50/245
+Processed batch 60/245
+Processed batch 70/245
+Processed batch 80/245
+Processed batch 90/245
+Processed batch 100/245
+Processed batch 110/245
+Processed batch 120/245
+Processed batch 130/245
+Processed batch 140/245
+Processed batch 150/245
+Processed batch 160/245
+Processed batch 170/245
+Processed batch 180/245
+Processed batch 190/245
+Processed batch 200/245
+Processed batch 210/245
+Processed batch 220/245
+Processed batch 230/245
+Processed batch 240/245
+🔍 Prediction distribution: [342 404 407 405 396]
+🔍 True label distribution: [365 406 392 407 384]
+
+📊 **Test Set Accuracy: 0.8920 (89.20%)**
+
+📋 **Classification Report:**
+                      precision    recall  f1-score   support
+
+ Bacterial Pneumonia     0.8187    0.7671    0.7921       365
+Corona Virus Disease     0.9703    0.9655    0.9679       406
+              Normal     0.9165    0.9515    0.9337       392
+        Tuberculosis     0.9827    0.9779    0.9803       407
+     Viral Pneumonia     0.7576    0.7812    0.7692       384
+
+            accuracy                         0.8920      1954
+           macro avg     0.8892    0.8887    0.8886      1954
+        weighted avg     0.8920    0.8920    0.8917      1954
+
+💾 Confusion matrix saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_m_outputs/confusion_matrix.png
+
+🔍 **Per-Class Analysis:**
+  Bacterial Pneumonia: 0.7671 (76.71%) - 365 samples
+  Corona Virus Disease: 0.9655 (96.55%) - 406 samples
+  Normal: 0.9515 (95.15%) - 392 samples
+  Tuberculosis: 0.9779 (97.79%) - 407 samples
+  Viral Pneumonia: 0.7812 (78.12%) - 384 samples
+📄 Detailed report saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_m_outputs/evaluation_report.txt
+📊 Logging test results...
+
+✅ **Evaluation Complete!**
+🎯 Final Test Accuracy: 0.8920 (89.20%)
+📊 MLflow experiment: lung-disease-dataset-test-tf_efficientnetv2_m
+🔮 Wandb project: lung-disease-dataset-test
+
+============================================================
+Processing: convnextv2_base
+============================================================
+
+🫁 **Lung Disease Dataset Model Evaluation**
+==================================================
+📋 Model: convnextv2_base
+📋 Classes: 5
+🖼️  Using model-specific image size: 224x224
+🔍 Dataset path: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/data/test
+🔍 Image size: 224
+🔍 Batch size: 8
+🔍 Num workers: 4
+🔍 Looking for convnextv2_base checkpoint in: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_base_outputs
+🔍 Checkpoint paths to try: ['/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_base_outputs/convnextv2_base-training_best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_base-training_best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_base_outputs/convnextv2_base-training_last_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_base-training_last_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_base_outputs/best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_base_outputs/checkpoint_latest.pth']
+🔍 Checking: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_base_outputs/convnextv2_base-training_best_model.pth - Exists: False
+🔍 Checking: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_base-training_best_model.pth - Exists: True
+📂 Loading checkpoint: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_base-training_best_model.pth
+📊 Checkpoint validation accuracy: 89.27%
+🖥️  Using device: cuda
+📊 Using pre-computed normalization: mean=[0.49495694041252136, 0.49495694041252136, 0.49495694041252136], std=[0.24466454982757568, 0.24466454982757568, 0.24466454982757568]
+📊 Test set size: 1954 samples
+📋 Class names: ['Bacterial Pneumonia', 'Corona Virus Disease', 'Normal', 'Tuberculosis', 'Viral Pneumonia']
+🧪 Running inference on test set...
+🔍 Model device: cuda:0
+🔍 Data device: cuda
+🔍 First batch - Data shape: torch.Size([8, 3, 224, 224])
+🔍 First batch - Data range: [-2.0230, 2.0482]
+🔍 First batch - Data mean: 0.2034
+🔍 First batch - Data std: 1.0194
+🔍 First batch - Target distribution: tensor([8], device='cuda:0')
+Processed batch 0/245
+Processed batch 10/245
+Processed batch 20/245
+Processed batch 30/245
+Processed batch 40/245
+Processed batch 50/245
+Processed batch 60/245
+Processed batch 70/245
+Processed batch 80/245
+Processed batch 90/245
+Processed batch 100/245
+Processed batch 110/245
+Processed batch 120/245
+Processed batch 130/245
+Processed batch 140/245
+Processed batch 150/245
+Processed batch 160/245
+Processed batch 170/245
+Processed batch 180/245
+Processed batch 190/245
+Processed batch 200/245
+Processed batch 210/245
+Processed batch 220/245
+Processed batch 230/245
+Processed batch 240/245
+🔍 Prediction distribution: [369 399 437 390 359]
+🔍 True label distribution: [365 406 392 407 384]
+
+📊 **Test Set Accuracy: 0.8675 (86.75%)**
+
+📋 **Classification Report:**
+                      precision    recall  f1-score   support
+
+ Bacterial Pneumonia     0.7642    0.7726    0.7684       365
+Corona Virus Disease     0.9449    0.9286    0.9366       406
+              Normal     0.8673    0.9668    0.9144       392
+        Tuberculosis     0.9769    0.9361    0.9561       407
+     Viral Pneumonia     0.7688    0.7188    0.7429       384
+
+            accuracy                         0.8675      1954
+           macro avg     0.8644    0.8646    0.8637      1954
+        weighted avg     0.8676    0.8675    0.8667      1954
+
+💾 Confusion matrix saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_base_outputs/confusion_matrix.png
+
+🔍 **Per-Class Analysis:**
+  Bacterial Pneumonia: 0.7726 (77.26%) - 365 samples
+  Corona Virus Disease: 0.9286 (92.86%) - 406 samples
+  Normal: 0.9668 (96.68%) - 392 samples
+  Tuberculosis: 0.9361 (93.61%) - 407 samples
+  Viral Pneumonia: 0.7188 (71.88%) - 384 samples
+📄 Detailed report saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_base_outputs/evaluation_report.txt
+📊 Logging test results...
+
+✅ **Evaluation Complete!**
+🎯 Final Test Accuracy: 0.8675 (86.75%)
+📊 MLflow experiment: lung-disease-dataset-test-convnextv2_base
+🔮 Wandb project: lung-disease-dataset-test
+
+============================================================
+Processing: convnextv2_tiny
+============================================================
+
+🫁 **Lung Disease Dataset Model Evaluation**
+==================================================
+📋 Model: convnextv2_tiny
+📋 Classes: 5
+🖼️  Using model-specific image size: 224x224
+🔍 Dataset path: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/data/test
+🔍 Image size: 224
+🔍 Batch size: 16
+🔍 Num workers: 4
+🔍 Looking for convnextv2_tiny checkpoint in: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_tiny_outputs
+🔍 Checkpoint paths to try: ['/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_tiny_outputs/convnextv2_tiny-training_best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_tiny-training_best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_tiny_outputs/convnextv2_tiny-training_last_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_tiny-training_last_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_tiny_outputs/best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_tiny_outputs/checkpoint_latest.pth']
+🔍 Checking: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_tiny_outputs/convnextv2_tiny-training_best_model.pth - Exists: False
+🔍 Checking: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_tiny-training_best_model.pth - Exists: True
+📂 Loading checkpoint: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_tiny-training_best_model.pth
+📊 Checkpoint validation accuracy: 87.80%
+🖥️  Using device: cuda
+📊 Using pre-computed normalization: mean=[0.49495694041252136, 0.49495694041252136, 0.49495694041252136], std=[0.24466454982757568, 0.24466454982757568, 0.24466454982757568]
+📊 Test set size: 1954 samples
+📋 Class names: ['Bacterial Pneumonia', 'Corona Virus Disease', 'Normal', 'Tuberculosis', 'Viral Pneumonia']
+🧪 Running inference on test set...
+🔍 Model device: cuda:0
+🔍 Data device: cuda
+🔍 First batch - Data shape: torch.Size([16, 3, 224, 224])
+🔍 First batch - Data range: [-2.0230, 2.0482]
+🔍 First batch - Data mean: 0.1104
+🔍 First batch - Data std: 1.0371
+🔍 First batch - Target distribution: tensor([16], device='cuda:0')
+Processed batch 0/123
+Processed batch 10/123
+Processed batch 20/123
+Processed batch 30/123
+Processed batch 40/123
+Processed batch 50/123
+Processed batch 60/123
+Processed batch 70/123
+Processed batch 80/123
+Processed batch 90/123
+Processed batch 100/123
+Processed batch 110/123
+Processed batch 120/123
+🔍 Prediction distribution: [350 398 468 393 345]
+🔍 True label distribution: [365 406 392 407 384]
+
+📊 **Test Set Accuracy: 0.8536 (85.36%)**
+
+📋 **Classification Report:**
+                      precision    recall  f1-score   support
+
+ Bacterial Pneumonia     0.7543    0.7233    0.7385       365
+Corona Virus Disease     0.9523    0.9335    0.9428       406
+              Normal     0.8226    0.9821    0.8953       392
+        Tuberculosis     0.9796    0.9459    0.9625       407
+     Viral Pneumonia     0.7391    0.6641    0.6996       384
+
+            accuracy                         0.8536      1954
+           macro avg     0.8496    0.8498    0.8477      1954
+        weighted avg     0.8531    0.8536    0.8514      1954
+
+💾 Confusion matrix saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_tiny_outputs/confusion_matrix.png
+
+🔍 **Per-Class Analysis:**
+  Bacterial Pneumonia: 0.7233 (72.33%) - 365 samples
+  Corona Virus Disease: 0.9335 (93.35%) - 406 samples
+  Normal: 0.9821 (98.21%) - 392 samples
+  Tuberculosis: 0.9459 (94.59%) - 407 samples
+  Viral Pneumonia: 0.6641 (66.41%) - 384 samples
+📄 Detailed report saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_tiny_outputs/evaluation_report.txt
+📊 Logging test results...
+
+✅ **Evaluation Complete!**
+🎯 Final Test Accuracy: 0.8536 (85.36%)
+📊 MLflow experiment: lung-disease-dataset-test-convnextv2_tiny
+🔮 Wandb project: lung-disease-dataset-test
+
+============================================================
+Processing: regnety_004
+============================================================
+
+🫁 **Lung Disease Dataset Model Evaluation**
+==================================================
+📋 Model: regnety_004
+📋 Classes: 5
+🖼️  Using model-specific image size: 224x224
+🔍 Dataset path: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/data/test
+🔍 Image size: 224
+🔍 Batch size: 8
+🔍 Num workers: 4
+🔍 Looking for regnety_004 checkpoint in: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_004_outputs
+🔍 Checkpoint paths to try: ['/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_004_outputs/regnety_004-training_best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_004-training_best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_004_outputs/regnety_004-training_last_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_004-training_last_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_004_outputs/best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_004_outputs/checkpoint_latest.pth']
+🔍 Checking: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_004_outputs/regnety_004-training_best_model.pth - Exists: False
+🔍 Checking: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_004-training_best_model.pth - Exists: True
+📂 Loading checkpoint: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_004-training_best_model.pth
+📊 Checkpoint validation accuracy: 80.70%
+🖥️  Using device: cuda
+📊 Using pre-computed normalization: mean=[0.49495694041252136, 0.49495694041252136, 0.49495694041252136], std=[0.24466454982757568, 0.24466454982757568, 0.24466454982757568]
+📊 Test set size: 1954 samples
+📋 Class names: ['Bacterial Pneumonia', 'Corona Virus Disease', 'Normal', 'Tuberculosis', 'Viral Pneumonia']
+🧪 Running inference on test set...
+🔍 Model device: cuda:0
+🔍 Data device: cuda
+🔍 First batch - Data shape: torch.Size([8, 3, 224, 224])
+🔍 First batch - Data range: [-2.0230, 2.0482]
+🔍 First batch - Data mean: 0.2034
+🔍 First batch - Data std: 1.0194
+🔍 First batch - Target distribution: tensor([8], device='cuda:0')
+Processed batch 0/245
+Processed batch 10/245
+Processed batch 20/245
+Processed batch 30/245
+Processed batch 40/245
+Processed batch 50/245
+Processed batch 60/245
+Processed batch 70/245
+Processed batch 80/245
+Processed batch 90/245
+Processed batch 100/245
+Processed batch 110/245
+Processed batch 120/245
+Processed batch 130/245
+Processed batch 140/245
+Processed batch 150/245
+Processed batch 160/245
+Processed batch 170/245
+Processed batch 180/245
+Processed batch 190/245
+Processed batch 200/245
+Processed batch 210/245
+Processed batch 220/245
+Processed batch 230/245
+Processed batch 240/245
+🔍 Prediction distribution: [330 404 549 399 272]
+🔍 True label distribution: [365 406 392 407 384]
+
+📊 **Test Set Accuracy: 0.7851 (78.51%)**
+
+📋 **Classification Report:**
+                      precision    recall  f1-score   support
+
+ Bacterial Pneumonia     0.7030    0.6356    0.6676       365
+Corona Virus Disease     0.8911    0.8867    0.8889       406
+              Normal     0.6958    0.9745    0.8119       392
+        Tuberculosis     0.9273    0.9091    0.9181       407
+     Viral Pneumonia     0.6985    0.4948    0.5793       384
+
+            accuracy                         0.7851      1954
+           macro avg     0.7832    0.7801    0.7732      1954
+        weighted avg     0.7865    0.7851    0.7774      1954
+
+💾 Confusion matrix saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_004_outputs/confusion_matrix.png
+
+🔍 **Per-Class Analysis:**
+  Bacterial Pneumonia: 0.6356 (63.56%) - 365 samples
+  Corona Virus Disease: 0.8867 (88.67%) - 406 samples
+  Normal: 0.9745 (97.45%) - 392 samples
+  Tuberculosis: 0.9091 (90.91%) - 407 samples
+  Viral Pneumonia: 0.4948 (49.48%) - 384 samples
+📄 Detailed report saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_004_outputs/evaluation_report.txt
+📊 Logging test results...
+
+✅ **Evaluation Complete!**
+🎯 Final Test Accuracy: 0.7851 (78.51%)
+📊 MLflow experiment: lung-disease-dataset-test-regnety_004
+🔮 Wandb project: lung-disease-dataset-test
+
+============================================================
+Processing: tf_efficientnetv2_s
+============================================================
+
+🫁 **Lung Disease Dataset Model Evaluation**
+==================================================
+📋 Model: tf_efficientnetv2_s
+📋 Classes: 5
+🖼️  Using model-specific image size: 288x288
+🔍 Dataset path: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/data/test
+🔍 Image size: 288
+🔍 Batch size: 16
+🔍 Num workers: 4
+🔍 Looking for tf_efficientnetv2_s checkpoint in: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_s_outputs
+🔍 Checkpoint paths to try: ['/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_s_outputs/tf_efficientnetv2_s-training_best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_s-training_best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_s_outputs/tf_efficientnetv2_s-training_last_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_s-training_last_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_s_outputs/best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_s_outputs/checkpoint_latest.pth']
+🔍 Checking: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_s_outputs/tf_efficientnetv2_s-training_best_model.pth - Exists: False
+🔍 Checking: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_s-training_best_model.pth - Exists: True
+📂 Loading checkpoint: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_s-training_best_model.pth
+📊 Checkpoint validation accuracy: 84.47%
+🖥️  Using device: cuda
+📊 Using pre-computed normalization: mean=[0.49495694041252136, 0.49495694041252136, 0.49495694041252136], std=[0.24466454982757568, 0.24466454982757568, 0.24466454982757568]
+📊 Test set size: 1954 samples
+📋 Class names: ['Bacterial Pneumonia', 'Corona Virus Disease', 'Normal', 'Tuberculosis', 'Viral Pneumonia']
+🧪 Running inference on test set...
+🔍 Model device: cuda:0
+🔍 Data device: cuda
+🔍 First batch - Data shape: torch.Size([16, 3, 288, 288])
+🔍 First batch - Data range: [-2.0230, 2.0642]
+🔍 First batch - Data mean: 0.1106
+🔍 First batch - Data std: 1.0384
+🔍 First batch - Target distribution: tensor([16], device='cuda:0')
+Processed batch 0/123
+Processed batch 10/123
+Processed batch 20/123
+Processed batch 30/123
+Processed batch 40/123
+Processed batch 50/123
+Processed batch 60/123
+Processed batch 70/123
+Processed batch 80/123
+Processed batch 90/123
+Processed batch 100/123
+Processed batch 110/123
+Processed batch 120/123
+🔍 Prediction distribution: [324 426 439 393 372]
+🔍 True label distribution: [365 406 392 407 384]
+
+📊 **Test Set Accuracy: 0.8511 (85.11%)**
+
+📋 **Classification Report:**
+                      precision    recall  f1-score   support
+
+ Bacterial Pneumonia     0.7685    0.6822    0.7228       365
+Corona Virus Disease     0.9061    0.9507    0.9279       406
+              Normal     0.8588    0.9617    0.9073       392
+        Tuberculosis     0.9746    0.9410    0.9575       407
+     Viral Pneumonia     0.7204    0.6979    0.7090       384
+
+            accuracy                         0.8511      1954
+           macro avg     0.8457    0.8467    0.8449      1954
+        weighted avg     0.8487    0.8511    0.8486      1954
+
+💾 Confusion matrix saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_s_outputs/confusion_matrix.png
+
+🔍 **Per-Class Analysis:**
+  Bacterial Pneumonia: 0.6822 (68.22%) - 365 samples
+  Corona Virus Disease: 0.9507 (95.07%) - 406 samples
+  Normal: 0.9617 (96.17%) - 392 samples
+  Tuberculosis: 0.9410 (94.10%) - 407 samples
+  Viral Pneumonia: 0.6979 (69.79%) - 384 samples
+📄 Detailed report saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_s_outputs/evaluation_report.txt
+📊 Logging test results...
+
+✅ **Evaluation Complete!**
+🎯 Final Test Accuracy: 0.8511 (85.11%)
+📊 MLflow experiment: lung-disease-dataset-test-tf_efficientnetv2_s
+🔮 Wandb project: lung-disease-dataset-test
+
+============================================================
+Processing: regnety_006
+============================================================
+
+🫁 **Lung Disease Dataset Model Evaluation**
+==================================================
+📋 Model: regnety_006
+📋 Classes: 5
+🖼️  Using model-specific image size: 224x224
+🔍 Dataset path: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/data/test
+🔍 Image size: 224
+🔍 Batch size: 4
+🔍 Num workers: 4
+🔍 Looking for regnety_006 checkpoint in: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_006_outputs
+🔍 Checkpoint paths to try: ['/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_006_outputs/regnety_006-training_best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_006-training_best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_006_outputs/regnety_006-training_last_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_006-training_last_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_006_outputs/best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/best_model.pth', '/home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_006_outputs/checkpoint_latest.pth']
+🔍 Checking: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_006_outputs/regnety_006-training_best_model.pth - Exists: False
+🔍 Checking: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_006-training_best_model.pth - Exists: True
+📂 Loading checkpoint: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_006-training_best_model.pth
+📊 Checkpoint validation accuracy: 82.36%
+🖥️  Using device: cuda
+📊 Using pre-computed normalization: mean=[0.49495694041252136, 0.49495694041252136, 0.49495694041252136], std=[0.24466454982757568, 0.24466454982757568, 0.24466454982757568]
+📊 Test set size: 1954 samples
+📋 Class names: ['Bacterial Pneumonia', 'Corona Virus Disease', 'Normal', 'Tuberculosis', 'Viral Pneumonia']
+🧪 Running inference on test set...
+🔍 Model device: cuda:0
+🔍 Data device: cuda
+🔍 First batch - Data shape: torch.Size([4, 3, 224, 224])
+🔍 First batch - Data range: [-2.0230, 2.0482]
+🔍 First batch - Data mean: 0.3006
+🔍 First batch - Data std: 0.9977
+🔍 First batch - Target distribution: tensor([4], device='cuda:0')
+Processed batch 0/489
+Processed batch 10/489
+Processed batch 20/489
+Processed batch 30/489
+Processed batch 40/489
+Processed batch 50/489
+Processed batch 60/489
+Processed batch 70/489
+Processed batch 80/489
+Processed batch 90/489
+Processed batch 100/489
+Processed batch 110/489
+Processed batch 120/489
+Processed batch 130/489
+Processed batch 140/489
+Processed batch 150/489
+Processed batch 160/489
+Processed batch 170/489
+Processed batch 180/489
+Processed batch 190/489
+Processed batch 200/489
+Processed batch 210/489
+Processed batch 220/489
+Processed batch 230/489
+Processed batch 240/489
+Processed batch 250/489
+Processed batch 260/489
+Processed batch 270/489
+Processed batch 280/489
+Processed batch 290/489
+Processed batch 300/489
+Processed batch 310/489
+Processed batch 320/489
+Processed batch 330/489
+Processed batch 340/489
+Processed batch 350/489
+Processed batch 360/489
+Processed batch 370/489
+Processed batch 380/489
+Processed batch 390/489
+Processed batch 400/489
+Processed batch 410/489
+Processed batch 420/489
+Processed batch 430/489
+Processed batch 440/489
+Processed batch 450/489
+Processed batch 460/489
+Processed batch 470/489
+Processed batch 480/489
+🔍 Prediction distribution: [319 394 495 408 338]
+🔍 True label distribution: [365 406 392 407 384]
+
+📊 **Test Set Accuracy: 0.8112 (81.12%)**
+
+📋 **Classification Report:**
+                      precision    recall  f1-score   support
+
+ Bacterial Pneumonia     0.7053    0.6164    0.6579       365
+Corona Virus Disease     0.9289    0.9015    0.9150       406
+              Normal     0.7616    0.9617    0.8501       392
+        Tuberculosis     0.9461    0.9484    0.9472       407
+     Viral Pneumonia     0.6834    0.6016    0.6399       384
+
+            accuracy                         0.8112      1954
+           macro avg     0.8051    0.8059    0.8020      1954
+        weighted avg     0.8089    0.8112    0.8066      1954
+
+💾 Confusion matrix saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_006_outputs/confusion_matrix.png
+
+🔍 **Per-Class Analysis:**
+  Bacterial Pneumonia: 0.6164 (61.64%) - 365 samples
+  Corona Virus Disease: 0.9015 (90.15%) - 406 samples
+  Normal: 0.9617 (96.17%) - 392 samples
+  Tuberculosis: 0.9484 (94.84%) - 407 samples
+  Viral Pneumonia: 0.6016 (60.16%) - 384 samples
+📄 Detailed report saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_006_outputs/evaluation_report.txt
+📊 Logging test results...
+
+✅ **Evaluation Complete!**
+🎯 Final Test Accuracy: 0.8112 (81.12%)
+📊 MLflow experiment: lung-disease-dataset-test-regnety_006
+🔮 Wandb project: lung-disease-dataset-test
+
+============================================================
+✅ Completed processing 7 model(s): tf_efficientnetv2_l, tf_efficientnetv2_m, convnextv2_base, convnextv2_tiny, regnety_004, tf_efficientnetv2_s, regnety_006
+============================================================

@@ -1,0 +1,255 @@
+🫁 Lung Disease Dataset Model Evaluation - Processing All Available Models
+============================================================
+📋 Found 7 trained model(s): tf_efficientnetv2_l, tf_efficientnetv2_m, convnextv2_base, convnextv2_tiny, regnety_004, tf_efficientnetv2_s, regnety_006
+
+
+============================================================
+🫁 Evaluating Model: tf_efficientnetv2_l (tf_efficientnetv2_l)
+============================================================
+📂 Output directory: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_l_outputs
+📂 Loading checkpoint: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_l-training_best_model.pth
+📊 Checkpoint validation accuracy: 86.92%
+🖥️  Using device: cuda
+🖼️  Using model-specific image size: 384x384
+📊 Using pre-computed normalization: mean=[0.49495694041252136, 0.49495694041252136, 0.49495694041252136], std=[0.24466454982757568, 0.24466454982757568, 0.24466454982757568]
+📊 Test set: 1954 samples
+📦 Evaluation batch size: 64
+📋 Class names: ['class_0', 'class_1', 'class_2', 'class_3', 'class_4']
+
+🚀 Starting evaluation...
+🧪 Running inference on test set...
+  Processed batch 1/31 (64 samples, 1.970s)
+  Processed batch 11/31 (64 samples, 0.710s)
+  Processed batch 21/31 (64 samples, 0.716s)
+  Processed batch 31/31 (34 samples, 0.686s)
+⚠️  WARNING: Low sensitivity for class_0: 0.770
+   This could lead to missed disease diagnoses!
+⚠️  WARNING: Low sensitivity for class_4: 0.786
+   This could lead to missed disease diagnoses!
+💾 Confusion matrix saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_l_outputs/confusion_matrix.png
+📄 Detailed evaluation report saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_l_outputs/evaluation_report.txt
+📊 JSON metrics saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_l_outputs/evaluation_metrics.json
+
+✅ Evaluation Complete for tf_efficientnetv2_l!
+🎯 Test Accuracy: 0.8869 (88.69%)
+📁 Results saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_l_outputs
+📄 View detailed report: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_l_outputs/evaluation_report.txt
+📊 MLflow experiment: lung-disease-dataset-evaluation-tf_efficientnetv2_l
+🔮 Wandb project: lung-disease-dataset-evaluation
+
+============================================================
+🫁 Evaluating Model: tf_efficientnetv2_m (tf_efficientnetv2_m)
+============================================================
+📂 Output directory: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_m_outputs
+📂 Loading checkpoint: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_m-training_best_model.pth
+📊 Checkpoint validation accuracy: 86.38%
+🖥️  Using device: cuda
+🖼️  Using model-specific image size: 320x320
+📊 Using pre-computed normalization: mean=[0.49495694041252136, 0.49495694041252136, 0.49495694041252136], std=[0.24466454982757568, 0.24466454982757568, 0.24466454982757568]
+📊 Test set: 1954 samples
+📦 Evaluation batch size: 64
+📋 Class names: ['class_0', 'class_1', 'class_2', 'class_3', 'class_4']
+
+🚀 Starting evaluation...
+🧪 Running inference on test set...
+  Processed batch 1/31 (64 samples, 0.625s)
+  Processed batch 11/31 (64 samples, 0.050s)
+  Processed batch 21/31 (64 samples, 0.041s)
+  Processed batch 31/31 (34 samples, 0.057s)
+⚠️  WARNING: Low sensitivity for class_0: 0.767
+   This could lead to missed disease diagnoses!
+⚠️  WARNING: Low sensitivity for class_4: 0.781
+   This could lead to missed disease diagnoses!
+💾 Confusion matrix saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_m_outputs/confusion_matrix.png
+📄 Detailed evaluation report saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_m_outputs/evaluation_report.txt
+📊 JSON metrics saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_m_outputs/evaluation_metrics.json
+
+✅ Evaluation Complete for tf_efficientnetv2_m!
+🎯 Test Accuracy: 0.8920 (89.20%)
+📁 Results saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_m_outputs
+📄 View detailed report: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_m_outputs/evaluation_report.txt
+📊 MLflow experiment: lung-disease-dataset-evaluation-tf_efficientnetv2_m
+🔮 Wandb project: lung-disease-dataset-evaluation
+
+============================================================
+🫁 Evaluating Model: convnextv2_base (convnextv2_base)
+============================================================
+📂 Output directory: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_base_outputs
+📂 Loading checkpoint: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_base-training_best_model.pth
+📊 Checkpoint validation accuracy: 89.27%
+🖥️  Using device: cuda
+🖼️  Using model-specific image size: 224x224
+📊 Using pre-computed normalization: mean=[0.49495694041252136, 0.49495694041252136, 0.49495694041252136], std=[0.24466454982757568, 0.24466454982757568, 0.24466454982757568]
+📊 Test set: 1954 samples
+📦 Evaluation batch size: 64
+📋 Class names: ['class_0', 'class_1', 'class_2', 'class_3', 'class_4']
+
+🚀 Starting evaluation...
+🧪 Running inference on test set...
+  Processed batch 1/31 (64 samples, 0.876s)
+  Processed batch 11/31 (64 samples, 0.014s)
+  Processed batch 21/31 (64 samples, 0.012s)
+  Processed batch 31/31 (34 samples, 0.016s)
+⚠️  WARNING: Low sensitivity for class_0: 0.773
+   This could lead to missed disease diagnoses!
+⚠️  WARNING: Low sensitivity for class_4: 0.719
+   This could lead to missed disease diagnoses!
+💾 Confusion matrix saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_base_outputs/confusion_matrix.png
+📄 Detailed evaluation report saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_base_outputs/evaluation_report.txt
+📊 JSON metrics saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_base_outputs/evaluation_metrics.json
+
+✅ Evaluation Complete for convnextv2_base!
+🎯 Test Accuracy: 0.8675 (86.75%)
+📁 Results saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_base_outputs
+📄 View detailed report: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_base_outputs/evaluation_report.txt
+📊 MLflow experiment: lung-disease-dataset-evaluation-convnextv2_base
+🔮 Wandb project: lung-disease-dataset-evaluation
+
+============================================================
+🫁 Evaluating Model: convnextv2_tiny (convnextv2_tiny)
+============================================================
+📂 Output directory: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_tiny_outputs
+📂 Loading checkpoint: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_tiny-training_best_model.pth
+📊 Checkpoint validation accuracy: 87.80%
+🖥️  Using device: cuda
+🖼️  Using model-specific image size: 224x224
+📊 Using pre-computed normalization: mean=[0.49495694041252136, 0.49495694041252136, 0.49495694041252136], std=[0.24466454982757568, 0.24466454982757568, 0.24466454982757568]
+📊 Test set: 1954 samples
+📦 Evaluation batch size: 64
+📋 Class names: ['class_0', 'class_1', 'class_2', 'class_3', 'class_4']
+
+🚀 Starting evaluation...
+🧪 Running inference on test set...
+  Processed batch 1/31 (64 samples, 0.033s)
+  Processed batch 11/31 (64 samples, 0.019s)
+  Processed batch 21/31 (64 samples, 0.020s)
+  Processed batch 31/31 (34 samples, 0.017s)
+⚠️  WARNING: Low sensitivity for class_0: 0.723
+   This could lead to missed disease diagnoses!
+⚠️  WARNING: Low sensitivity for class_4: 0.664
+   This could lead to missed disease diagnoses!
+💾 Confusion matrix saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_tiny_outputs/confusion_matrix.png
+📄 Detailed evaluation report saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_tiny_outputs/evaluation_report.txt
+📊 JSON metrics saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_tiny_outputs/evaluation_metrics.json
+
+✅ Evaluation Complete for convnextv2_tiny!
+🎯 Test Accuracy: 0.8536 (85.36%)
+📁 Results saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_tiny_outputs
+📄 View detailed report: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/convnextv2_tiny_outputs/evaluation_report.txt
+📊 MLflow experiment: lung-disease-dataset-evaluation-convnextv2_tiny
+🔮 Wandb project: lung-disease-dataset-evaluation
+
+============================================================
+🫁 Evaluating Model: regnety_004 (regnety_004)
+============================================================
+📂 Output directory: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_004_outputs
+📂 Loading checkpoint: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_004-training_best_model.pth
+📊 Checkpoint validation accuracy: 80.70%
+🖥️  Using device: cuda
+🖼️  Using model-specific image size: 224x224
+📊 Using pre-computed normalization: mean=[0.49495694041252136, 0.49495694041252136, 0.49495694041252136], std=[0.24466454982757568, 0.24466454982757568, 0.24466454982757568]
+📊 Test set: 1954 samples
+📦 Evaluation batch size: 64
+📋 Class names: ['class_0', 'class_1', 'class_2', 'class_3', 'class_4']
+
+🚀 Starting evaluation...
+🧪 Running inference on test set...
+  Processed batch 1/31 (64 samples, 0.109s)
+  Processed batch 11/31 (64 samples, 0.026s)
+  Processed batch 21/31 (64 samples, 0.024s)
+  Processed batch 31/31 (34 samples, 0.058s)
+⚠️  WARNING: Low sensitivity for class_0: 0.636
+   This could lead to missed disease diagnoses!
+⚠️  WARNING: Low sensitivity for class_4: 0.495
+   This could lead to missed disease diagnoses!
+💾 Confusion matrix saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_004_outputs/confusion_matrix.png
+📄 Detailed evaluation report saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_004_outputs/evaluation_report.txt
+📊 JSON metrics saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_004_outputs/evaluation_metrics.json
+
+✅ Evaluation Complete for regnety_004!
+🎯 Test Accuracy: 0.7851 (78.51%)
+📁 Results saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_004_outputs
+📄 View detailed report: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_004_outputs/evaluation_report.txt
+📊 MLflow experiment: lung-disease-dataset-evaluation-regnety_004
+🔮 Wandb project: lung-disease-dataset-evaluation
+
+============================================================
+🫁 Evaluating Model: tf_efficientnetv2_s (tf_efficientnetv2_s)
+============================================================
+📂 Output directory: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_s_outputs
+📂 Loading checkpoint: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_s-training_best_model.pth
+📊 Checkpoint validation accuracy: 84.47%
+🖥️  Using device: cuda
+🖼️  Using model-specific image size: 288x288
+📊 Using pre-computed normalization: mean=[0.49495694041252136, 0.49495694041252136, 0.49495694041252136], std=[0.24466454982757568, 0.24466454982757568, 0.24466454982757568]
+📊 Test set: 1954 samples
+📦 Evaluation batch size: 64
+📋 Class names: ['class_0', 'class_1', 'class_2', 'class_3', 'class_4']
+
+🚀 Starting evaluation...
+🧪 Running inference on test set...
+  Processed batch 1/31 (64 samples, 0.111s)
+  Processed batch 11/31 (64 samples, 0.035s)
+  Processed batch 21/31 (64 samples, 0.018s)
+  Processed batch 31/31 (34 samples, 0.091s)
+⚠️  WARNING: Low sensitivity for class_0: 0.682
+   This could lead to missed disease diagnoses!
+⚠️  WARNING: Low sensitivity for class_4: 0.698
+   This could lead to missed disease diagnoses!
+💾 Confusion matrix saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_s_outputs/confusion_matrix.png
+📄 Detailed evaluation report saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_s_outputs/evaluation_report.txt
+📊 JSON metrics saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_s_outputs/evaluation_metrics.json
+
+✅ Evaluation Complete for tf_efficientnetv2_s!
+🎯 Test Accuracy: 0.8511 (85.11%)
+📁 Results saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_s_outputs
+📄 View detailed report: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/tf_efficientnetv2_s_outputs/evaluation_report.txt
+📊 MLflow experiment: lung-disease-dataset-evaluation-tf_efficientnetv2_s
+🔮 Wandb project: lung-disease-dataset-evaluation
+
+============================================================
+🫁 Evaluating Model: regnety_006 (regnety_006)
+============================================================
+📂 Output directory: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_006_outputs
+📂 Loading checkpoint: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_006-training_best_model.pth
+📊 Checkpoint validation accuracy: 82.36%
+🖥️  Using device: cuda
+🖼️  Using model-specific image size: 224x224
+📊 Using pre-computed normalization: mean=[0.49495694041252136, 0.49495694041252136, 0.49495694041252136], std=[0.24466454982757568, 0.24466454982757568, 0.24466454982757568]
+📊 Test set: 1954 samples
+📦 Evaluation batch size: 64
+📋 Class names: ['class_0', 'class_1', 'class_2', 'class_3', 'class_4']
+
+🚀 Starting evaluation...
+🧪 Running inference on test set...
+  Processed batch 1/31 (64 samples, 0.084s)
+  Processed batch 11/31 (64 samples, 0.024s)
+  Processed batch 21/31 (64 samples, 0.014s)
+  Processed batch 31/31 (34 samples, 0.050s)
+⚠️  WARNING: Low sensitivity for class_0: 0.616
+   This could lead to missed disease diagnoses!
+⚠️  WARNING: Low sensitivity for class_4: 0.602
+   This could lead to missed disease diagnoses!
+💾 Confusion matrix saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_006_outputs/confusion_matrix.png
+📄 Detailed evaluation report saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_006_outputs/evaluation_report.txt
+📊 JSON metrics saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_006_outputs/evaluation_metrics.json
+
+✅ Evaluation Complete for regnety_006!
+🎯 Test Accuracy: 0.8112 (81.12%)
+📁 Results saved to: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_006_outputs
+📄 View detailed report: /home/behnam/workspace/PyTorchTutorial/projects/Lung_Disease_Dataset/checkpoints/regnety_006_outputs/evaluation_report.txt
+📊 MLflow experiment: lung-disease-dataset-evaluation-regnety_006
+🔮 Wandb project: lung-disease-dataset-evaluation
+
+============================================================
+📊 Evaluation Summary - All Models
+============================================================
+1. tf_efficientnetv2_m: 89.20% accuracy
+2. tf_efficientnetv2_l: 88.69% accuracy
+3. convnextv2_base: 86.75% accuracy
+4. convnextv2_tiny: 85.36% accuracy
+5. tf_efficientnetv2_s: 85.11% accuracy
+6. regnety_006: 81.12% accuracy
+7. regnety_004: 78.51% accuracy
+
+🏆 Best Model: tf_efficientnetv2_m (89.20%)

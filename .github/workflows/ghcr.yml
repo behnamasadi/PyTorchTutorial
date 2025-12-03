@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       image_tag:
-        description: 'Docker image tag (e.g., latest, v1.0.0)'
+        description: 'Docker image tag for GHCR (e.g., latest, v1.0.0, dev, main)'
         required: false
         default: 'latest'
 
