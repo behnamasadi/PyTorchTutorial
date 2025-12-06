@@ -180,6 +180,8 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 ---
 
+
+
 ## [Image Preprocessing & Augmentation Workflows](#)
 
 - [DataLoader, Custom Dataset, ImageFolder, random_split, Subset](dataset/index.ipynb)  
@@ -206,7 +208,6 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 ## [**Advanced Topics & Research Trends**](#)
 
-- [Automatic Mixed Precision amp](amp/index.ipynb)  
 - [Encoder/ Decoder Architecture](encoder/index.ipynb)  
 - [Variational Autoencoders](encoder/variational_autoencoders)  
 - [Diffusion Models (Denoising Score Matching)](diffusion_models/index.ipynb)
@@ -284,9 +285,23 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [A/B Testing](deployment_and_operations/ab_testing/index.ipynb)  
 - Inference Optimization  
 
-[Infrastructure & Best Practices](infrastructure_and_best_practices/index.ipynb)
+## [GPU Optimization & Performance](#)
 
-- [Maximize GPU utilization](infrastructure_and_best_practices/maximize_GPU_utilization/index.ipynb)
+- [Maximize GPU Utilization](gpu_optimization_and_performance/maximize_gpu_utilization/index.ipynb)
+- [Gradient Accumulation](gpu_optimization_and_performance/gradient_accumulation/)
+- [AMP Automatic Mixed Precision (amp)](gpu_optimization_and_performance/amp_mixed_precision/index.ipynb)
+- [Gradient Checkpointing](gpu_optimization_and_performance/gradient_check_pointing/)
+- [Memory Monitoring & Management](gpu_optimization_and_performance/memory_monitoring_management)
+- [Optimal Batch Size Selection](gpu_optimization_and_performance/optimal_batch_size_selection)
+- [Efficient Data Loading](gpu_optimization_and_performance/efficient_data_loading/index.ipynb)
+- [GPU Memory Optimization Techniques](gpu_optimization_and_performance)
+- [Clear Unused Variables & Cache](gpu_optimization_and_performance/clear_unused_variables_cache/index.ipynb)
+
+
+---
+
+## [Infrastructure & Best Practices](infrastructure_and_best_practices/index.ipynb)
+
 - [Data Versioning](infrastructure_and_best_practices/data_versioning/index.ipynb)
 - [Logging and Debugging](infrastructure_and_best_practices/logging_and_debugging/index.ipynb)
 - [Project Structure & Best Practices](infrastructure_and_best_practices/project_structure/index.ipynb)
@@ -305,6 +320,18 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
   - [Evaluation Metrics ATE,ATE](vit_monocular_vo.ipynb#IV.-Evaluation-Metrics)
   - [Unsupervised / Supervised VO](vit_monocular_vo.ipynb#Unsupervised-/-Self-Supervised-VO)
   - [Loss Functions Used in VO/ SLAM](vit_monocular_vo.ipynb#I.-Types-of-Loss-Functions-Used-in-VO)
+
+---
+
+
+## [Kaggle](#)
+
+- [Kaggle Dataset Downloader & Management](kaggle_structure/README.md)
+  - Automated Kaggle dataset download with symlinks
+  - Finding & searching datasets (CLI & web)
+  - Running in Kaggle notebooks vs local/RunPod
+  - Kaggle GPU specifications & optimization
+  - Medical imaging, computer vision, 3D vision dataset examples
 
 ---
 
