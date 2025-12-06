@@ -35,28 +35,41 @@ def resource_path(*parts: str) -> Path:
     If the first part is 'models', always resolve under the folder next to the entry script:
         <entry_script_dir>/models/...
     Otherwise:
-        - in dev, under <project_root>/...
-        - when installed (no repo), fall back to package resources.
+        - prefer a path relative to the entry script directory (so scripts can
+          be run from anywhere and still resolve resources consistently)
+        - fall back to dev layout under <project_root>/...
+        - finally, when installed (no repo), fall back to package resources.
     """
     if parts and parts[0] == "models":
         tail = parts[1:]
         entry_dir = _entry_script_dir()
         # Always anchor to the entry script's 'models' folder
         if entry_dir is not None:
-            return entry_dir / "models" / Path(*tail)
+            return (entry_dir / "models" / Path(*tail)).resolve()
 
         # Fallbacks if there's no entry script (e.g., REPL):
         # Try repo layout:
-        return (project_root() /
-                "serialization_saving_loading" / "scripts" / "models" /
-                Path(*tail))
+        return (
+            project_root()
+            / "serialization_saving_loading"
+            / "scripts"
+            / "models"
+            / Path(*tail)
+        ).resolve()
 
     # Non-'models' behavior
+    # 1) Prefer being relative to the entry script directory so scripts can be
+    #    executed from any working directory.
+    entry_dir = _entry_script_dir()
+    if entry_dir is not None:
+        return (entry_dir / Path(*parts)).resolve()
+
+    # 2) Fallback: repo/dev layout under project_root
     dev_root = project_root()
     if dev_root:
-        return dev_root.joinpath(*parts)
+        return dev_root.joinpath(*parts).resolve()
 
-    # Installed fallback via importlib.resources (rarely hit if you only use 'models')
+    # 3) Installed fallback via importlib.resources (rarely hit if you only use 'models')
     candidate = ir.files(_PACKAGE_NAME).joinpath(*parts)
     with ir.as_file(candidate) as p:
-        return Path(p)
+        return Path(p).resolve()
