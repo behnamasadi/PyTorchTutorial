@@ -1,0 +1,22 @@
+# =========================
+#  DATA
+# =========================
+
+data:
+  kaggle_dataset: "mayabennett03/nba-historical-player-data-1996-2023"
+  path: "./data/train"
+  val_path: "./data/val"
+  # batch_size will be automatically resolved from model_config section above
+  # based on the selected model
+  img_size: 320  # Match model's input_size (tf_efficientnetv2_m expects 320x320)
+  num_workers: 12
+  prefetch_factor: 4
+  persistent_workers: true
+  shuffle: true
+  pin_memory: true
+  drop_last: true
+  augmentation:
+    enabled: true
+    horizontal_flip: true
+    rotation: 10
+    color_jitter: 0.2  # Increased from 0.1 for better regularization
