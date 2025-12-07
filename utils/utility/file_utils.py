@@ -22,9 +22,18 @@ def _entry_script_dir() -> Path | None:
     """
     Directory of the entry script (e.g., .../serialization_saving_loading/scripts).
     Works when running 'python foo.py' or similar.
+    Returns None when running in test environment (pytest).
     """
     try:
         p = Path(sys.argv[0]).resolve()
+        # Detect if we're running in a test environment (pytest, unittest, etc.)
+        # In test environments, we should fall back to project_root behavior
+        script_name = p.name.lower()
+        if any(test_tool in script_name for test_tool in ['pytest', 'py.test', 'unittest']):
+            return None
+        # Also check if the path is in site-packages (likely a test runner)
+        if 'site-packages' in str(p):
+            return None
         return p.parent if p.exists() else None
     except Exception:
         return None
