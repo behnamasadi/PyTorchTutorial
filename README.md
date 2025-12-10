@@ -230,6 +230,8 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Receptive Field](receptive_field/index.ipynb)
 - [Universal Approximation Theorem](universal_approximation_theorem/index.ipynb)
 - [Degrading Problem in Deep Learning](degrading/index.ipynb)
+- [PyTorch Lightning](pytorch_lightning/index.ipynb)
+- [Gradient Clipping](gradient_clipping/index.ipynb)
 
 ---
 
@@ -266,8 +268,10 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 - [Weights & Biases](weights_and_biases/index.ipynb)
 - [MLFlow](training_stack_and_monitoring/MLFlow/index.ipynb)
+- [TensorBoard](training_stack_and_monitoring/tensorboard/index.ipynb)  
+- [Trackio](trackio/index.ipynb) 
+- [Neptune](neptune/index.ipynb)
 - [Training-time Monitoring](training_stack_and_monitoring/training_time_monitoring/index.ipynb)
-- [TensorBoard & Model Debugging](training_stack_and_monitoring/tensorboard/index.ipynb)  
 - [Visualizing Model Graphs & Gradients](training_stack_and_monitoring/torchviz_visualize_graphs/index.ipynb)
 
 [Pre-deployment Quality & Validation](pre_deployment_quality_and_validation/index.ipynb)
