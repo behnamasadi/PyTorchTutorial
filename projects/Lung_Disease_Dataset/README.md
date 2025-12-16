@@ -20,7 +20,7 @@ This project implements a various convolutional neural network to classify chest
 - **Tuberculosis**
 - **Normal**
 
-[Dataset on Kaggle](https://www.kaggle.com/datasets/khaleddev/lungs-disease-dataset-broken)
+[Dataset on Kaggle](https://www.kaggle.com/datasets/omkarmanohardalvi/lungs-disease-dataset-4-types)
 
 #### Automatic Dataset Download
 

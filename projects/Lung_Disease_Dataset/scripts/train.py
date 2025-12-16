@@ -135,7 +135,7 @@ def download_dataset_if_needed(train_path: Path, val_path: Path) -> None:
         # Download the dataset (kagglehub handles caching automatically)
         # kagglehub will use env vars if available, otherwise falls back to kaggle.json
         dataset_path = kagglehub.dataset_download(
-            "khaleddev/lungs-disease-dataset-broken")
+            "omkarmanohardalvi/lungs-disease-dataset-4-types")
         print(f"✅ Dataset downloaded to: {dataset_path}")
 
         # The dataset might be in a zip file or already extracted

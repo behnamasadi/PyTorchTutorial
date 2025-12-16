@@ -1,7 +1,13 @@
-FROM pytorch/pytorch:2.4.0-cuda12.4-cudnn9-runtime
+# Use the same base image Kaggle uses for GPU notebooks
+# This ensures your RunPod environment matches Kaggle notebooks exactly
+# See: https://github.com/kaggle/docker-python
+FROM gcr.io/kaggle-gpu-images/python
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Optional: only add extra system deps you actually need
+# Most common ML/data packages (torch, pandas, sklearn, etc.) are already installed
+# See: https://github.com/Kaggle/docker-python/blob/main/kaggle_requirements.txt
 RUN apt-get update && apt-get install -y \
     git wget unzip ffmpeg libgl1 libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
@@ -9,19 +15,18 @@ RUN apt-get update && apt-get install -y \
 # Set working directory to /workspace
 WORKDIR /workspace
 
-# Reinstall PyTorch from pip to get broader CUDA kernel support
-# The pip builds include kernels for a wider range of GPU compute capabilities (3.5, 5.0, 6.0, 6.1, 7.0, 7.5, 8.0, 8.6, 8.9, 9.0)
-# This ensures compatibility with various GPU architectures
-# Using CUDA 12.4 which is widely supported on RunPod and other cloud platforms
-RUN pip uninstall -y torch torchvision torchaudio 2>/dev/null || true && \
-    pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+# Universal Python dependencies (optional - only if you have common packages across all projects)
+# Most common packages (torch, pandas, numpy, sklearn, matplotlib, etc.) are pre-installed in Kaggle image
+# Only install packages NOT already in the Kaggle image that you use across multiple projects
+# For project-specific packages, install them per-project or mount them at runtime
+COPY requirements.txt* ./
+RUN if [ -f requirements.txt ]; then \
+        pip install --no-cache-dir -r requirements.txt; \
+    fi
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy projects to /workspace/projects (from Dockerfile image)
-# When running with -v $HOME:/workspace/host, this directory remains visible
-# and your host home directory is accessible at /workspace/host
+# Copy projects directory (contains all your Kaggle challenge projects)
+# When running with -v $HOME:/workspace/host, your host home directory is accessible at /workspace/host
+# This allows you to work with multiple projects in the same image
 COPY projects/ projects/
 
 ENTRYPOINT ["sleep", "infinity"]

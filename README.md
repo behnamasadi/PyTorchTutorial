@@ -50,6 +50,8 @@ pip install torchviz
 pip install mlflow
 pip install wandb
 pip install shap
+pip install timm
+pip install kagglehub
 ```
 
 If you want to view the <b>dot</b> file install `xdot`
