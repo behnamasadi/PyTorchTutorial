@@ -14,6 +14,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Free up disk space
+        run: |
+          # Clean up Docker to free space before pulling large base image
+          docker system prune -af --volumes || true
+          # Show available disk space
+          df -h
+      
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
@@ -22,6 +32,13 @@ jobs:
           password: ${{ secrets.GHCR_ACTION_PAT }}
       
       - name: Build and push the image
-        run: |
-          docker build . -t ghcr.io/behnamasadi/kaggle-projects:${{ inputs.image_tag }}
-          docker push ghcr.io/behnamasadi/kaggle-projects:${{ inputs.image_tag }}
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ghcr.io/behnamasadi/kaggle-projects:${{ inputs.image_tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          # BuildKit helps with memory/disk efficiency
+          platforms: linux/amd64
