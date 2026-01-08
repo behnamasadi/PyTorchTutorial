@@ -17,7 +17,7 @@ This repository contains my snippets and sample codes for developing deep learni
 
 
 
-## Installation (clean setup for RTX 3050, driver 580+, CUDA 12.1 runtime)
+## Installation (clean setup for RTX 3050, driver 580+, CUDA 12.4 runtime)
 
 1) Create the environment
 
@@ -36,13 +36,15 @@ If you just installed conda, add the init block to `~/.bashrc`, open a new shell
 conda activate PyTorchTutorial
 ```
 
-3) Install core packages (conda; pin CUDA 12.1)
+3) Install core packages (conda; pin CUDA 12.4)
 
 ```bash
-conda install -y -c pytorch -c nvidia pytorch torchvision pytorch-cuda=12.1
+conda install -y -c pytorch -c nvidia pytorch torchvision pytorch-cuda=12.4
 conda install -y -c conda-forge tensorboard matplotlib jupyterlab seaborn pytorch-lightning shap
-conda install -y pydot anaconda::scikit-learn intel-openmp mkl
+conda install -y -c conda-forge pydot anaconda::scikit-learn intel-openmp mkl "libblas=*=*mkl"
 ```
+
+**Note:** MKL and intel-openmp are installed from `conda-forge` to avoid compatibility issues with PyTorch. MKL 2025.0.0+ from the default channel has a known bug causing `undefined symbol: iJIT_NotifyEvent` errors.
 
 4) Install extras with pip (still inside the activated conda env)  
 `torchviz` for graph viz, `mlflow`/`wandb` for tracking, `timm` for models, `kagglehub` for datasets, `monai[all]` for medical imaging:
@@ -70,10 +72,16 @@ sudo apt-get install graphviz
 sudo apt-get install xdot
 ```
 
-5. To updated all packages:
+5. To update all packages:
 
 ```bash
 conda update -n PyTorchTutorial  --all
+```
+
+**Warning:** Be cautious with `conda update --all` as it may pull in incompatible newer versions (e.g., MKL 2025.0.0+ which breaks PyTorch). If you encounter `undefined symbol: iJIT_NotifyEvent` after updating, fix it with:
+
+```bash
+conda install -y -c conda-forge "libblas=*=*mkl" mkl mkl-service intel-openmp --force-reinstall
 ```
 
 6. set up the soft-link to repo:
