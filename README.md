@@ -17,41 +17,50 @@ This repository contains my snippets and sample codes for developing deep learni
 
 
 
-## Installation
+## Installation (clean setup for RTX 3050, driver 580+, CUDA 12.1 runtime)
 
-1. Create environment:
+1) Create the environment
 
 ```bash
-conda create -n PyTorchTutorial
+conda create -n PyTorchTutorial python=3.10 -y
 ```
 
-2. Activate it:
+2) Activate it  
+If you just installed conda, add the init block to `~/.bashrc`, open a new shell (or `source ~/.bashrc`), then activate:
 
 ```bash
+# >>> conda initialize >>>
+. "$HOME/anaconda3/etc/profile.d/conda.sh"
+# <<< conda initialize <<<
+
 conda activate PyTorchTutorial
 ```
 
-3. Install pytorch, torchvision, cuda tensorboard, jupyter, matplotlib, pydot:
+3) Install core packages (conda; pin CUDA 12.1)
 
 ```bash
-conda install pytorch torchvision shap  pytorch-cuda -c pytorch -c nvidia 
-conda install tensorboard
-conda install -c conda-forge matplotlib  
-conda install pydot
-conda install -c conda-forge jupyterlab
-conda install anaconda::scikit-learn
-conda install conda-forge::seaborn
+conda install -y -c pytorch -c nvidia pytorch torchvision pytorch-cuda=12.1
+conda install -y -c conda-forge tensorboard matplotlib jupyterlab seaborn pytorch-lightning shap
+conda install -y pydot anaconda::scikit-learn intel-openmp mkl
 ```
 
-4. Install `torchviz` for visualizations of execution graphs and `mlflow` and `wandb` for experiment tracking  
+4) Install extras with pip (still inside the activated conda env)  
+`torchviz` for graph viz, `mlflow`/`wandb` for tracking, `timm` for models, `kagglehub` for datasets, `monai[all]` for medical imaging:
 
 ```bash
-pip install torchviz
-pip install mlflow
-pip install wandb
-pip install shap
-pip install timm
-pip install kagglehub
+pip install torchviz mlflow wandb timm kagglehub "monai[all]"
+```
+
+5) Sanity check
+
+```bash
+python - <<'EOF'
+import torch
+print("Torch:", torch.__version__)
+print("CUDA available:", torch.cuda.is_available())
+print("Torch CUDA:", torch.version.cuda)
+print("GPU:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU")
+EOF
 ```
 
 If you want to view the <b>dot</b> file install `xdot`
@@ -135,6 +144,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Pooling (Max, Average, Adaptive), Order of Relu and  Max Pooling](pooling/index.ipynb)
 - [Feature Map](conv/cross_correlation_convolution.ipynb#8.-Feature-Map)
 - [Convolution is translation-Equivariant, not Translation-Invariant](conv/cross_correlation_convolution.ipynb#11.-Convolution-is-translation-Equivariant,-not-Translation-Invariant)
+- [Visualize Architecture of Neural Network](https://github.com/ashishpatel26/Tools-to-Design-or-Visualize-Architecture-of-Neural-Network)
 
 ---
 
@@ -253,6 +263,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [ollama](https://github.com/ollama/ollama)  
 - [open-webui](https://github.com/open-webui/open-webui)  
 - [LLM Visualization](https://bbycroft.net/llm)
+- [LLM Transparency Tool](https://github.com/facebookresearch/llm-transparency-tool/?tab=readme-ov-file)
 
 ---
 
@@ -332,12 +343,12 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 ## [Kaggle](#)
 
-- [Kaggle Dataset Downloader & Management](kaggle_structure/README.md)
-  - Automated Kaggle dataset download with symlinks
-  - Finding & searching datasets (CLI & web)
-  - Running in Kaggle notebooks vs local/RunPod
-  - Kaggle GPU specifications & optimization
-  - Medical imaging, computer vision, 3D vision dataset examples
+- [Kaggle Dataset Downloader & Management](kaggle_structure/index.ipynb)
+  - [Automated Kaggle dataset download with symlinks](kaggle_structure/index.ipynb)
+  - [Finding & searching datasets (CLI & web)](kaggle_structure/index.ipynb)
+  - [Running in Kaggle notebooks vs local/RunPod](kaggle_structure/index.ipynb)
+  - [Kaggle GPU specifications & optimization](kaggle_structure/index.ipynb)
+  - [Medical imaging, computer vision, 3D vision dataset examples](kaggle_structure/index.ipynb)
 
 ---
 
