@@ -17,7 +17,7 @@ This repository contains my snippets and sample codes for developing deep learni
 
 
 
-## Installation (clean setup for RTX 3050, driver 580+, CUDA 12.4 runtime)
+## Installation
 
 1) Create the environment
 
@@ -29,10 +29,11 @@ conda create -n PyTorchTutorial python=3.10 -y
 If you just installed conda, add the init block to `~/.bashrc`, open a new shell (or `source ~/.bashrc`), then activate:
 
 ```bash
-# >>> conda initialize >>>
 . "$HOME/anaconda3/etc/profile.d/conda.sh"
-# <<< conda initialize <<<
 
+```
+
+```
 conda activate PyTorchTutorial
 ```
 
@@ -50,7 +51,8 @@ conda install -y -c conda-forge pydot anaconda::scikit-learn intel-openmp mkl "l
 `torchviz` for graph viz, `mlflow`/`wandb` for tracking, `timm` for models, `kagglehub` for datasets, `monai[all]` for medical imaging:
 
 ```bash
-pip install torchviz mlflow wandb timm kagglehub "monai[all]"
+pip install torchviz mlflow wandb timm kagglehub trackio
+"
 ```
 
 5) Sanity check
@@ -204,7 +206,7 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 
 ## [Image Preprocessing & Augmentation Workflows](#)
 
-- [DataLoader, Custom Dataset, ImageFolder, random_split, Subset](dataset/index.ipynb)  
+- [DataLoader, Custom Dataset, TensorDataset, ImageFolder, random_split, Subset](dataset/index.ipynb)  
 - [Transforms, Pre-Processing](transform_pre_processing_augmentation/transform_pre_processing.ipynb)  
 - [Data Augmentation](transform_pre_processing_augmentation/augmentation.ipynb)  
 - [OpenCV and PIL Image Format](opencv_pil/index.ipynb)
@@ -367,4 +369,5 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [3D Scanning & Motion Capture (TUM-Matthias Niessner)](https://niessner.github.io/3DScanning/)
 - [Machine Learning for 3D Data](https://3dml.kaist.ac.kr/)
 - [Neural Radiance Fields | NeRF ](https://www.youtube.com/watch?v=Q1zqf5tfeJw)
+- [The Principles of Diffusion Models](https://arxiv.org/pdf/2510.21890)  
 ---
