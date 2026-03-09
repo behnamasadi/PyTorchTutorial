@@ -51,7 +51,7 @@ conda install -y -c conda-forge pydot anaconda::scikit-learn intel-openmp mkl "l
 `torchviz` for graph viz, `mlflow`/`wandb` for tracking, `timm` for models, `kagglehub` for datasets, `monai[all]` for medical imaging:
 
 ```bash
-pip install torchviz mlflow wandb timm kagglehub trackio
+pip install torchviz mlflow wandb timm kagglehub
 "
 ```
 
@@ -292,7 +292,6 @@ ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTu
 - [Weights & Biases](weights_and_biases/index.ipynb)
 - [MLFlow](training_stack_and_monitoring/MLFlow/index.ipynb)
 - [TensorBoard](training_stack_and_monitoring/tensorboard/index.ipynb)  
-- [Trackio](trackio/index.ipynb) 
 - [Neptune](neptune/index.ipynb)
 - [Training-time Monitoring](training_stack_and_monitoring/training_time_monitoring/index.ipynb)
 - [Visualizing Model Graphs & Gradients](training_stack_and_monitoring/torchviz_visualize_graphs/index.ipynb)
