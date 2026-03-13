@@ -14,84 +14,60 @@ This repository contains my snippets and sample codes for developing deep learni
 ![GitHub forks](https://img.shields.io/github/forks/behnamasadi/PyTorchTutorial)
 
 
-
-
-
 ## Installation
 
-1) Create the environment
 
 ```bash
-conda create -n PyTorchTutorial python=3.10 -y
-```
-
-2) Activate it  
-If you just installed conda, add the init block to `~/.bashrc`, open a new shell (or `source ~/.bashrc`), then activate:
-
-```bash
+conda create -n PyTorchTutorial python=3.12 -y
 . "$HOME/anaconda3/etc/profile.d/conda.sh"
-
-```
-
-```
 conda activate PyTorchTutorial
 ```
 
-3) Install core packages (conda; pin CUDA 12.4)
+### Install PyTorch
+
+For a machine with a working NVIDIA driver and `nvidia-smi`, install the current CUDA build from the official PyTorch wheel index:
 
 ```bash
-conda install -y -c pytorch -c nvidia pytorch torchvision pytorch-cuda=12.4
-conda install -y -c conda-forge tensorboard matplotlib jupyterlab seaborn pytorch-lightning shap
-conda install -y -c conda-forge pydot anaconda::scikit-learn intel-openmp mkl "libblas=*=*mkl"
+python -m pip install --upgrade pip
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu126
 ```
 
-**Note:** MKL and intel-openmp are installed from `conda-forge` to avoid compatibility issues with PyTorch. MKL 2025.0.0+ from the default channel has a known bug causing `undefined symbol: iJIT_NotifyEvent` errors.
-
-4) Install extras with pip (still inside the activated conda env)  
-`torchviz` for graph viz, `mlflow`/`wandb` for tracking, `timm` for models, `kagglehub` for datasets, `monai[all]` for medical imaging:
 
 ```bash
-pip install torchviz mlflow wandb timm kagglehub
-"
+pip install jupyterlab matplotlib seaborn scikit-learn pydot torchviz mlflow timm opencv-python albumentations tqdm tensorboard wandb kagglehub pytorch-lightning shap
 ```
 
-5) Sanity check
+`monai[all]` is intentionally not installed by default because it is large and pulls many optional dependencies. Install it only if you need the medical imaging notebooks:
 
 ```bash
-python - <<'EOF'
-import torch
-print("Torch:", torch.__version__)
-print("CUDA available:", torch.cuda.is_available())
-print("Torch CUDA:", torch.version.cuda)
-print("GPU:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU")
-EOF
+pip install "monai[all]"
 ```
 
-If you want to view the <b>dot</b> file install `xdot`
+### Optional system packages
+
+If you want to view generated graphviz `.dot` files:
 
 ```bash
 sudo apt-get install graphviz
 sudo apt-get install xdot
 ```
 
-5. To update all packages:
+### Repo location
+
+If you want the env-local `src` symlink that points to this repo:
 
 ```bash
-conda update -n PyTorchTutorial  --all
-```
-
-**Warning:** Be cautious with `conda update --all` as it may pull in incompatible newer versions (e.g., MKL 2025.0.0+ which breaks PyTorch). If you encounter `undefined symbol: iJIT_NotifyEvent` after updating, fix it with:
-
-```bash
-conda install -y -c conda-forge "libblas=*=*mkl" mkl mkl-service intel-openmp --force-reinstall
-```
-
-6. set up the soft-link to repo:
-
-```bash
-cd /home/$USER/workspace/
-git clone git@github.com:behnamasadi/PyTorchTutorial.git
 ln -s /home/$USER/workspace/PyTorchTutorial /home/$USER/anaconda3/envs/PyTorchTutorial/src
+```
+
+### Updating packages
+
+Do not use `conda update --all` for this env. It tends to churn the full stack and is a common way to break a working PyTorch/CUDA setup.
+
+Upgrade only what you actually need, for example:
+
+```bash
+pip install --upgrade torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu126
 ```
 
 
