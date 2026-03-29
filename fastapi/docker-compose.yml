@@ -1,9 +1,43 @@
-version: "3.9"
 services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
   api:
     build: .
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     environment:
       LOG_LEVEL: info
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  worker:
+    build: .
+    command: rq worker --url redis://redis:6379
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  rq-dashboard:
+    image: eoranged/rq-dashboard
+    ports:
+      - "9181:9181"
+    environment:
+      RQ_DASHBOARD_REDIS_URL: redis://redis:6379
+    depends_on:
+      - redis
     restart: unless-stopped
