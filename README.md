@@ -311,21 +311,6 @@ pip install --upgrade torch torchvision torchaudio --index-url https://download.
 - [GitHub Actions CI Setup, CUDA with CPU Fallback](infrastructure_and_best_practices/github_action_ci.ipynb)
 ---
 
-## [Deep Learning based SLAM](#)
-
-- [VGGSfM](https://github.com/facebookresearch/vggsfm)
-- [InstantSfM](https://github.com/cre185/InstantSfM)
-- [MatchAnything](SLAM/match_anything/index.ipynb)
-- [DepthNet, PoseNet](projects/visual_odometry/KITTI.ipynb)
-- [ViT for Monocular Visual odometry](vit_monocular_vision/vit_monocular_vo.ipynb)
-  - [Model Design](vit_monocular_vo.ipynb#III.-Model-Design-Variants)
-  - [Evaluation Metrics ATE,ATE](vit_monocular_vo.ipynb#IV.-Evaluation-Metrics)
-  - [Unsupervised / Supervised VO](vit_monocular_vo.ipynb#Unsupervised-/-Self-Supervised-VO)
-  - [Loss Functions Used in VO/ SLAM](vit_monocular_vo.ipynb#I.-Types-of-Loss-Functions-Used-in-VO)
-
----
-
-
 ## [Kaggle](#)
 
 - [Kaggle Dataset Downloader & Management](kaggle_structure/index.ipynb)
