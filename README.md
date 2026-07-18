@@ -320,6 +320,10 @@ pip install --upgrade torch torchvision torchaudio --index-url https://download.
   - [Kaggle GPU specifications & optimization](kaggle_structure/index.ipynb)
   - [Medical imaging, computer vision, 3D vision dataset examples](kaggle_structure/index.ipynb)
 
+## [Datasets](#)
+- [Waymo Open Dataset](https://waymo.com/open/)
+- [City Scapes Dataset](https://www.cityscapes-dataset.com/)
+
 ---
 
 ## [Free Books and Online Courses](#)
