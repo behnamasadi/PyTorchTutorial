@@ -204,6 +204,18 @@ pip install --upgrade torch torchvision torchaudio --index-url https://download.
 
 ---
 
+## [**Foundation Models**](#)
+
+General-purpose, self-supervised backbones that are frozen and reused across many downstream tasks (classification, retrieval, segmentation, depth, correspondence) via lightweight heads.
+
+- [DINOv3 — one backbone, many outputs](foundation_models/DINOv3.ipynb)
+  - [The three outputs: CLS, patch, register tokens](foundation_models/DINOv3.ipynb)
+  - [Global embedding → retrieval / classification / clustering](foundation_models/DINOv3.ipynb)
+  - [Patch features → segmentation, depth, correspondence](foundation_models/DINOv3.ipynb)
+  - [Depth estimation script (CLI)](foundation_models/scripts/dinov3.py)
+
+---
+
 ## [**Advanced Topics & Research Trends**](#)
 
 - [Encoder/ Decoder Architecture](encoder/index.ipynb)  
