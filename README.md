@@ -335,6 +335,11 @@ General-purpose, self-supervised backbones that are frozen and reused across man
 ## [Datasets](#)
 - [Waymo Open Dataset](https://waymo.com/open/)
 - [City Scapes Dataset](https://www.cityscapes-dataset.com/)
+- [KITTI](https://www.cvlibs.net/datasets/kitti/) — CC BY-NC-SA (share-alike, non-commercial)
+- [A2D2 (Audi)](https://www.a2d2.audi/a2d2/en.html) — CC BY-ND
+- [ADE20K](https://ade20k.csail.mit.edu/) — BSD-3, great for scene segmentation
+- [COCO / COCO-Stuff](https://cocodataset.org/) — CC BY
+- [Comma2k19](https://github.com/commaai/comma2k19) — MIT
 
 ---
 
