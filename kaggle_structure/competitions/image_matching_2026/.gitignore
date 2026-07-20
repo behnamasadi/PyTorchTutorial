@@ -1,0 +1,31 @@
+# Data, weights, caches, generated artifacts — never commit (multi-GB)
+data/
+work/
+imc_deps/
+imc_deps_min/
+torch251_wheels/
+mast3r/
+gpu_diag/
+__pycache__/
+*.pyc
+*.pth
+*.whl
+*.ckpt
+
+# Experiment logs / dumps
+*.log
+seedc_diag_*.json
+full_*.log
+exp_*.log
+h_*.log
+*_weak.txt
+fulltrain*.txt
+failure_analysis*.txt
+hires_test.txt
+percluster.txt
+conn_experiment.txt
+fix_experiment.txt
+hard_experiment.txt
+
+# Kernel run logs
+submission/klog*/

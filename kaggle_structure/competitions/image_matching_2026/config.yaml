@@ -1,0 +1,33 @@
+# Image Matching Challenge 2026 — pipeline config
+competition: image-matching-challenge-2025-ongoing   # confirm live slug after joining
+data_dir: ./data          # symlinked to kaggle download / ~/.cache/kagglehub
+work_dir: ./work          # pycolmap databases + reconstructions
+
+retrieval:
+  model: dinov2_vitb14     # global descriptors for scene clustering + pair gen
+  top_k: 30                # candidate pairs per image (retrieval); +exhaustive if scene small
+  exhaustive_max_images: 50
+  cluster_min_sim: 0.5     # agglomerative scene-clustering threshold (1 - distance)
+
+matching:
+  # ensemble of matchers; matches are concatenated before RANSAC
+  matchers:
+    - {extractor: aliked, matcher: lightglue, max_keypoints: 4096}
+    - {extractor: superpoint, matcher: lightglue, max_keypoints: 4096}
+    - {detector_free: loftr}          # ELoFTR / LoFTR
+  resize_max: 1280         # longest side for extraction
+  min_matches: 15
+
+ransac:
+  method: magsac           # fundamental/essential verification
+  reproj_threshold: 1.0    # px
+  confidence: 0.9999
+  max_iters: 100000
+
+sfm:
+  engine: pycolmap         # incremental_mapping
+  min_model_size: 3
+  ba_refine_focal_length: true
+
+submission:
+  out_csv: ./submission.csv
