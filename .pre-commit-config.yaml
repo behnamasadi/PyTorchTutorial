@@ -1,0 +1,26 @@
+# Automatic local CI gate. Mirrors the test steps of .github/workflows/ci.yml
+# so a failing push is caught on your machine, not on GitHub.
+#
+# One-time setup:  pre-commit install --hook-type pre-push
+# Manual run:      pre-commit run --hook-stage pre-push --all-files
+# Bypass (not recommended):  git push --no-verify
+#
+# For a full-fidelity run of the real workflow files in Docker:  act push
+repos:
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest --ignore=projects (CI test step)
+        entry: pytest --ignore=projects -q
+        language: python
+        additional_dependencies: [pytest]
+        stages: [pre-push]
+        pass_filenames: false
+        always_run: true
+      - id: verify-scripts
+        name: verify_scripts.py (CI verify step)
+        entry: python utils/scripts/verify_scripts.py
+        language: python
+        stages: [pre-push]
+        pass_filenames: false
+        always_run: true
