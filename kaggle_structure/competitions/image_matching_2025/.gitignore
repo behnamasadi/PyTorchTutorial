@@ -1,6 +1,7 @@
 # Data, weights, caches, generated artifacts — never commit (multi-GB)
 data/
 work/
+work_omega_ba/
 imc_deps/
 imc_deps_min/
 torch251_wheels/

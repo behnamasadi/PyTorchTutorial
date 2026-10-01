@@ -1,0 +1,12 @@
+# Competition data + artifacts — never commit (large / re-downloadable)
+*/data/
+*/work/
+*/output/
+*.zip
+*.ckpt
+*.pth
+*.zarr/
+submission.csv
+lightning_logs/
+wandb/
+__pycache__/

@@ -1,0 +1,28 @@
+# Core (already present in the Kaggle GPU docker image; listed for local venvs)
+torch>=2.2
+torchvision
+pytorch-lightning>=2.2
+timm>=1.0.9
+albumentations>=1.4
+opencv-python-headless
+scikit-learn
+pandas
+numpy
+matplotlib
+
+# Explainability
+grad-cam>=1.5           # imported as `pytorch_grad_cam`
+captum>=0.7
+
+# Kaggle IO
+kaggle
+kagglehub
+
+# Segmentation / 3D medical (B & C)
+segmentation-models-pytorch>=0.3.3
+monai>=1.3
+
+# Image Matching (A) — install inside the IMC env
+# kornia>=0.7            # LoFTR / LightGlue ops
+# lightglue @ git+https://github.com/cvg/LightGlue.git
+# pycolmap>=0.6

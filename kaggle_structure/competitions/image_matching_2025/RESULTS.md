@@ -287,3 +287,58 @@ re-push WITH deps, submit.
    `swsl_resnext50_32x4d`) or a model-free scheme; mind pose handling (reconstruct on corrected images).
    Test locally on heritage/vineyard first.
 3. Re-test ALIKED ensemble + deeper retrieval (`--topk`) on `combined_mAA` (old "wash" was rot-only).
+
+### 7. VGGT-Omega feed-forward — evaluated (weights approved 2026-07-27)
+
+Env `vggt-omega`, harness `vggt_omega_eval.py` (same scorer/[RESULT] format), RTX 3090.
+Logs: `exp_vggt_omega_*_perscene.log`.
+
+**Method caveat discovered first:** feeding a whole multi-scene dataset into ONE forward
+pass destroys the scores (model forces disjoint scenes into one canonical frame): haiper
+COMBINED 0.040 mixed vs **0.323 per-scene**. Always run `--per-scene`. reg_rate is 100%
+by construction (the model cannot decline an image) — compare on combined_mAA only.
+
+| dataset (per-scene, 512) | rot_mAA | trans_mAA | COMBINED | fwd time | our pipeline COMBINED |
+|---|---|---|---|---|---|
+| imc2023_haiper | **0.993** | 0.324 | **0.323** | 4 s | 0.312–0.315 (8192kp, 20+ min) |
+| ETs | 0.924 | 0.102 | 0.100 | 1 s | (MASt3R: 0.055 in 456 s) |
+| imc2023_heritage | 0.202 | 0.161 | 0.070 | 28 s | 0.149 |
+| stairs | 0.096 | 0.090 | 0.030 | 5 s | (MASt3R 0.000; DISK+LG 49% reg) |
+| fbk_vineyard | 0.099 | 0.177 | 0.021 | 22 s | — |
+| amy_gardens (100/200 cap) | 0.131 | 0.005 | 0.001 | 49 s | — |
+
+**Read:**
+- **haiper: feed-forward alone ≈ our entire Tier-1 pipeline** (0.323 vs 0.315), ~300× faster.
+  Rotation is a solved problem for Omega on easy scenes (0.99+).
+- **Scales badly with scene size/repetition**: dioscuri 75 imgs → 0.000 rot, vineyard_split_3
+  85 imgs → 0.000, amy_gardens 100 imgs → 0.131. Sweet spot ≤ ~40 frames; big scenes need
+  chunking + Sim(3) stitching (not yet built).
+- stairs remains unsolved by everything we have tried (Omega rot 0.096).
+- 3090 memory @512: ~100 frames max (17.8 GB). Kaggle T4 16 GB → res 384 or chunks.
+
+### 8. VGGT-Omega + BA polish (hybrid: feed-forward init -> SIFT triangulation -> global BA)
+
+`vggt_omega_ba.py`: Omega poses per scene → pycolmap SIFT extract + exhaustive match →
+triangulate with Omega poses → global BA (principal point fixed) → rescore.
+Work dir `work_omega_ba/` (`work/` is root-owned). Logs: `exp_vggt_omega_ba_*.log`.
+
+| scene | omega only | omega + BA | delta |
+|---|---|---|---|
+| ETs/ET | 0.037 | 0.104 | **+0.067** |
+| ETs/another_ET | 0.163 | 0.150 | −0.013 |
+| haiper/fountain | 0.359 | 0.471 | **+0.112** |
+| haiper/bike | 0.267 | 0.273 | +0.006 |
+| haiper/chairs | 0.342 | 0.142 | **−0.200** |
+| haiper net | 0.323 | 0.295 | −0.027 |
+| stairs (both splits) | 0.030 | 0.030 | 0.000 (0–6 pts triangulated) |
+
+**Read:** BA polish is NOT a free win with SIFT matches. It helps where matching is healthy
+(fountain +0.112 — trans_mAA 0.362→0.471, exactly the translation fix we predicted), is a
+no-op where SIFT dies (stairs: 0–6 triangulated points), and **actively hurts symmetric/
+repetitive scenes** (chairs −0.200: SIFT mismatches on the symmetric object pull correct
+feed-forward poses away). Two fixes before judging the hybrid: (1) swap SIFT for our
+DISK+LightGlue 8192kp matches, (2) gate: keep BA output only if triangulation is healthy
+(pts/image and mean track length thresholds), else keep raw Omega poses.
+Classical polish costs ~1–10 s/scene (SIFT + exhaustive on ≤30 imgs). Note this is NOT the
+earlier "final_ba negligible" finding (#4): that BA'd our own SfM output; this BA's a
+feed-forward init — different experiment.

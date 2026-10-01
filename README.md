@@ -37,6 +37,19 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 pip install jupyterlab matplotlib seaborn scikit-learn pydot torchviz mlflow timm opencv-python albumentations tqdm tensorboard wandb kagglehub pytorch-lightning shap
 ```
 
+For the RAG notebook (embeddings, reranking, a persistent vector store):
+
+```bash
+pip install chromadb sentence-transformers
+```
+
+Generation runs on whatever you serve locally; the notebook uses [Ollama](https://ollama.com):
+
+```bash
+ollama pull qwen3:30b-a3b-instruct-2507-q4_K_M   # generator
+ollama pull qwen3-embedding:0.6b                 # embedder
+```
+
 `monai[all]` is intentionally not installed by default because it is large and pulls many optional dependencies. Install it only if you need the medical imaging notebooks:
 
 ```bash
@@ -224,6 +237,13 @@ General-purpose, self-supervised backbones that are frozen and reused across man
 - [Contrastive Learning](contrastive_learning/index.ipynb)
 - [Zero-shot & Few-shot Learning](zero_shot_few_shot_learning/index.ipynb)
 - [Transfer learning, Fine tuning, Backbone, Neck, Head](transfer_learning_fine_tuning/transfer_learning_fine_tuning.ipynb)  
+- [Fine-tuning Vision Transformers: frozen head, LLRD, LoRA](transfer_learning_fine_tuning/vit_fine_tuning.ipynb)
+  - [Why ViTs are fine-tuned differently from CNNs](transfer_learning_fine_tuning/vit_fine_tuning.ipynb)
+  - [Frozen backbone + DPT-style head (and the detail stem for thin structures)](transfer_learning_fine_tuning/vit_fine_tuning.ipynb)
+  - [Full fine-tune with layer-wise learning-rate decay (LLRD)](transfer_learning_fine_tuning/vit_fine_tuning.ipynb)
+  - [LoRA / parameter-efficient tuning with `peft`](transfer_learning_fine_tuning/vit_fine_tuning.ipynb)
+  - [Checklist before a run: patch size, normalisation, tokens, partial labels](transfer_learning_fine_tuning/vit_fine_tuning.ipynb)
+  - [All three strategies in one runnable script](transfer_learning_fine_tuning/scripts/vit_ft_examples.py)
 - [Ensembling Models](ensembling_models/index.ipynb)
 - [Flow Matching](flow_matching/index.ipynb)
 - [Making Network Deterministic](deterministic_network/index.ipynb)
@@ -252,6 +272,22 @@ General-purpose, self-supervised backbones that are frozen and reused across man
 - [Audio-Visual Models](multimodal_models/audio_visual.ipynb)
 - [Multimodal Transformers](multimodal_models/multimodal_transformers.ipynb)
 - [Cross-Modal Retrieval](multimodal_models/cross_modal_retrieval.ipynb)
+
+---
+
+## [**Retrieval-Augmented Generation (RAG)**](rag/index.ipynb)
+
+Adapting a pretrained model *without* training it: knowledge is retrieved at question time and put into the prompt, while the model stays frozen.
+
+- [RAG — Retrieval-Augmented Generation](rag/index.ipynb)
+  - [Fine-tuning vs RAG: what changes, what it costs](rag/index.ipynb)
+  - [Chunking, embeddings, and the vector index](rag/index.ipynb)
+  - [Hybrid retrieval (dense + BM25 + RRF) and cross-encoder reranking](rag/index.ipynb)
+  - [Prompt assembly, citations, and evaluating retrieval vs generation](rag/index.ipynb)
+  - [Visual RAG: k-NN over frozen DINOv3 embeddings, VLM exemplar prompting](rag/index.ipynb)
+  - [Persisting the index with Chroma: cosine space, content-hash ids, metadata filters](rag/index.ipynb)
+  - [Local generation with Ollama: `num_ctx`, VRAM budget, Qwen3 embeddings](rag/index.ipynb)
+  - [A whole RAG pipeline in one file (no framework)](rag/scripts/mini_rag.py)
 
 ---
 
@@ -298,6 +334,23 @@ General-purpose, self-supervised backbones that are frozen and reused across man
 - [Production Monitoring](deployment_and_operations/production_monitoring/index.ipynb)  
 - [A/B Testing](deployment_and_operations/ab_testing/index.ipynb)  
 - Inference Optimization  
+
+## [Local LLM Inference](#)
+
+- [llama.cpp, GGUF & Quantization — Running Real LLMs on One GPU](llama_cpp_gguf/index.ipynb)
+  - [The GGUF file format, parsed from scratch in pure Python](llama_cpp_gguf/index.ipynb)
+  - [PyTorch (`.safetensors` / `.bin` / `.pt`) and TensorFlow → GGUF](llama_cpp_gguf/index.ipynb)
+  - [Loading huge weights: sharding, `mmap`, lazy conversion](llama_cpp_gguf/index.ipynb)
+  - [Block quantization: Q4_0, K-quants, IQ-quants, imatrix — implemented in NumPy](llama_cpp_gguf/index.ipynb)
+  - [Decoding real 4-bit Q4_K weights off disk](llama_cpp_gguf/index.ipynb)
+  - [VRAM math & what actually fits on an RTX 3090 (24 GB)](llama_cpp_gguf/index.ipynb)
+  - [Reading model names: `qwen2.5-coder:32b`, `30B-A3B`, `Q4_K_M`](llama_cpp_gguf/index.ipynb)
+  - [The open-weight model landscape: Qwen, DeepSeek, GLM, Gemma, Mistral, gpt-oss, Kimi](llama_cpp_gguf/index.ipynb)
+    - [The full Qwen family tree — text, coder, VL, embedding, reranker, omni, guard, TTS, image](llama_cpp_gguf/index.ipynb)
+    - [What each lab is actually best at, and what to download for a 3090](llama_cpp_gguf/index.ipynb)
+    - [What does *not* fit (Kimi K3, DeepSeek-V4) and when MoE CPU offload rescues it](llama_cpp_gguf/index.ipynb)
+  - [Hybrid attention (Gated DeltaNet) and why it shrinks the KV cache 4×](llama_cpp_gguf/index.ipynb)
+  - [llama.cpp without a daemon, plus Ollama and aider in practice](llama_cpp_gguf/index.ipynb)
 
 ## [GPU Optimization & Performance](#)
 
