@@ -60,6 +60,12 @@ sandbox/*
 mlartifacts/
 */mlartifacts/*
 
+# ===== VECTOR DATABASES (generated, do not commit) =====
+*.sqlite3
+*.sqlite
+chroma*/
+*/chroma*/
+
 # ===== JUPYTER NOTEBOOKS =====
 .ipynb_checkpoints/
 */.ipynb_checkpoints/
