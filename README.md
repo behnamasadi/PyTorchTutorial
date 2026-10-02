@@ -386,6 +386,7 @@ Adapting a pretrained model *without* training it: knowledge is retrieved at que
   - [Medical imaging, computer vision, 3D vision dataset examples](kaggle_structure/index.ipynb)
 
 ## [Datasets](#)
+- [Google Dataset Search](https://datasetsearch.research.google.com/)
 - [Waymo Open Dataset](https://waymo.com/open/)
 - [City Scapes Dataset](https://www.cityscapes-dataset.com/)
 - [KITTI](https://www.cvlibs.net/datasets/kitti/) — CC BY-NC-SA (share-alike, non-commercial)
