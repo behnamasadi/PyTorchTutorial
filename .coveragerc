@@ -1,0 +1,5 @@
+# Read by pytest-cov in CI. relative_files is required by
+# py-cov-action/python-coverage-comment-action (it re-reads .coverage in Docker).
+[run]
+relative_files = true
+branch = true
